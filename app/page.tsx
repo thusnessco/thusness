@@ -17,11 +17,11 @@ export default function Home() {
           </header>
 
           <p className="text-lg md:text-xl text-gray-400 leading-relaxed max-w-xl mx-auto">
-            Direct recognition.
+            Direct recognition
             <br />
-            Deconditioning.
+            Deconditioning
             <br />
-            Lived clarity.
+            Lived clarity
           </p>
 
           <div className="pt-2">
@@ -39,16 +39,7 @@ export default function Home() {
         {/* Description */}
         <section className="space-y-8 text-gray-300 text-lg md:text-xl leading-relaxed border-t border-white/10 pt-16 md:pt-20">
           <p>
-            This is not about fixing yourself or becoming something else.
-          </p>
-
-          <p>
-            It’s about seeing clearly what is already here — and what has been layered on top.
-          </p>
-
-          <p>
-            Through direct exploration, we begin to recognize experience more precisely,
-            dissolve unnecessary tension, and allow a more natural way of being to emerge.
+            This is only about feeling what is already here.
           </p>
         </section>
 
