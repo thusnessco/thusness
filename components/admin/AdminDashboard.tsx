@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import type { JSONContent } from "@tiptap/core";
 import { useRouter } from "next/navigation";
 
@@ -38,6 +38,7 @@ function NoteEditorPanel({
   startTransition,
   router,
   onMessage,
+  onNoteBodySaved,
 }: {
   note: NoteRow;
   noteBodyRef: React.RefObject<TiptapEditorFieldHandle | null>;
@@ -45,6 +46,11 @@ function NoteEditorPanel({
   startTransition: (cb: () => void) => void;
   router: ReturnType<typeof useRouter>;
   onMessage: (msg: string) => void;
+  onNoteBodySaved?: (
+    id: string,
+    doc: JSONContent,
+    updatedAt: string
+  ) => void;
 }) {
   const [slug, setSlug] = useState(note.slug);
   const [title, setTitle] = useState(note.title);
@@ -135,6 +141,7 @@ function NoteEditorPanel({
               });
               if (!res.ok) onMessage(res.message);
               else {
+                onNoteBodySaved?.(note.id, res.content_json, res.updated_at);
                 onMessage("Note saved.");
                 router.refresh();
               }
@@ -191,6 +198,9 @@ export function AdminDashboard({
     useState<SiteContentOverride | null>(null);
   const [weeklyOverride, setWeeklyOverride] =
     useState<SiteContentOverride | null>(null);
+  const [noteBodyOverrides, setNoteBodyOverrides] = useState<
+    Record<string, SiteContentOverride>
+  >({});
 
   const introDoc = homeIntroOverride?.doc ?? homeIntro;
   const introSyncKey = homeIntroOverride?.key ?? homeIntroKey;
@@ -215,11 +225,31 @@ export function AdminDashboard({
     });
   }, [weeklySessionsKey, weeklySessions]);
 
+  useEffect(() => {
+    if (!selectedId) return;
+    setNoteBodyOverrides((prev) => {
+      const o = prev[selectedId];
+      if (!o) return prev;
+      const srv = notes.find((n) => n.id === selectedId);
+      if (!srv || o.key !== srv.updated_at) return prev;
+      if (!jsonContentEqual(o.doc, srv.content_json)) return prev;
+      const { [selectedId]: _, ...rest } = prev;
+      return rest;
+    });
+  }, [notes, selectedId]);
+
   const introRef = useRef<TiptapEditorFieldHandle>(null);
   const weeklyRef = useRef<TiptapEditorFieldHandle>(null);
   const noteBodyRef = useRef<TiptapEditorFieldHandle>(null);
 
   const selected = notes.find((n) => n.id === selectedId) ?? null;
+
+  const selectedForEditor = useMemo(() => {
+    if (!selected) return null;
+    const o = noteBodyOverrides[selected.id];
+    if (!o) return selected;
+    return { ...selected, content_json: o.doc, updated_at: o.key };
+  }, [selected, noteBodyOverrides]);
 
   useEffect(() => {
     if (selectedId != null && !notes.some((n) => n.id === selectedId)) {
@@ -393,15 +423,21 @@ export function AdminDashboard({
             </nav>
 
             <div className="min-w-0 space-y-6">
-              {selected ? (
+              {selectedForEditor ? (
                 <NoteEditorPanel
-                  key={`${selected.id}-${selected.updated_at}`}
-                  note={selected}
+                  key={selectedForEditor.id}
+                  note={selectedForEditor}
                   noteBodyRef={noteBodyRef}
                   isPending={isPending}
                   startTransition={startTransition}
                   router={router}
                   onMessage={flash}
+                  onNoteBodySaved={(id, doc, updatedAt) => {
+                    setNoteBodyOverrides((p) => ({
+                      ...p,
+                      [id]: { doc, key: updatedAt },
+                    }));
+                  }}
                 />
               ) : (
                 <p className="text-sm text-gray-500">Create a note to begin.</p>

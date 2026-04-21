@@ -116,11 +116,15 @@ export async function saveNote(input: {
 }) {
   const supabase = await createServerSupabase();
 
+  const contentNormalized = JSON.parse(
+    JSON.stringify(input.content_json)
+  ) as JSONContent;
+
   const patch: Record<string, unknown> = {
     slug: input.slug.trim(),
     title: input.title.trim(),
     excerpt: input.excerpt?.trim() || null,
-    content_json: input.content_json,
+    content_json: contentNormalized,
     published: input.published,
   };
 
@@ -132,11 +136,11 @@ export async function saveNote(input: {
     .from("notes")
     .update(patch)
     .eq("id", input.id)
-    .select("id")
+    .select("id, content_json, updated_at")
     .maybeSingle();
 
   if (error) return { ok: false as const, message: error.message };
-  if (!data) {
+  if (!data?.content_json || !data.updated_at) {
     return {
       ok: false as const,
       message:
@@ -147,7 +151,11 @@ export async function saveNote(input: {
   revalidatePath("/notes");
   revalidatePath("/admin");
   revalidatePath(`/notes/${input.slug.trim()}`);
-  return { ok: true as const };
+  return {
+    ok: true as const,
+    content_json: data.content_json as JSONContent,
+    updated_at: data.updated_at as string,
+  };
 }
 
 export async function deleteNote(input: {
