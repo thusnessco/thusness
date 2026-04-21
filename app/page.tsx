@@ -27,7 +27,7 @@ export default function Home() {
               notice the same aspects of experience, in very similar ways, and at similar
               levels of depth. When this happens, much of experience tends to remain
               undiscovered or under appreciated.{" "}
-              <strong className="font-medium text-white">GROUNDHOG DAY!</strong> We might
+              <strong className="font-medium text-white">GROUNDHOG DAY! </strong> We might
               look to change the circumstances to shift the experience… but what happens if
               we change the pattern of noticing? Today we&apos;ll explore some fresh ways to
               notice experience, and see what might come forward.
