@@ -116,6 +116,7 @@ function NoteEditorPanel({
         initialDoc={note.content_json}
         imageUploadScope={`note/${note.id}`}
         onImageUploadMessage={onMessage}
+        onEditorError={onMessage}
       />
 
       <div className="flex flex-wrap items-center gap-3">
@@ -130,20 +131,20 @@ function NoteEditorPanel({
               );
               return;
             }
+            const bodySnapshot = structuredClone(json) as JSONContent;
             startTransition(async () => {
               const res = await saveNote({
                 id: note.id,
                 slug,
                 title,
                 excerpt: excerpt || null,
-                content_json: json,
+                content_json: bodySnapshot,
                 published,
               });
               if (!res.ok) onMessage(res.message);
               else {
                 onNoteBodySaved?.(note.id, res.content_json, res.updated_at);
                 onMessage("Note saved.");
-                router.refresh();
               }
             });
           }}
@@ -301,6 +302,7 @@ export function AdminDashboard({
             initialDoc={introDoc}
             imageUploadScope="site/home_intro"
             onImageUploadMessage={flash}
+            onEditorError={flash}
           />
           <button
             type="button"
@@ -313,8 +315,9 @@ export function AdminDashboard({
                 );
                 return;
               }
+              const snapshot = structuredClone(json) as JSONContent;
               startTransition(async () => {
-                const res = await saveSiteContent("home_intro", json);
+                const res = await saveSiteContent("home_intro", snapshot);
                 if (!res.ok) flash(res.message);
                 else {
                   setHomeIntroOverride({
@@ -322,7 +325,6 @@ export function AdminDashboard({
                     key: res.updated_at,
                   });
                   flash("Saved invitation.");
-                  router.refresh();
                 }
               });
             }}
@@ -339,6 +341,7 @@ export function AdminDashboard({
               initialDoc={weeklyDoc}
               imageUploadScope="site/weekly_sessions"
               onImageUploadMessage={flash}
+              onEditorError={flash}
             />
             <button
               type="button"
@@ -351,8 +354,9 @@ export function AdminDashboard({
                   );
                   return;
                 }
+                const snapshot = structuredClone(json) as JSONContent;
                 startTransition(async () => {
-                  const res = await saveSiteContent("weekly_sessions", json);
+                  const res = await saveSiteContent("weekly_sessions", snapshot);
                   if (!res.ok) flash(res.message);
                   else {
                     setWeeklyOverride({
@@ -360,7 +364,6 @@ export function AdminDashboard({
                       key: res.updated_at,
                     });
                     flash("Saved weekly sessions.");
-                    router.refresh();
                   }
                 });
               }}

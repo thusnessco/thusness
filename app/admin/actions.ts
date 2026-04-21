@@ -7,6 +7,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { createServerSupabase } from "@/lib/supabase/server";
+import { countTiptapImages } from "@/lib/tiptap/count-tiptap-images";
 import { emptyDoc } from "@/lib/tiptap/empty-doc";
 
 const UPLOAD_ALLOWED_TYPES = new Set([
@@ -97,11 +98,20 @@ export async function saveSiteContent(key: string, content_json: JSONContent) {
       message: "Save did not return the updated row. Try again or refresh.",
     };
   }
+  const stored = data.content_json as JSONContent;
+  const inImages = countTiptapImages(payload);
+  const outImages = countTiptapImages(stored);
+  if (inImages > outImages) {
+    return {
+      ok: false as const,
+      message: `Save lost ${inImages - outImages} image(s) in storage (sent ${inImages}, got ${outImages}). Copy your text, refresh the page, and try again; if it persists, check Supabase RLS and the site_content row.`,
+    };
+  }
   revalidatePath("/");
   revalidatePath("/admin");
   return {
     ok: true as const,
-    content_json: data.content_json as JSONContent,
+    content_json: stored,
     updated_at: data.updated_at as string,
   };
 }
@@ -148,12 +158,22 @@ export async function saveNote(input: {
     };
   }
 
+  const stored = data.content_json as JSONContent;
+  const inImages = countTiptapImages(contentNormalized);
+  const outImages = countTiptapImages(stored);
+  if (inImages > outImages) {
+    return {
+      ok: false as const,
+      message: `Save lost ${inImages - outImages} image(s) in storage (sent ${inImages}, got ${outImages}). Refresh and try again; if it persists, check Supabase RLS on notes.`,
+    };
+  }
+
   revalidatePath("/notes");
   revalidatePath("/admin");
   revalidatePath(`/notes/${input.slug.trim()}`);
   return {
     ok: true as const,
-    content_json: data.content_json as JSONContent,
+    content_json: stored,
     updated_at: data.updated_at as string,
   };
 }

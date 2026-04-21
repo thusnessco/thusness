@@ -12,7 +12,9 @@ import { EditorContent, useEditor, type Editor } from "@tiptap/react";
 import type { JSONContent } from "@tiptap/core";
 
 import { uploadEditorImage } from "@/app/admin/actions";
+import { countTiptapImages } from "@/lib/tiptap/count-tiptap-images";
 import { getTiptapExtensions } from "@/lib/tiptap/extensions";
+import { jsonContentEqual } from "@/lib/tiptap/json-content-equal";
 
 export type TiptapEditorFieldHandle = {
   getJSON: () => JSONContent | null;
@@ -202,11 +204,20 @@ type Props = {
   /** Folder prefix in Storage, e.g. `site/home_intro` or `note/<uuid>` */
   imageUploadScope?: string;
   onImageUploadMessage?: (msg: string) => void;
+  /** TipTap could not apply JSON (e.g. invalid node); shown in admin. */
+  onEditorError?: (msg: string) => void;
 };
 
 export const TiptapEditorField = forwardRef<TiptapEditorFieldHandle, Props>(
   function TiptapEditorField(
-    { label, contentSyncKey, initialDoc, imageUploadScope, onImageUploadMessage },
+    {
+      label,
+      contentSyncKey,
+      initialDoc,
+      imageUploadScope,
+      onImageUploadMessage,
+      onEditorError,
+    },
     ref
   ) {
     // Stable reference: a fresh extensions[] every render makes TipTap's useEditor
@@ -218,9 +229,16 @@ export const TiptapEditorField = forwardRef<TiptapEditorFieldHandle, Props>(
     // on every render; `content` reference or internal drift after edits can trigger
     // setOptions() and reset the document to the last server snapshot (e.g. right
     // when Save runs under startTransition / flash re-renders).
+    const onEditorErrorRef = useRef(onEditorError);
+    onEditorErrorRef.current = onEditorError;
+
     const editor = useEditor({
       extensions,
       immediatelyRender: false,
+      emitContentError: true,
+      onContentError: ({ error }) => {
+        onEditorErrorRef.current?.(error.message);
+      },
     });
 
     const initialDocRef = useRef(initialDoc);
@@ -236,6 +254,28 @@ export const TiptapEditorField = forwardRef<TiptapEditorFieldHandle, Props>(
 
     useEffect(() => {
       if (!editor || editor.isDestroyed) return;
+      const next = initialDocRef.current;
+      const current = editor.getJSON();
+      // Re-applying the same document can re-parse JSON and drop valid nodes
+      // (e.g. image) in edge cases; skip when the editor already matches props.
+      if (jsonContentEqual(current, next)) {
+        lastAppliedRef.current = {
+          editor,
+          syncKey: contentSyncKey,
+          fingerprint: initialDocFingerprint,
+        };
+        return;
+      }
+      // Stale RSC can send an older body with the same revision; never downgrade
+      // away from images that are still in the live editor.
+      if (countTiptapImages(next) < countTiptapImages(current)) {
+        lastAppliedRef.current = {
+          editor,
+          syncKey: contentSyncKey,
+          fingerprint: initialDocFingerprint,
+        };
+        return;
+      }
       const prev = lastAppliedRef.current;
       if (
         prev.editor === editor &&
@@ -249,7 +289,7 @@ export const TiptapEditorField = forwardRef<TiptapEditorFieldHandle, Props>(
         syncKey: contentSyncKey,
         fingerprint: initialDocFingerprint,
       };
-      editor.commands.setContent(initialDocRef.current, { emitUpdate: false });
+      editor.commands.setContent(next, { emitUpdate: false });
     }, [editor, contentSyncKey, initialDocFingerprint]);
 
     useImperativeHandle(
