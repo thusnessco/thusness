@@ -1,11 +1,12 @@
 "use client";
 
-import { useRef, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import type { JSONContent } from "@tiptap/core";
 import { useRouter } from "next/navigation";
 
 import {
   createNote,
+  deleteNote,
   saveNote,
   saveSiteContent,
   signOut,
@@ -105,37 +106,64 @@ function NoteEditorPanel({
         onImageUploadMessage={onMessage}
       />
 
-      <button
-        type="button"
-        disabled={isPending}
-        onClick={() => {
-          startTransition(async () => {
-            const json = noteBodyRef.current?.getJSON();
-            if (!json) {
-              onMessage(
-                "Editor is not ready yet. Wait a second, then try Save note again."
-              );
+      <div className="flex flex-wrap items-center gap-3">
+        <button
+          type="button"
+          disabled={isPending}
+          onClick={() => {
+            startTransition(async () => {
+              const json = noteBodyRef.current?.getJSON();
+              if (!json) {
+                onMessage(
+                  "Editor is not ready yet. Wait a second, then try Save note again."
+                );
+                return;
+              }
+              const res = await saveNote({
+                id: note.id,
+                slug,
+                title,
+                excerpt: excerpt || null,
+                content_json: json,
+                published,
+              });
+              if (!res.ok) onMessage(res.message);
+              else {
+                onMessage("Note saved.");
+                router.refresh();
+              }
+            });
+          }}
+          className="rounded-md border border-white/20 px-4 py-2 text-xs tracking-wide text-gray-300 transition-colors hover:border-white/40 hover:text-white disabled:opacity-40"
+        >
+          Save note
+        </button>
+        <button
+          type="button"
+          disabled={isPending}
+          onClick={() => {
+            const label = title.trim() || slug || "this note";
+            if (
+              !window.confirm(
+                `Delete “${label}” permanently? This cannot be undone.`
+              )
+            ) {
               return;
             }
-            const res = await saveNote({
-              id: note.id,
-              slug,
-              title,
-              excerpt: excerpt || null,
-              content_json: json,
-              published,
+            startTransition(async () => {
+              const res = await deleteNote({ id: note.id, slug: note.slug });
+              if (!res.ok) onMessage(res.message);
+              else {
+                onMessage("Note deleted.");
+                router.refresh();
+              }
             });
-            if (!res.ok) onMessage(res.message);
-            else {
-              onMessage("Note saved.");
-              router.refresh();
-            }
-          });
-        }}
-        className="rounded-md border border-white/20 px-4 py-2 text-xs tracking-wide text-gray-300 transition-colors hover:border-white/40 hover:text-white disabled:opacity-40"
-      >
-        Save note
-      </button>
+          }}
+          className="rounded-md border border-red-900/50 px-4 py-2 text-xs tracking-wide text-red-400/90 transition-colors hover:border-red-800/70 hover:text-red-300 disabled:opacity-40"
+        >
+          Delete note
+        </button>
+      </div>
     </>
   );
 }
@@ -159,6 +187,12 @@ export function AdminDashboard({
   const noteBodyRef = useRef<TiptapEditorFieldHandle>(null);
 
   const selected = notes.find((n) => n.id === selectedId) ?? null;
+
+  useEffect(() => {
+    if (selectedId != null && !notes.some((n) => n.id === selectedId)) {
+      setSelectedId(notes[0]?.id ?? null);
+    }
+  }, [notes, selectedId]);
 
   function flash(msg: string) {
     setMessage(msg);

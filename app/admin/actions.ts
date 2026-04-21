@@ -134,6 +134,32 @@ export async function saveNote(input: {
   return { ok: true as const };
 }
 
+export async function deleteNote(input: {
+  id: string;
+  slug: string;
+}): Promise<{ ok: true } | { ok: false; message: string }> {
+  const supabase = await createServerSupabase();
+  const { data, error } = await supabase
+    .from("notes")
+    .delete()
+    .eq("id", input.id)
+    .select("id")
+    .maybeSingle();
+
+  if (error) return { ok: false as const, message: error.message };
+  if (!data) {
+    return {
+      ok: false as const,
+      message: "Could not delete this note. Refresh and try again.",
+    };
+  }
+
+  revalidatePath("/notes");
+  revalidatePath("/admin");
+  revalidatePath(`/notes/${input.slug.trim()}`);
+  return { ok: true as const };
+}
+
 export async function createNote(): Promise<
   { ok: true; id: string } | { ok: false; message: string }
 > {
