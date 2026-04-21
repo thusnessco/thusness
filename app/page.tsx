@@ -43,26 +43,6 @@ export default function Home() {
           </p>
         </section>
 
-        {/* Offer */}
-        <section className="space-y-6 border-t border-white/10 pt-16 md:pt-20">
-          <h2 className="text-2xl md:text-3xl font-light tracking-tight">Work together</h2>
-
-          <p className="text-gray-400 text-lg leading-relaxed max-w-2xl">
-            One-on-one sessions, small group explorations, and ongoing guidance.
-          </p>
-
-          <p>
-            <a
-              href={bookingHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-white underline decoration-white/40 underline-offset-[6px] hover:decoration-white transition-colors"
-            >
-              View availability and book
-            </a>
-          </p>
-        </section>
-
       </div>
     </main>
   );
