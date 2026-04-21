@@ -39,7 +39,7 @@ export default function Home() {
         {/* Description */}
         <section className="space-y-8 text-gray-300 text-lg md:text-xl leading-relaxed border-t border-white/10 pt-16 md:pt-20">
           <p>
-            This is only about feeling what is already here.
+            This is only about noticing what is already here.
           </p>
         </section>
 
