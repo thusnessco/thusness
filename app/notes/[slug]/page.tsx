@@ -66,7 +66,7 @@ export default async function NotePage({ params }: Props) {
 
           <TiptapHtml
             html={bodyHtml}
-            className="text-base md:text-lg leading-[1.75] text-gray-300"
+            className="text-base md:text-lg text-gray-300"
           />
         </article>
       </div>
