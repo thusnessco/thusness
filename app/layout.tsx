@@ -16,11 +16,6 @@ export const metadata: Metadata = {
   title: "Thusness",
   description:
     "Direct recognition, deconditioning, and lived clarity. One-on-one sessions, small groups, and ongoing guidance.",
-  icons: {
-    icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
-    shortcut: "/icon.svg",
-    apple: "/icon.svg",
-  },
 };
 
 export default function RootLayout({
