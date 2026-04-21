@@ -226,8 +226,17 @@ export const TiptapEditorField = forwardRef<TiptapEditorFieldHandle, Props>(
     const initialDocRef = useRef(initialDoc);
     initialDocRef.current = initialDoc;
 
+    /** Avoid setContent on unrelated re-renders; re-apply when editor instance or server revision changes. */
+    const lastAppliedRef = useRef<{
+      editor: Editor | null;
+      syncKey: string | null;
+    }>({ editor: null, syncKey: null });
+
     useEffect(() => {
       if (!editor || editor.isDestroyed) return;
+      const prev = lastAppliedRef.current;
+      if (prev.editor === editor && prev.syncKey === contentSyncKey) return;
+      lastAppliedRef.current = { editor, syncKey: contentSyncKey };
       editor.commands.setContent(initialDocRef.current, { emitUpdate: false });
     }, [editor, contentSyncKey]);
 

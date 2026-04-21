@@ -74,20 +74,34 @@ export async function uploadEditorImage(formData: FormData): Promise<
 
 export async function saveSiteContent(key: string, content_json: JSONContent) {
   const supabase = await createServerSupabase();
-  const { error } = await supabase.from("site_content").upsert(
-    {
-      key,
-      title: null,
-      content_json,
-      updated_at: new Date().toISOString(),
-    },
-    { onConflict: "key" }
-  );
+  const { data, error } = await supabase
+    .from("site_content")
+    .upsert(
+      {
+        key,
+        title: null,
+        content_json,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "key" }
+    )
+    .select("content_json, updated_at")
+    .single();
 
   if (error) return { ok: false as const, message: error.message };
+  if (!data?.content_json || !data.updated_at) {
+    return {
+      ok: false as const,
+      message: "Save did not return the updated row. Try again or refresh.",
+    };
+  }
   revalidatePath("/");
   revalidatePath("/admin");
-  return { ok: true as const };
+  return {
+    ok: true as const,
+    content_json: data.content_json as JSONContent,
+    updated_at: data.updated_at as string,
+  };
 }
 
 export async function saveNote(input: {

@@ -26,6 +26,9 @@ type Props = {
   notes: NoteRow[];
 };
 
+/** Client copy of last successful save until RSC props catch the same `updated_at`. */
+type SiteContentOverride = { doc: JSONContent; key: string };
+
 function NoteEditorPanel({
   note,
   noteBodyRef,
@@ -112,14 +115,14 @@ function NoteEditorPanel({
           type="button"
           disabled={isPending}
           onClick={() => {
+            const json = noteBodyRef.current?.getJSON();
+            if (!json) {
+              onMessage(
+                "Editor is not ready yet. Wait a second, then try Save note again."
+              );
+              return;
+            }
             startTransition(async () => {
-              const json = noteBodyRef.current?.getJSON();
-              if (!json) {
-                onMessage(
-                  "Editor is not ready yet. Wait a second, then try Save note again."
-                );
-                return;
-              }
               const res = await saveNote({
                 id: note.id,
                 slug,
@@ -182,6 +185,23 @@ export function AdminDashboard({
   );
   const [message, setMessage] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [homeIntroOverride, setHomeIntroOverride] =
+    useState<SiteContentOverride | null>(null);
+  const [weeklyOverride, setWeeklyOverride] =
+    useState<SiteContentOverride | null>(null);
+
+  const introDoc = homeIntroOverride?.doc ?? homeIntro;
+  const introSyncKey = homeIntroOverride?.key ?? homeIntroKey;
+  const weeklyDoc = weeklyOverride?.doc ?? weeklySessions;
+  const weeklySyncKey = weeklyOverride?.key ?? weeklySessionsKey;
+
+  useEffect(() => {
+    setHomeIntroOverride((o) => (o && o.key === homeIntroKey ? null : o));
+  }, [homeIntroKey]);
+
+  useEffect(() => {
+    setWeeklyOverride((o) => (o && o.key === weeklySessionsKey ? null : o));
+  }, [weeklySessionsKey]);
 
   const introRef = useRef<TiptapEditorFieldHandle>(null);
   const weeklyRef = useRef<TiptapEditorFieldHandle>(null);
@@ -235,8 +255,8 @@ export function AdminDashboard({
           <TiptapEditorField
             ref={introRef}
             label="Current invitation (home_intro)"
-            contentSyncKey={homeIntroKey}
-            initialDoc={homeIntro}
+            contentSyncKey={introSyncKey}
+            initialDoc={introDoc}
             imageUploadScope="site/home_intro"
             onImageUploadMessage={flash}
           />
@@ -244,17 +264,21 @@ export function AdminDashboard({
             type="button"
             disabled={isPending}
             onClick={() => {
+              const json = introRef.current?.getJSON();
+              if (!json) {
+                flash(
+                  "Editor is not ready yet. Wait a second, then try Save again."
+                );
+                return;
+              }
               startTransition(async () => {
-                const json = introRef.current?.getJSON();
-                if (!json) {
-                  flash(
-                    "Editor is not ready yet. Wait a second, then try Save again."
-                  );
-                  return;
-                }
                 const res = await saveSiteContent("home_intro", json);
                 if (!res.ok) flash(res.message);
                 else {
+                  setHomeIntroOverride({
+                    doc: res.content_json,
+                    key: res.updated_at,
+                  });
                   flash("Saved invitation.");
                   router.refresh();
                 }
@@ -269,8 +293,8 @@ export function AdminDashboard({
             <TiptapEditorField
               ref={weeklyRef}
               label="Weekly sessions (weekly_sessions)"
-              contentSyncKey={weeklySessionsKey}
-              initialDoc={weeklySessions}
+              contentSyncKey={weeklySyncKey}
+              initialDoc={weeklyDoc}
               imageUploadScope="site/weekly_sessions"
               onImageUploadMessage={flash}
             />
@@ -278,17 +302,21 @@ export function AdminDashboard({
               type="button"
               disabled={isPending}
               onClick={() => {
+                const json = weeklyRef.current?.getJSON();
+                if (!json) {
+                  flash(
+                    "Editor is not ready yet. Wait a second, then try Save again."
+                  );
+                  return;
+                }
                 startTransition(async () => {
-                  const json = weeklyRef.current?.getJSON();
-                  if (!json) {
-                    flash(
-                      "Editor is not ready yet. Wait a second, then try Save again."
-                    );
-                    return;
-                  }
                   const res = await saveSiteContent("weekly_sessions", json);
                   if (!res.ok) flash(res.message);
                   else {
+                    setWeeklyOverride({
+                      doc: res.content_json,
+                      key: res.updated_at,
+                    });
                     flash("Saved weekly sessions.");
                     router.refresh();
                   }
