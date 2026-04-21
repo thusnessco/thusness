@@ -80,14 +80,21 @@ function NoteEditorPanel({
           className="w-full resize-y rounded-md border border-white/15 bg-black px-3 py-2 text-sm text-gray-200 outline-none focus:border-white/30"
         />
       </label>
-      <label className="flex items-center gap-2 text-sm text-gray-400">
-        <input
-          type="checkbox"
-          checked={published}
-          onChange={(e) => setPublished(e.target.checked)}
-          className="rounded border-white/30 bg-black"
-        />
-        Published
+      <label className="block space-y-1.5">
+        <span className="flex items-center gap-2 text-sm text-gray-400">
+          <input
+            type="checkbox"
+            checked={published}
+            onChange={(e) => setPublished(e.target.checked)}
+            className="rounded border-white/30 bg-black"
+          />
+          Published
+        </span>
+        <span className="text-[10px] leading-relaxed text-gray-600">
+          Drafts only appear here in Admin. Check Published and save for a note
+          to show on{" "}
+          <code className="text-gray-500">/notes</code> and in the archive.
+        </span>
       </label>
 
       <TiptapEditorField
@@ -104,7 +111,12 @@ function NoteEditorPanel({
         onClick={() => {
           startTransition(async () => {
             const json = noteBodyRef.current?.getJSON();
-            if (!json) return;
+            if (!json) {
+              onMessage(
+                "Editor is not ready yet. Wait a second, then try Save note again."
+              );
+              return;
+            }
             const res = await saveNote({
               id: note.id,
               slug,

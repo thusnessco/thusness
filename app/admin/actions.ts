@@ -112,9 +112,22 @@ export async function saveNote(input: {
     patch.published_at = new Date().toISOString();
   }
 
-  const { error } = await supabase.from("notes").update(patch).eq("id", input.id);
+  const { data, error } = await supabase
+    .from("notes")
+    .update(patch)
+    .eq("id", input.id)
+    .select("id")
+    .maybeSingle();
 
   if (error) return { ok: false as const, message: error.message };
+  if (!data) {
+    return {
+      ok: false as const,
+      message:
+        "Could not update this note (no matching row). Try refreshing the page or signing in again.",
+    };
+  }
+
   revalidatePath("/notes");
   revalidatePath("/admin");
   revalidatePath(`/notes/${input.slug.trim()}`);
