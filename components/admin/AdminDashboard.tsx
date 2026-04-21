@@ -101,6 +101,7 @@ function NoteEditorPanel({
       <TiptapEditorField
         ref={noteBodyRef}
         label="Body"
+        contentSyncKey={note.updated_at}
         initialDoc={note.content_json}
         imageUploadScope={`note/${note.id}`}
         onImageUploadMessage={onMessage}
@@ -232,9 +233,9 @@ export function AdminDashboard({
             Homepage
           </h2>
           <TiptapEditorField
-            key={homeIntroKey}
             ref={introRef}
             label="Current invitation (home_intro)"
+            contentSyncKey={homeIntroKey}
             initialDoc={homeIntro}
             imageUploadScope="site/home_intro"
             onImageUploadMessage={flash}
@@ -266,9 +267,9 @@ export function AdminDashboard({
 
           <div className="border-t border-white/10 pt-10">
             <TiptapEditorField
-              key={weeklySessionsKey}
               ref={weeklyRef}
               label="Weekly sessions (weekly_sessions)"
+              contentSyncKey={weeklySessionsKey}
               initialDoc={weeklySessions}
               imageUploadScope="site/weekly_sessions"
               onImageUploadMessage={flash}

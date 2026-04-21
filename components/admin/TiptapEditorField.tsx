@@ -196,6 +196,8 @@ function Toolbar({
 
 type Props = {
   label: string;
+  /** Server snapshot id (e.g. `updated_at`). When this changes, editor body is replaced from `initialDoc`. */
+  contentSyncKey: string;
   initialDoc: JSONContent;
   /** Folder prefix in Storage, e.g. `site/home_intro` or `note/<uuid>` */
   imageUploadScope?: string;
@@ -204,19 +206,30 @@ type Props = {
 
 export const TiptapEditorField = forwardRef<TiptapEditorFieldHandle, Props>(
   function TiptapEditorField(
-    { label, initialDoc, imageUploadScope, onImageUploadMessage },
+    { label, contentSyncKey, initialDoc, imageUploadScope, onImageUploadMessage },
     ref
   ) {
     // Stable reference: a fresh extensions[] every render makes TipTap's useEditor
-    // think options changed and call setOptions(), which re-applies `content` from
-    // props and can wipe unsaved edits (e.g. images) before Save reads getJSON().
+    // think options changed and call setOptions(), which can merge props back onto
+    // the live editor and wipe unsaved edits.
     const extensions = useMemo(() => getTiptapExtensions(), []);
 
+    // Do not pass `content` into useEditor: TipTap's React manager compares options
+    // on every render; `content` reference or internal drift after edits can trigger
+    // setOptions() and reset the document to the last server snapshot (e.g. right
+    // when Save runs under startTransition / flash re-renders).
     const editor = useEditor({
       extensions,
-      content: initialDoc,
       immediatelyRender: false,
     });
+
+    const initialDocRef = useRef(initialDoc);
+    initialDocRef.current = initialDoc;
+
+    useEffect(() => {
+      if (!editor || editor.isDestroyed) return;
+      editor.commands.setContent(initialDocRef.current, { emitUpdate: false });
+    }, [editor, contentSyncKey]);
 
     useImperativeHandle(
       ref,
@@ -251,7 +264,7 @@ export const TiptapEditorField = forwardRef<TiptapEditorFieldHandle, Props>(
         <div className="rounded-md border border-white/10 bg-black px-4 py-3 min-h-[12rem] focus-within:border-white/20 transition-colors">
           <EditorContent
             editor={editor}
-            className="tiptap-editor prose-invert min-h-[10rem] text-sm leading-relaxed text-gray-200 outline-none [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[10rem] [&_.ProseMirror_img]:max-w-full [&_.ProseMirror_img]:rounded-md [&_.ProseMirror_a.tiptap-image-link]:max-w-full [&_p]:my-2 [&_h2]:mt-4 [&_h2]:mb-2 [&_h2]:text-base [&_h2]:font-medium [&_h2]:text-white [&_h3]:mt-3 [&_h3]:mb-1 [&_h3]:text-sm [&_h3]:font-medium [&_h3]:text-white [&_ul]:my-2 [&_ol]:my-2 [&_li]:my-0.5"
+            className="tiptap-editor prose-invert min-h-[10rem] text-sm leading-relaxed text-gray-200 outline-none [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[10rem] [&_.ProseMirror_img]:max-h-[min(70vh,36rem)] [&_.ProseMirror_img]:max-w-full [&_.ProseMirror_img]:w-auto [&_.ProseMirror_img]:object-contain [&_.ProseMirror_img]:rounded-md [&_.ProseMirror_a.tiptap-image-link]:max-w-full [&_p]:my-2 [&_h2]:mt-4 [&_h2]:mb-2 [&_h2]:text-base [&_h2]:font-medium [&_h2]:text-white [&_h3]:mt-3 [&_h3]:mb-1 [&_h3]:text-sm [&_h3]:font-medium [&_h3]:text-white [&_ul]:my-2 [&_ol]:my-2 [&_li]:my-0.5"
           />
         </div>
       </div>
