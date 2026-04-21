@@ -52,7 +52,7 @@ export default async function NotePage({ params }: Props) {
         </nav>
 
         <article>
-          <header className="mb-8 border-b border-white/[0.08] pb-8 md:mb-10 md:pb-10">
+          <header className="mb-14 md:mb-16 border-b border-white/[0.08] pb-12 md:pb-14">
             <time
               dateTime={note.published_at}
               className="text-xs font-normal tracking-[0.18em] uppercase text-gray-500 tabular-nums"
@@ -66,7 +66,7 @@ export default async function NotePage({ params }: Props) {
 
           <TiptapHtml
             html={bodyHtml}
-            className="text-base md:text-lg text-gray-300"
+            className="text-base md:text-lg leading-[1.75] text-gray-300"
           />
         </article>
       </div>

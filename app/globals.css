@@ -25,7 +25,35 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* TipTap public HTML: block spacing comes from tiptapContentLayoutClassName on TiptapHtml */
+/* Public HTML rendered from Tiptap JSON */
+.tiptap-html h2 {
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  font-size: 1.125rem;
+  line-height: 1.35;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: rgb(255 255 255);
+}
+
+.tiptap-html h2:first-child {
+  margin-top: 0;
+}
+
+.tiptap-html h3 {
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+  line-height: 1.35;
+  font-weight: 500;
+  color: rgb(255 255 255);
+}
+
+.tiptap-html p {
+  margin-top: 0.75rem;
+  margin-bottom: 0.75rem;
+  color: rgb(209 213 219);
+}
 
 .tiptap-html strong {
   font-weight: 500;
@@ -44,8 +72,15 @@ body {
 
 .tiptap-html ul,
 .tiptap-html ol {
+  margin-top: 0.75rem;
+  margin-bottom: 0.75rem;
   padding-left: 1.25rem;
   color: rgb(209 213 219);
+}
+
+.tiptap-html li {
+  margin-top: 0.35rem;
+  margin-bottom: 0.35rem;
 }
 
 .tiptap-html ul {
