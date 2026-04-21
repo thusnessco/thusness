@@ -94,6 +94,8 @@ function NoteEditorPanel({
         ref={noteBodyRef}
         label="Body"
         initialDoc={note.content_json}
+        imageUploadScope={`note/${note.id}`}
+        onImageUploadMessage={onMessage}
       />
 
       <button
@@ -188,6 +190,8 @@ export function AdminDashboard({
             ref={introRef}
             label="Current invitation (home_intro)"
             initialDoc={homeIntro}
+            imageUploadScope="site/home_intro"
+            onImageUploadMessage={flash}
           />
           <button
             type="button"
@@ -215,6 +219,8 @@ export function AdminDashboard({
               ref={weeklyRef}
               label="Weekly sessions (weekly_sessions)"
               initialDoc={weeklySessions}
+              imageUploadScope="site/weekly_sessions"
+              onImageUploadMessage={flash}
             />
             <button
               type="button"

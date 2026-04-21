@@ -4,19 +4,37 @@ import {
   forwardRef,
   useEffect,
   useImperativeHandle,
+  useRef,
   useState,
 } from "react";
 import { EditorContent, useEditor, type Editor } from "@tiptap/react";
 import type { JSONContent } from "@tiptap/core";
 
+import { uploadEditorImage } from "@/app/admin/actions";
 import { getTiptapExtensions } from "@/lib/tiptap/extensions";
 
 export type TiptapEditorFieldHandle = {
   getJSON: () => JSONContent | null;
 };
 
-function Toolbar({ editor }: { editor: Editor | null }) {
+function Toolbar({
+  editor,
+  imageUploadScope,
+  onImageUploadMessage,
+}: {
+  editor: Editor | null;
+  imageUploadScope?: string;
+  onImageUploadMessage?: (msg: string) => void;
+}) {
+  const linkDefault =
+    imageUploadScope?.startsWith("site/") === true ||
+    imageUploadScope?.startsWith("note/") === true
+      ? "/notes/"
+      : "https://";
   const [, tick] = useState(0);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [uploadingImg, setUploadingImg] = useState(false);
+
   useEffect(() => {
     if (!editor) return;
     const fn = () => tick((n) => n + 1);
@@ -25,6 +43,24 @@ function Toolbar({ editor }: { editor: Editor | null }) {
       editor.off("transaction", fn);
     };
   }, [editor]);
+
+  async function onImageFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const input = e.target;
+    const file = input.files?.[0];
+    input.value = "";
+    if (!file || !editor || !imageUploadScope) return;
+    setUploadingImg(true);
+    const fd = new FormData();
+    fd.set("file", file);
+    fd.set("scope", imageUploadScope);
+    const res = await uploadEditorImage(fd);
+    setUploadingImg(false);
+    if (!res.ok) {
+      onImageUploadMessage?.(res.message);
+      return;
+    }
+    editor.chain().focus().setImage({ src: res.publicUrl }).run();
+  }
 
   if (!editor) return null;
 
@@ -88,12 +124,61 @@ function Toolbar({ editor }: { editor: Editor | null }) {
         1. List
       </button>
       <span className="mx-1 w-px self-stretch bg-white/10" aria-hidden />
+      {imageUploadScope ? (
+        <>
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/gif"
+            className="sr-only"
+            aria-hidden
+            onChange={onImageFile}
+          />
+          <button
+            type="button"
+            disabled={uploadingImg}
+            className={`${btn} ${idle} disabled:opacity-40`}
+            onClick={() => fileRef.current?.click()}
+          >
+            {uploadingImg ? "…" : "Image"}
+          </button>
+          <button
+            type="button"
+            disabled={!editor.isActive("image")}
+            className={`${btn} ${idle} disabled:opacity-40`}
+            title="Select the image first, then set where it links (e.g. a note)"
+            onClick={() => {
+              const attrs = editor.getAttributes("image") as {
+                href?: string | null;
+              };
+              const prev = attrs.href ?? "";
+              const url = window.prompt(
+                "Link when this image is clicked (e.g. /notes/your-slug). Leave empty to remove.",
+                prev || "/notes/"
+              );
+              if (url === null) return;
+              const trimmed = url.trim();
+              editor
+                .chain()
+                .focus()
+                .updateAttributes("image", { href: trimmed || null })
+                .run();
+            }}
+          >
+            Image link
+          </button>
+          <span className="mx-1 w-px self-stretch bg-white/10" aria-hidden />
+        </>
+      ) : null}
       <button
         type="button"
         className={`${btn} ${editor.isActive("link") ? active : idle}`}
         onClick={() => {
           const prev = editor.getAttributes("link").href as string | undefined;
-          const url = window.prompt("Link URL", prev ?? "https://");
+          const url = window.prompt(
+            "Link URL — use for selected text (e.g. /notes/your-slug or https://…)",
+            prev ?? linkDefault
+          );
           if (url === null) return;
           if (url === "") {
             editor.chain().focus().extendMarkRange("link").unsetLink().run();
@@ -111,10 +196,16 @@ function Toolbar({ editor }: { editor: Editor | null }) {
 type Props = {
   label: string;
   initialDoc: JSONContent;
+  /** Folder prefix in Storage, e.g. `site/home_intro` or `note/<uuid>` */
+  imageUploadScope?: string;
+  onImageUploadMessage?: (msg: string) => void;
 };
 
 export const TiptapEditorField = forwardRef<TiptapEditorFieldHandle, Props>(
-  function TiptapEditorField({ label, initialDoc }, ref) {
+  function TiptapEditorField(
+    { label, initialDoc, imageUploadScope, onImageUploadMessage },
+    ref
+  ) {
     const editor = useEditor({
       extensions: getTiptapExtensions(),
       content: initialDoc,
@@ -134,11 +225,27 @@ export const TiptapEditorField = forwardRef<TiptapEditorFieldHandle, Props>(
         <div className="text-xs tracking-[0.2em] uppercase text-gray-500">
           {label}
         </div>
-        <Toolbar editor={editor} />
+        <Toolbar
+          editor={editor}
+          imageUploadScope={imageUploadScope}
+          onImageUploadMessage={onImageUploadMessage}
+        />
+        {imageUploadScope ? (
+          <p className="text-[10px] leading-relaxed text-gray-600">
+            Point to a note with either tool:{" "}
+            <span className="text-gray-400">Image link</span> (select the image
+            first) or <span className="text-gray-400">Link</span> (select text
+            first). Use paths like{" "}
+            <code className="rounded bg-white/5 px-1 text-gray-400">
+              /notes/your-slug
+            </code>
+            .
+          </p>
+        ) : null}
         <div className="rounded-md border border-white/10 bg-black px-4 py-3 min-h-[12rem] focus-within:border-white/20 transition-colors">
           <EditorContent
             editor={editor}
-            className="tiptap-editor prose-invert min-h-[10rem] text-sm leading-relaxed text-gray-200 outline-none [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[10rem] [&_p]:my-2 [&_h2]:mt-4 [&_h2]:mb-2 [&_h2]:text-base [&_h2]:font-medium [&_h2]:text-white [&_h3]:mt-3 [&_h3]:mb-1 [&_h3]:text-sm [&_h3]:font-medium [&_h3]:text-white [&_ul]:my-2 [&_ol]:my-2 [&_li]:my-0.5"
+            className="tiptap-editor prose-invert min-h-[10rem] text-sm leading-relaxed text-gray-200 outline-none [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[10rem] [&_.ProseMirror_img]:max-w-full [&_.ProseMirror_img]:rounded-md [&_.ProseMirror_a.tiptap-image-link]:max-w-full [&_p]:my-2 [&_h2]:mt-4 [&_h2]:mb-2 [&_h2]:text-base [&_h2]:font-medium [&_h2]:text-white [&_h3]:mt-3 [&_h3]:mb-1 [&_h3]:text-sm [&_h3]:font-medium [&_h3]:text-white [&_ul]:my-2 [&_ol]:my-2 [&_li]:my-0.5"
           />
         </div>
       </div>

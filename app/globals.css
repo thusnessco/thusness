@@ -55,6 +55,33 @@ body {
   color: rgb(209 213 219);
 }
 
+.tiptap-html figure {
+  margin-top: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.tiptap-html img.tiptap-image,
+.tiptap-html img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.25rem;
+}
+
+.tiptap-html a.tiptap-image-link {
+  display: inline-block;
+  max-width: 100%;
+  text-decoration: none;
+  color: inherit;
+}
+
+.tiptap-html a.tiptap-image-link:hover {
+  opacity: 0.92;
+}
+
+.tiptap-html a.tiptap-image-link img {
+  display: block;
+}
+
 .tiptap-html strong {
   font-weight: 500;
   color: rgb(255 255 255);

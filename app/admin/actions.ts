@@ -9,6 +9,69 @@ import { redirect } from "next/navigation";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { emptyDoc } from "@/lib/tiptap/empty-doc";
 
+const UPLOAD_ALLOWED_TYPES = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/gif",
+]);
+
+function extForUpload(file: File): string {
+  const name = file.name.toLowerCase();
+  if (name.endsWith(".png")) return "png";
+  if (name.endsWith(".jpg") || name.endsWith(".jpeg")) return "jpg";
+  if (name.endsWith(".webp")) return "webp";
+  if (name.endsWith(".gif")) return "gif";
+  if (file.type === "image/jpeg") return "jpg";
+  if (file.type === "image/png") return "png";
+  if (file.type === "image/webp") return "webp";
+  if (file.type === "image/gif") return "gif";
+  return "img";
+}
+
+function sanitizeUploadScope(raw: string): string {
+  const s = raw.trim().replace(/[^a-zA-Z0-9/_-]+/g, "").replace(/^\/+|\/+$/g, "");
+  return s.slice(0, 120) || "misc";
+}
+
+/** Upload an image for TipTap / cover (authenticated). Requires `editor-assets` bucket (see migrations). */
+export async function uploadEditorImage(formData: FormData): Promise<
+  { ok: true; publicUrl: string } | { ok: false; message: string }
+> {
+  const supabase = await createServerSupabase();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false, message: "Not signed in." };
+
+  const scope = sanitizeUploadScope(String(formData.get("scope") ?? ""));
+  const file = formData.get("file");
+  if (!(file instanceof File) || file.size === 0) {
+    return { ok: false, message: "Choose an image file." };
+  }
+  if (file.size > 5 * 1024 * 1024) {
+    return { ok: false, message: "Image must be 5MB or smaller." };
+  }
+  if (!UPLOAD_ALLOWED_TYPES.has(file.type)) {
+    return { ok: false, message: "Use JPEG, PNG, WebP, or GIF." };
+  }
+
+  const ext = extForUpload(file);
+  const path = `${scope}/${randomUUID()}.${ext}`;
+
+  const { error } = await supabase.storage.from("editor-assets").upload(path, file, {
+    contentType: file.type,
+    upsert: false,
+  });
+
+  if (error) return { ok: false, message: error.message };
+
+  const {
+    data: { publicUrl },
+  } = supabase.storage.from("editor-assets").getPublicUrl(path);
+  return { ok: true, publicUrl };
+}
+
 export async function saveSiteContent(key: string, content_json: JSONContent) {
   const supabase = await createServerSupabase();
   const { error } = await supabase.from("site_content").upsert(
