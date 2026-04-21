@@ -13,6 +13,8 @@ import {
 } from "@/app/admin/actions";
 import type { NoteRow } from "@/lib/supabase/public-server";
 
+import { jsonContentEqual } from "@/lib/tiptap/json-content-equal";
+
 import {
   TiptapEditorField,
   type TiptapEditorFieldHandle,
@@ -196,12 +198,22 @@ export function AdminDashboard({
   const weeklySyncKey = weeklyOverride?.key ?? weeklySessionsKey;
 
   useEffect(() => {
-    setHomeIntroOverride((o) => (o && o.key === homeIntroKey ? null : o));
-  }, [homeIntroKey]);
+    setHomeIntroOverride((o) => {
+      if (!o) return o;
+      if (o.key !== homeIntroKey) return o;
+      // Same revision but RSC can briefly return cached JSON; only drop override
+      // when props match what we saved.
+      return jsonContentEqual(o.doc, homeIntro) ? null : o;
+    });
+  }, [homeIntroKey, homeIntro]);
 
   useEffect(() => {
-    setWeeklyOverride((o) => (o && o.key === weeklySessionsKey ? null : o));
-  }, [weeklySessionsKey]);
+    setWeeklyOverride((o) => {
+      if (!o) return o;
+      if (o.key !== weeklySessionsKey) return o;
+      return jsonContentEqual(o.doc, weeklySessions) ? null : o;
+    });
+  }, [weeklySessionsKey, weeklySessions]);
 
   const introRef = useRef<TiptapEditorFieldHandle>(null);
   const weeklyRef = useRef<TiptapEditorFieldHandle>(null);

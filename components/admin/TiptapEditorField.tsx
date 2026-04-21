@@ -226,19 +226,31 @@ export const TiptapEditorField = forwardRef<TiptapEditorFieldHandle, Props>(
     const initialDocRef = useRef(initialDoc);
     initialDocRef.current = initialDoc;
 
-    /** Avoid setContent on unrelated re-renders; re-apply when editor instance or server revision changes. */
+    /** Avoid setContent on unrelated re-renders. */
+    const initialDocFingerprint = JSON.stringify(initialDoc);
     const lastAppliedRef = useRef<{
       editor: Editor | null;
       syncKey: string | null;
-    }>({ editor: null, syncKey: null });
+      fingerprint: string | null;
+    }>({ editor: null, syncKey: null, fingerprint: null });
 
     useEffect(() => {
       if (!editor || editor.isDestroyed) return;
       const prev = lastAppliedRef.current;
-      if (prev.editor === editor && prev.syncKey === contentSyncKey) return;
-      lastAppliedRef.current = { editor, syncKey: contentSyncKey };
+      if (
+        prev.editor === editor &&
+        prev.syncKey === contentSyncKey &&
+        prev.fingerprint === initialDocFingerprint
+      ) {
+        return;
+      }
+      lastAppliedRef.current = {
+        editor,
+        syncKey: contentSyncKey,
+        fingerprint: initialDocFingerprint,
+      };
       editor.commands.setContent(initialDocRef.current, { emitUpdate: false });
-    }, [editor, contentSyncKey]);
+    }, [editor, contentSyncKey, initialDocFingerprint]);
 
     useImperativeHandle(
       ref,

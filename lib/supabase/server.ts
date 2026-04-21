@@ -27,5 +27,10 @@ export async function createServerSupabase() {
         }
       },
     },
+    global: {
+      fetch(url, options) {
+        return fetch(url, { ...options, cache: "no-store" });
+      },
+    },
   });
 }

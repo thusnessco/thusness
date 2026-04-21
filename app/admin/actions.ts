@@ -74,13 +74,15 @@ export async function uploadEditorImage(formData: FormData): Promise<
 
 export async function saveSiteContent(key: string, content_json: JSONContent) {
   const supabase = await createServerSupabase();
+  const payload = JSON.parse(JSON.stringify(content_json)) as JSONContent;
+
   const { data, error } = await supabase
     .from("site_content")
     .upsert(
       {
         key,
         title: null,
-        content_json,
+        content_json: payload,
         updated_at: new Date().toISOString(),
       },
       { onConflict: "key" }

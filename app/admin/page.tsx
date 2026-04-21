@@ -1,4 +1,5 @@
 import type { JSONContent } from "@tiptap/core";
+import { unstable_noStore as noStore } from "next/cache";
 
 import { AdminDashboard } from "@/components/admin/AdminDashboard";
 import { getAllNotesForAdmin } from "@/lib/data/notes-admin";
@@ -9,6 +10,8 @@ import { createServerSupabase } from "@/lib/supabase/server";
 export const dynamic = "force-dynamic";
 
 export default async function AdminPage() {
+  noStore();
+
   if (!getSupabasePublicConfig()) {
     return (
       <div className="mx-auto max-w-lg px-6 py-24 text-gray-300">
