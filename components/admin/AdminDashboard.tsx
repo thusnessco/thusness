@@ -245,7 +245,12 @@ export function AdminDashboard({
             onClick={() => {
               startTransition(async () => {
                 const json = introRef.current?.getJSON();
-                if (!json) return;
+                if (!json) {
+                  flash(
+                    "Editor is not ready yet. Wait a second, then try Save again."
+                  );
+                  return;
+                }
                 const res = await saveSiteContent("home_intro", json);
                 if (!res.ok) flash(res.message);
                 else {
@@ -274,7 +279,12 @@ export function AdminDashboard({
               onClick={() => {
                 startTransition(async () => {
                   const json = weeklyRef.current?.getJSON();
-                  if (!json) return;
+                  if (!json) {
+                    flash(
+                      "Editor is not ready yet. Wait a second, then try Save again."
+                    );
+                    return;
+                  }
                   const res = await saveSiteContent("weekly_sessions", json);
                   if (!res.ok) flash(res.message);
                   else {

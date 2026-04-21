@@ -4,6 +4,7 @@ import {
   forwardRef,
   useEffect,
   useImperativeHandle,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -206,8 +207,13 @@ export const TiptapEditorField = forwardRef<TiptapEditorFieldHandle, Props>(
     { label, initialDoc, imageUploadScope, onImageUploadMessage },
     ref
   ) {
+    // Stable reference: a fresh extensions[] every render makes TipTap's useEditor
+    // think options changed and call setOptions(), which re-applies `content` from
+    // props and can wipe unsaved edits (e.g. images) before Save reads getJSON().
+    const extensions = useMemo(() => getTiptapExtensions(), []);
+
     const editor = useEditor({
-      extensions: getTiptapExtensions(),
+      extensions,
       content: initialDoc,
       immediatelyRender: false,
     });
