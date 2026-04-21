@@ -26,6 +26,11 @@ body {
 }
 
 /* Public HTML rendered from Tiptap JSON */
+.tiptap-html {
+  /* Newlines inside a single block (e.g. pasted text) render as line breaks */
+  white-space: pre-line;
+}
+
 .tiptap-html h2 {
   margin-top: 2rem;
   margin-bottom: 0.75rem;
@@ -50,9 +55,19 @@ body {
 }
 
 .tiptap-html p {
-  margin-top: 0.75rem;
-  margin-bottom: 0.75rem;
+  margin-top: 0;
+  margin-bottom: 1.125rem;
   color: rgb(209 213 219);
+}
+
+/* Blank lines from Enter are often empty <p> or <p><br></p>; give them height */
+.tiptap-html p:empty,
+.tiptap-html p:has(> br:only-child) {
+  min-height: 1.125rem;
+}
+
+.tiptap-html > p:last-child {
+  margin-bottom: 0;
 }
 
 .tiptap-html strong {
