@@ -71,7 +71,7 @@ export default function Home() {
               Challenges
             </h2>
             <p className="text-gray-300 text-base md:text-lg leading-relaxed">
-              If something feels tense, unwanted, or challenging, proceed gently and slowly —
+              If something feels tense, unwanted, or challenging, proceed gently and slowly, and
               check for the 3 Pillars of Success. See if there is curiosity about that
               challenging aspect, effortlessly notice it, see if could be gently explored via
               attention, even welcomed, and appreciated. If you also have access to a desired
