@@ -17,9 +17,9 @@ export const metadata: Metadata = {
   description:
     "Direct recognition, deconditioning, and lived clarity. One-on-one sessions, small groups, and ongoing guidance.",
   icons: {
-    icon: "/favicon.ico?v=2",
-    shortcut: "/favicon.ico?v=2",
-    apple: "/favicon.ico?v=2",
+    icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
+    shortcut: "/icon.svg",
+    apple: "/icon.svg",
   },
 };
 
