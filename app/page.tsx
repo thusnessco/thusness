@@ -27,7 +27,8 @@ export default async function Home() {
           <p className="text-sm text-gray-500 leading-relaxed">
             Add{" "}
             <code className="text-gray-400">NEXT_PUBLIC_SUPABASE_URL</code> and{" "}
-            <code className="text-gray-400">NEXT_PUBLIC_SUPABASE_ANON_KEY</code>{" "}
+            <code className="text-gray-400">NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY</code> (or{" "}
+            <code className="text-gray-400">NEXT_PUBLIC_SUPABASE_ANON_KEY</code>){" "}
             to load editable content from Supabase.
           </p>
         </div>

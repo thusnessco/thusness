@@ -16,7 +16,8 @@ export default async function AdminPage() {
         <p className="mt-4 text-sm leading-relaxed">
           Set{" "}
           <code className="text-gray-400">NEXT_PUBLIC_SUPABASE_URL</code> and{" "}
-          <code className="text-gray-400">NEXT_PUBLIC_SUPABASE_ANON_KEY</code>{" "}
+          <code className="text-gray-400">NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY</code> (or{" "}
+          <code className="text-gray-400">NEXT_PUBLIC_SUPABASE_ANON_KEY</code>){" "}
           in the environment, then redeploy.
         </p>
       </div>

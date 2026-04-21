@@ -6,7 +6,9 @@ import { getSupabasePublicConfig } from "./config";
 export function createBrowserSupabase() {
   const cfg = getSupabasePublicConfig();
   if (!cfg) {
-    throw new Error("Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY");
+    throw new Error(
+      "Missing NEXT_PUBLIC_SUPABASE_URL or a public key (NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY or NEXT_PUBLIC_SUPABASE_ANON_KEY)"
+    );
   }
   return createBrowserClient(cfg.url, cfg.anonKey);
 }
