@@ -15,6 +15,7 @@ import { uploadEditorImage } from "@/app/admin/actions";
 import { countTiptapImages } from "@/lib/tiptap/count-tiptap-images";
 import { getTiptapExtensions } from "@/lib/tiptap/extensions";
 import { jsonContentEqual } from "@/lib/tiptap/json-content-equal";
+import { stripPastedHtml } from "@/lib/tiptap/sanitize-pasted-html";
 
 export type TiptapEditorFieldHandle = {
   getJSON: () => JSONContent | null;
@@ -225,6 +226,15 @@ export const TiptapEditorField = forwardRef<TiptapEditorFieldHandle, Props>(
     // the live editor and wipe unsaved edits.
     const extensions = useMemo(() => getTiptapExtensions(), []);
 
+    const editorProps = useMemo(
+      () => ({
+        transformPastedHTML(html: string) {
+          return stripPastedHtml(html);
+        },
+      }),
+      []
+    );
+
     // Do not pass `content` into useEditor: TipTap's React manager compares options
     // on every render; `content` reference or internal drift after edits can trigger
     // setOptions() and reset the document to the last server snapshot (e.g. right
@@ -234,6 +244,7 @@ export const TiptapEditorField = forwardRef<TiptapEditorFieldHandle, Props>(
 
     const editor = useEditor({
       extensions,
+      editorProps,
       immediatelyRender: false,
       emitContentError: true,
       onContentError: ({ error }) => {

@@ -33,6 +33,12 @@ body {
 .tiptap-html,
 .tiptap-editor .ProseMirror {
   line-height: 1.65;
+  /*
+   * ProseMirror defaults to pre-wrap/break-spaces so literal newlines in pasted
+   * text become visible gaps that do not match real paragraph / hardBreak layout.
+   */
+  white-space: normal;
+  word-wrap: break-word;
 }
 
 .tiptap-html > *,
@@ -77,11 +83,11 @@ body {
   color: rgb(209 213 219);
 }
 
-/* Soft line breaks (Shift+Enter): nudge spacing so it sits between “one p” and “two p” rhythm */
+/* Soft line breaks (Shift+Enter): small nudge; real paragraph gaps come from stack */
 .tiptap-html p br,
 .tiptap-editor .ProseMirror p br {
   display: block;
-  margin: 0.65em 0 0;
+  margin: 0.45em 0 0;
 }
 
 .tiptap-html hr,
