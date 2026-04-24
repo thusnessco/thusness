@@ -80,9 +80,10 @@ export function WeeksPanel({ weeks: initialWeeks, onMessage }: Props) {
             Weeks (home + /notes)
           </h2>
           <p className="mt-2 max-w-2xl text-[13px] leading-relaxed text-[var(--thusness-muted)]">
-            Each week is one TipTap document. The week with the latest{" "}
-            <span className="italic">week of</span> date on or before today is the
-            public home page. Older weeks show on{" "}
+            Each week is one TipTap document. Unless a published note is pinned as
+            the public home (see below), the week with the latest{" "}
+            <span className="italic">week of</span> date on or before today drives{" "}
+            <span className="italic">/</span>. Older weeks list on{" "}
             <code className="text-[var(--thusness-ink-soft)]">/notes</code>. In the
             editor toolbar, use{" "}
             <span className="text-[var(--thusness-ink-soft)]">Sample week page</span>{" "}

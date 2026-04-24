@@ -1,6 +1,7 @@
 import { unstable_noStore as noStore } from "next/cache";
 
 import { AdminDashboard } from "@/components/admin/AdminDashboard";
+import { getHomepagePinForAdmin } from "@/lib/data/homepage-source";
 import { getAllNotesForAdmin } from "@/lib/data/notes-admin";
 import { getAllWeeksForAdmin } from "@/lib/data/weeks-admin";
 import { getSupabasePublicConfig } from "@/lib/supabase/config";
@@ -31,10 +32,13 @@ export default async function AdminPage() {
     );
   }
 
-  const [weeks, notes] = await Promise.all([
+  const [weeks, notes, homepagePin] = await Promise.all([
     getAllWeeksForAdmin(),
     getAllNotesForAdmin(),
+    getHomepagePinForAdmin(),
   ]);
 
-  return <AdminDashboard weeks={weeks} notes={notes} />;
+  return (
+    <AdminDashboard weeks={weeks} notes={notes} homepagePin={homepagePin} />
+  );
 }

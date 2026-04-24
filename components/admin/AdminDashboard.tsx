@@ -4,7 +4,15 @@ import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import type { JSONContent } from "@tiptap/core";
 import { useRouter } from "next/navigation";
 
-import { createNote, deleteNote, saveNote, signOut } from "@/app/admin/actions";
+import {
+  clearHomepagePinToWeek,
+  createNote,
+  deleteNote,
+  saveNote,
+  setHomepagePinToNoteSlug,
+  signOut,
+} from "@/app/admin/actions";
+import type { HomepagePin } from "@/lib/data/homepage-source";
 import type { WeekDocument } from "@/lib/data/weeks-types";
 import type { NoteRow } from "@/lib/supabase/public-server";
 
@@ -19,6 +27,7 @@ import { WeeksPanel } from "./WeeksPanel";
 type Props = {
   weeks: WeekDocument[];
   notes: NoteRow[];
+  homepagePin: HomepagePin;
 };
 
 type NoteBodyOverride = { doc: JSONContent; key: string };
@@ -36,6 +45,7 @@ const sectionHeading =
 
 function NoteEditorPanel({
   note,
+  homepagePin,
   noteBodyRef,
   isPending,
   startTransition,
@@ -44,6 +54,7 @@ function NoteEditorPanel({
   onNoteBodySaved,
 }: {
   note: NoteRow;
+  homepagePin: HomepagePin;
   noteBodyRef: React.RefObject<TiptapEditorFieldHandle | null>;
   isPending: boolean;
   startTransition: (cb: () => void) => void;
@@ -100,10 +111,56 @@ function NoteEditorPanel({
           Published
         </span>
         <span className="text-[10px] leading-relaxed text-[var(--thusness-muted)]">
-          Not shown on the public <code className="text-[var(--thusness-ink-soft)]">/notes</code>{" "}
-          week archive.
+          Published notes appear on the public{" "}
+          <code className="text-[var(--thusness-ink-soft)]">/notes</code> index and
+          at <code className="text-[var(--thusness-ink-soft)]">/notes/your-slug</code>
+          .
         </span>
       </label>
+
+      <div className="space-y-3 border-t border-[var(--thusness-rule)] pt-6">
+        <p className={fieldLabel}>Public homepage (thusness.co)</p>
+        {homepagePin.source === "note" && homepagePin.slug === note.slug ? (
+          <p className="text-sm italic text-[var(--thusness-ink-soft)]">
+            This published note is the live homepage.
+          </p>
+        ) : (
+          <p className="text-[13px] leading-relaxed text-[var(--thusness-muted)]">
+            Pin this note so visitors see it on <span className="italic">/</span>{" "}
+            instead of the scheduled week. The note must be published and the slug
+            field must match what you last saved.
+          </p>
+        )}
+        <button
+          type="button"
+          disabled={
+            isPending ||
+            !note.published ||
+            slug.trim() !== note.slug ||
+            slug.trim().length === 0
+          }
+          className={btnSmall}
+          title={
+            !note.published
+              ? "Publish this note first."
+              : slug.trim() !== note.slug
+                ? "Save the note so the slug matches before pinning."
+                : undefined
+          }
+          onClick={() => {
+            startTransition(async () => {
+              const res = await setHomepagePinToNoteSlug(note.slug);
+              if (!res.ok) onMessage(res.message);
+              else {
+                onMessage("Homepage now uses this note.");
+                router.refresh();
+              }
+            });
+          }}
+        >
+          Use as public home
+        </button>
+      </div>
 
       <TiptapEditorField
         ref={noteBodyRef}
@@ -178,7 +235,7 @@ function NoteEditorPanel({
   );
 }
 
-export function AdminDashboard({ weeks, notes }: Props) {
+export function AdminDashboard({ weeks, notes, homepagePin }: Props) {
   const router = useRouter();
   const [selectedId, setSelectedId] = useState<string | null>(
     notes[0]?.id ?? null
@@ -257,6 +314,50 @@ export function AdminDashboard({ weeks, notes }: Props) {
       <div className="space-y-20">
         <WeeksPanel weeks={weeks} onMessage={flash} />
 
+        <div className="border border-[var(--thusness-rule)] bg-[var(--thusness-bg)] px-4 py-5 sm:px-5">
+          <p className={sectionHeading}>Public homepage</p>
+          <p className="mt-3 max-w-2xl text-[13px] leading-relaxed text-[var(--thusness-ink-soft)]">
+            {homepagePin.source === "week" ? (
+              <>
+                Visitors see the{" "}
+                <span className="font-medium text-[var(--thusness-ink)]">
+                  current week
+                </span>{" "}
+                (latest <span className="italic">week of</span> on or before today).
+                Open a published note below and choose &ldquo;Use as public home&rdquo;
+                to override.
+              </>
+            ) : (
+              <>
+                Homepage is pinned to the published note at{" "}
+                <code className="text-[var(--thusness-ink)]">
+                  /notes/{homepagePin.slug}
+                </code>
+                .
+              </>
+            )}
+          </p>
+          {homepagePin.source === "note" ? (
+            <button
+              type="button"
+              disabled={isPending}
+              className={`${btnSmall} mt-4`}
+              onClick={() => {
+                startTransition(async () => {
+                  const res = await clearHomepagePinToWeek();
+                  if (!res.ok) flash(res.message);
+                  else {
+                    flash("Homepage uses the scheduled week again.");
+                    router.refresh();
+                  }
+                });
+              }}
+            >
+              Use scheduled week for home
+            </button>
+          ) : null}
+        </div>
+
         <section className="space-y-6 border-t border-[var(--thusness-rule)] pt-16">
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <h2 className={sectionHeading}>TipTap notes</h2>
@@ -311,6 +412,7 @@ export function AdminDashboard({ weeks, notes }: Props) {
                 <NoteEditorPanel
                   key={selectedForEditor.id}
                   note={selectedForEditor}
+                  homepagePin={homepagePin}
                   noteBodyRef={noteBodyRef}
                   isPending={isPending}
                   startTransition={startTransition}

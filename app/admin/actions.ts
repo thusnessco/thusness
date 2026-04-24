@@ -6,6 +6,7 @@ import type { JSONContent } from "@tiptap/core";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
+import { parseHomepagePin } from "@/lib/data/homepage-source";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { countTiptapImages } from "@/lib/tiptap/count-tiptap-images";
 import { emptyDoc } from "@/lib/tiptap/empty-doc";
@@ -126,6 +127,12 @@ export async function saveNote(input: {
 }) {
   const supabase = await createServerSupabase();
 
+  const { data: before } = await supabase
+    .from("notes")
+    .select("slug, published")
+    .eq("id", input.id)
+    .maybeSingle();
+
   const contentNormalized = JSON.parse(
     JSON.stringify(input.content_json)
   ) as JSONContent;
@@ -168,14 +175,106 @@ export async function saveNote(input: {
     };
   }
 
+  const newSlug = input.slug.trim();
+  const prevSlug = before?.slug?.trim() ?? "";
+
+  const { data: pinRow } = await supabase
+    .from("site_content")
+    .select("content_json")
+    .eq("key", HOMEPAGE_PIN_KEY)
+    .maybeSingle();
+  const pin = parseHomepagePin(pinRow?.content_json);
+
+  if (pin.source === "note") {
+    if (!input.published && pin.slug === prevSlug) {
+      await upsertHomepagePinJson(supabase, { source: "week" });
+      revalidatePath("/");
+    } else if (pin.slug === prevSlug && newSlug !== prevSlug) {
+      await upsertHomepagePinJson(supabase, {
+        source: "note",
+        slug: newSlug,
+      });
+      revalidatePath("/");
+      revalidatePath(`/notes/${prevSlug}`);
+    }
+  }
+
   revalidatePath("/notes");
   revalidatePath("/admin");
-  revalidatePath(`/notes/${input.slug.trim()}`);
+  revalidatePath(`/notes/${newSlug}`);
   return {
     ok: true as const,
     content_json: stored,
     updated_at: data.updated_at as string,
   };
+}
+
+const HOMEPAGE_PIN_KEY = "homepage_pin";
+
+async function upsertHomepagePinJson(
+  supabase: Awaited<ReturnType<typeof createServerSupabase>>,
+  contentJson: Record<string, unknown>
+) {
+  const { error } = await supabase.from("site_content").upsert(
+    {
+      key: HOMEPAGE_PIN_KEY,
+      title: null,
+      content_json: contentJson,
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: "key" }
+  );
+  return error?.message ?? null;
+}
+
+export async function setHomepagePinToNoteSlug(
+  slug: string
+): Promise<{ ok: true } | { ok: false; message: string }> {
+  const trimmed = slug.trim();
+  if (!trimmed) {
+    return { ok: false as const, message: "Slug is empty." };
+  }
+  const supabase = await createServerSupabase();
+  const { data: note, error: nErr } = await supabase
+    .from("notes")
+    .select("id")
+    .eq("slug", trimmed)
+    .eq("published", true)
+    .maybeSingle();
+
+  if (nErr) return { ok: false as const, message: nErr.message };
+  if (!note) {
+    return {
+      ok: false as const,
+      message:
+        "No published note with that slug. Publish the note and save, then try again.",
+    };
+  }
+
+  const msg = await upsertHomepagePinJson(supabase, {
+    source: "note",
+    slug: trimmed,
+  });
+  if (msg) return { ok: false as const, message: msg };
+
+  revalidatePath("/");
+  revalidatePath("/admin");
+  revalidatePath("/notes");
+  revalidatePath(`/notes/${trimmed}`);
+  return { ok: true as const };
+}
+
+export async function clearHomepagePinToWeek(): Promise<
+  { ok: true } | { ok: false; message: string }
+> {
+  const supabase = await createServerSupabase();
+  const msg = await upsertHomepagePinJson(supabase, { source: "week" });
+  if (msg) return { ok: false as const, message: msg };
+
+  revalidatePath("/");
+  revalidatePath("/admin");
+  revalidatePath("/notes");
+  return { ok: true as const };
 }
 
 export async function deleteNote(input: {
@@ -196,6 +295,17 @@ export async function deleteNote(input: {
       ok: false as const,
       message: "Could not delete this note. Refresh and try again.",
     };
+  }
+
+  const { data: pinRow } = await supabase
+    .from("site_content")
+    .select("content_json")
+    .eq("key", HOMEPAGE_PIN_KEY)
+    .maybeSingle();
+  const pin = parseHomepagePin(pinRow?.content_json);
+  if (pin.source === "note" && pin.slug === input.slug.trim()) {
+    await upsertHomepagePinJson(supabase, { source: "week" });
+    revalidatePath("/");
   }
 
   revalidatePath("/notes");
