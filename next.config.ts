@@ -12,21 +12,18 @@ const LEGACY_NOTE_SLUG_REDIRECTS: { source: string }[] = [
 
 const nextConfig: NextConfig = {
   async redirects() {
-    return LEGACY_NOTE_SLUG_REDIRECTS.map(({ source }) => ({
-      source,
-      destination: "/notes",
-      permanent: true,
-    }));
+    return [
+      { source: "/favicon.ico", destination: "/icon.svg", permanent: false },
+      ...LEGACY_NOTE_SLUG_REDIRECTS.map(({ source }) => ({
+        source,
+        destination: "/notes",
+        permanent: true,
+      })),
+    ];
   },
 
   async headers() {
     return [
-      {
-        source: "/favicon.ico",
-        headers: [
-          { key: "Cache-Control", value: "public, max-age=604800, immutable" },
-        ],
-      },
       {
         source: "/icon.svg",
         headers: [
@@ -34,7 +31,7 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        source: "/apple-touch-icon.png",
+        source: "/apple-icon",
         headers: [
           { key: "Cache-Control", value: "public, max-age=604800, immutable" },
         ],

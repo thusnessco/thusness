@@ -22,14 +22,7 @@ export const metadata: Metadata = {
   title: "Thusness",
   description:
     "A quiet hour of guided noticing — small groups, one-on-one, and ongoing guidance.",
-  icons: {
-    icon: [
-      { url: "/favicon.ico", sizes: "32x32" },
-      { url: "/icon.svg", type: "image/svg+xml" },
-    ],
-    shortcut: "/favicon.ico",
-    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180" }],
-  },
+  // `app/icon.svg` + `app/apple-icon.tsx` — RedDot (footer) motif.
 };
 
 export default function RootLayout({
