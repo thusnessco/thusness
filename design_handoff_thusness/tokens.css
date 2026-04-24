@@ -1,0 +1,161 @@
+/* Thusness — design tokens.
+ * Drop into your global stylesheet. All values used by the identity
+ * are defined here as CSS custom properties.
+ *
+ * Usage:
+ *   In Next.js: import into app/globals.css (or app/layout.tsx).
+ *   In Astro / vanilla: link in the root layout.
+ */
+
+:root {
+  /* ── Color ── */
+  --thusness-bg: #efece1;        /* page background, warm cream */
+  --thusness-ink: #1a1915;       /* primary text, near-black warm */
+  --thusness-ink-soft: #3d3a2f;  /* body prose */
+  --thusness-muted: #8a8672;     /* secondary labels, dates, captions */
+  --thusness-rule: #c7c2b0;      /* hairline rules, card borders */
+  --thusness-red: #c23a2a;       /* signature dot — once per page */
+
+  /* ── Type ── */
+  --thusness-font: Helvetica, "Helvetica Neue", Arial, sans-serif;
+
+  --thusness-size-xs: 11px;      /* small-caps labels */
+  --thusness-size-sm: 13px;      /* list numbers, captions */
+  --thusness-size-base: 17px;    /* body prose */
+  --thusness-size-md: 22px;      /* pull-quote, zoom link */
+  --thusness-size-lg: 28px;      /* pillar statement */
+  --thusness-size-xl: 34px;      /* session day */
+  --thusness-size-2xl: 54px;     /* hero question */
+
+  --thusness-leading-tight: 1.1;
+  --thusness-leading-snug: 1.45;
+  --thusness-leading-body: 1.7;
+
+  --thusness-track-caps: 2.4px;     /* small-caps labels */
+  --thusness-track-caps-sm: 2px;    /* card labels */
+  --thusness-track-wordmark: 0.2em; /* wordmark letter-spacing */
+
+  /* ── Spacing ── */
+  --thusness-space-2: 8px;
+  --thusness-space-3: 16px;
+  --thusness-space-4: 24px;
+  --thusness-space-5: 32px;
+  --thusness-space-6: 48px;
+  --thusness-space-7: 64px;
+  --thusness-space-8: 72px;
+  --thusness-space-9: 88px;
+  --thusness-space-10: 120px;
+
+  /* ── Layout ── */
+  --thusness-shell: 880px;       /* page shell max-width */
+  --thusness-prose: 620px;       /* prose & list max-width */
+  --thusness-sessions: 760px;
+}
+
+/* ── Base — apply to the document root or a wrapping element ── */
+
+.thusness-root,
+body.thusness {
+  margin: 0;
+  background: var(--thusness-bg);
+  color: var(--thusness-ink);
+  font-family: var(--thusness-font);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.thusness-root ::selection,
+body.thusness ::selection {
+  background: var(--thusness-ink);
+  color: var(--thusness-bg);
+}
+
+/* ── Reusable type utilities ── */
+
+.t-caps {
+  font-family: var(--thusness-font);
+  font-size: var(--thusness-size-xs);
+  letter-spacing: var(--thusness-track-caps);
+  text-transform: uppercase;
+  color: var(--thusness-muted);
+}
+
+.t-label-sm {
+  font-family: var(--thusness-font);
+  font-size: var(--thusness-size-xs);
+  letter-spacing: var(--thusness-track-caps-sm);
+  text-transform: uppercase;
+  color: var(--thusness-muted);
+}
+
+.t-prose {
+  font-family: var(--thusness-font);
+  font-size: var(--thusness-size-base);
+  line-height: var(--thusness-leading-body);
+  color: var(--thusness-ink-soft);
+  max-width: var(--thusness-prose);
+  margin: 0 auto;
+}
+
+.t-prose em,
+.t-prose i {
+  font-style: italic;
+  color: var(--thusness-ink);
+}
+
+.t-question {
+  font-family: var(--thusness-font);
+  font-size: var(--thusness-size-2xl);
+  font-weight: 500;
+  line-height: var(--thusness-leading-tight);
+  letter-spacing: -0.8px;
+  color: var(--thusness-ink);
+  margin: 0 auto;
+  max-width: 20ch;
+  text-align: center;
+}
+
+.t-italic-note {
+  font-style: italic;
+  font-size: 14px;
+  color: var(--thusness-muted);
+  letter-spacing: 0.4px;
+}
+
+.t-pull {
+  text-align: center;
+  font-style: italic;
+  font-size: var(--thusness-size-md);
+  color: var(--thusness-ink);
+  margin: 56px auto;
+  max-width: 34ch;
+  line-height: var(--thusness-leading-snug);
+  padding: 28px 0;
+  border-top: 1px solid var(--thusness-rule);
+  border-bottom: 1px solid var(--thusness-rule);
+}
+
+/* ── Links ── */
+
+a.t-link {
+  color: var(--thusness-ink);
+  text-decoration: none;
+  border-bottom: 1px solid var(--thusness-ink);
+  padding-bottom: 2px;
+}
+
+a.t-link:hover {
+  opacity: 0.7;
+}
+
+/* ── Cards ── */
+
+.t-card {
+  padding: 36px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border: 1px solid var(--thusness-rule);
+  background: var(--thusness-bg);
+  border-radius: 0;
+}

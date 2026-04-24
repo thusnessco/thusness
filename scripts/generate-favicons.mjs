@@ -2,7 +2,7 @@
  * Writes public/favicon.ico (PNG-in-ICO) and public/apple-touch-icon.png
  * without extra deps. Run from repo root:
  *   node scripts/generate-favicons.mjs
- * Raster matches public/icon.svg (dark bg + gray mark); edit thusnessRgba() to tweak.
+ * Raster matches design handoff: warm ink bg (#1a1915) + cream tilde (#efece1).
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -66,10 +66,10 @@ function makePng(width, height, rgbaAt) {
   ]);
 }
 
-/** Match app/icon.svg: #0a0a0a bg, ~ in gray #9ca3af (approx circle area) */
+/** Match app/icon.svg: #1a1915 bg, ~ in #efece1 (ellipse approx) */
 function thusnessRgba(x, y, size) {
-  const bg = [10, 10, 10, 255];
-  const fg = [156, 163, 175, 255];
+  const bg = [26, 25, 21, 255];
+  const fg = [239, 236, 225, 255];
   const cx = size / 2;
   const cy = size * (22 / 32);
   const w = size * 0.35;

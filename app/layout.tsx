@@ -1,16 +1,6 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+
 import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 function metadataBaseUrl(): URL {
   const explicit = process.env.NEXT_PUBLIC_SITE_URL;
@@ -31,7 +21,7 @@ export const metadata: Metadata = {
   metadataBase: metadataBaseUrl(),
   title: "Thusness",
   description:
-    "Direct recognition, deconditioning, and lived clarity. One-on-one sessions, small groups, and ongoing guidance.",
+    "A quiet hour of guided noticing — small groups, one-on-one, and ongoing guidance.",
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "32x32" },
@@ -48,11 +38,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col font-sans">{children}</body>
+    <html lang="en" className="h-full antialiased">
+      <body className="thusness min-h-full flex flex-col font-sans">{children}</body>
     </html>
   );
 }

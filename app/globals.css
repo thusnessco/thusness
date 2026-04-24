@@ -1,28 +1,39 @@
 @import "tailwindcss";
 
+@import "../design_handoff_thusness/tokens.css";
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: var(--thusness-bg);
+  --foreground: var(--thusness-ink);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-background: var(--thusness-bg);
+  --color-foreground: var(--thusness-ink);
+  --font-sans: var(--thusness-font);
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* Identity is light-first; keep tokens stable for brand fidelity */
+    --background: var(--thusness-bg);
+    --foreground: var(--thusness-ink);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+body.thusness {
+  margin: 0;
+  background: var(--thusness-bg);
+  color: var(--thusness-ink);
+  font-family: var(--thusness-font);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body.thusness ::selection {
+  background: var(--thusness-ink);
+  color: var(--thusness-bg);
 }
 
 /*
@@ -33,10 +44,6 @@ body {
 .tiptap-html,
 .tiptap-editor .ProseMirror {
   line-height: 1.65;
-  /*
-   * ProseMirror defaults to pre-wrap/break-spaces so literal newlines in pasted
-   * text become visible gaps that do not match real paragraph / hardBreak layout.
-   */
   white-space: normal;
   word-wrap: break-word;
 }
@@ -61,7 +68,14 @@ body {
   margin-top: 1.75rem;
 }
 
-.tiptap-html h2,
+.tiptap-html h2 {
+  font-size: 1.125rem;
+  line-height: 1.35;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--thusness-ink);
+}
+
 .tiptap-editor .ProseMirror h2 {
   font-size: 1.125rem;
   line-height: 1.35;
@@ -70,7 +84,13 @@ body {
   color: rgb(255 255 255);
 }
 
-.tiptap-html h3,
+.tiptap-html h3 {
+  font-size: 1rem;
+  line-height: 1.35;
+  font-weight: 500;
+  color: var(--thusness-ink);
+}
+
 .tiptap-editor .ProseMirror h3 {
   font-size: 1rem;
   line-height: 1.35;
@@ -78,19 +98,26 @@ body {
   color: rgb(255 255 255);
 }
 
-.tiptap-html p,
+.tiptap-html p {
+  color: var(--thusness-ink-soft);
+}
+
 .tiptap-editor .ProseMirror p {
   color: rgb(209 213 219);
 }
 
-/* Soft line breaks (Shift+Enter): small nudge; real paragraph gaps come from stack */
 .tiptap-html p br,
 .tiptap-editor .ProseMirror p br {
   display: block;
   margin: 0.45em 0 0;
 }
 
-.tiptap-html hr,
+.tiptap-html hr {
+  margin: 0;
+  border: 0;
+  border-top: 1px solid var(--thusness-rule);
+}
+
 .tiptap-editor .ProseMirror hr {
   margin: 0;
   border: 0;
@@ -103,7 +130,12 @@ body {
 }
 
 .tiptap-html img.tiptap-image,
-.tiptap-html img,
+.tiptap-html img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0;
+}
+
 .tiptap-editor .ProseMirror img.tiptap-image,
 .tiptap-editor .ProseMirror img {
   max-width: 100%;
@@ -129,26 +161,43 @@ body {
   display: block;
 }
 
-.tiptap-html strong,
+.tiptap-html strong {
+  font-weight: 500;
+  color: var(--thusness-ink);
+}
+
 .tiptap-editor .ProseMirror strong {
   font-weight: 500;
   color: rgb(255 255 255);
 }
 
-.tiptap-html a.tiptap-link,
+.tiptap-html a.tiptap-link {
+  color: var(--thusness-ink);
+  text-decoration: none;
+  border-bottom: 1px solid var(--thusness-ink);
+  padding-bottom: 2px;
+}
+
+.tiptap-html a.tiptap-link:hover {
+  opacity: 0.7;
+}
+
 .tiptap-editor .ProseMirror a.tiptap-link {
   color: rgb(229 231 235);
   text-decoration: underline;
   text-underline-offset: 4px;
 }
 
-.tiptap-html a.tiptap-link:hover,
 .tiptap-editor .ProseMirror a.tiptap-link:hover {
   color: rgb(255 255 255);
 }
 
 .tiptap-html ul,
-.tiptap-html ol,
+.tiptap-html ol {
+  padding-left: 1.25rem;
+  color: var(--thusness-ink-soft);
+}
+
 .tiptap-editor .ProseMirror ul,
 .tiptap-editor .ProseMirror ol {
   padding-left: 1.25rem;
