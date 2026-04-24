@@ -11,8 +11,6 @@ function metadataBaseUrl(): URL {
       /* fall through */
     }
   }
-  // Avoid *.vercel.app as metadataBase in production — absolute OG/icon URLs would
-  // point at Vercel’s host and the tab icon can show Vercel’s default on custom domains.
   if (process.env.VERCEL_ENV === "production") {
     const host = process.env.VERCEL_PROJECT_PRODUCTION_URL;
     if (host) {
@@ -36,7 +34,10 @@ export const metadata: Metadata = {
   title: "Thusness",
   description:
     "A quiet hour of guided noticing — small groups, one-on-one, and ongoing guidance.",
-  // `app/icon.svg` + `app/apple-icon.tsx` — RedDot (footer) motif.
+  // `app/favicon.ico` is auto-wired by Next. Apple raster lives in /public.
+  icons: {
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+  },
 };
 
 export default function RootLayout({
@@ -46,13 +47,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="h-full antialiased">
-      <head>
-        {/* Same-origin paths so the tab icon works on thusness.co even when
-            NEXT_PUBLIC_SITE_URL is unset (metadata alone used vercel.app before). */}
-        <link rel="icon" href="/icon.svg" type="image/svg+xml" sizes="any" />
-        <link rel="shortcut icon" href="/icon.svg" type="image/svg+xml" />
-        <link rel="apple-touch-icon" href="/apple-icon" />
-      </head>
       <body className="thusness min-h-full flex flex-col font-sans">{children}</body>
     </html>
   );

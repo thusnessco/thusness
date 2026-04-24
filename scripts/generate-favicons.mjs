@@ -1,8 +1,10 @@
 /**
- * Writes public/favicon.ico (PNG-in-ICO) and public/apple-touch-icon.png
- * without extra deps. Run from repo root:
- *   node scripts/generate-favicons.mjs
- * Raster matches design handoff: warm ink bg (#1a1915) + cream tilde (#efece1).
+ * Writes raster favicons matching `RedDot`: cream field, red ring, cream center.
+ * Run: node scripts/generate-favicons.mjs
+ *
+ * Outputs:
+ *   app/favicon.ico — Next serves /favicon.ico (Safari-friendly)
+ *   public/apple-touch-icon.png — 180×180 for iOS
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -11,6 +13,7 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, "..");
+const appDir = path.join(root, "app");
 const pub = path.join(root, "public");
 
 function crc32(buf) {
@@ -50,8 +53,8 @@ function makePng(width, height, rgbaAt) {
   const ihdr = Buffer.alloc(13);
   ihdr.writeUInt32BE(width, 0);
   ihdr.writeUInt32BE(height, 4);
-  ihdr[8] = 8; // bit depth
-  ihdr[9] = 6; // color type RGBA
+  ihdr[8] = 8;
+  ihdr[9] = 6;
   ihdr[10] = 0;
   ihdr[11] = 0;
   ihdr[12] = 0;
@@ -66,20 +69,26 @@ function makePng(width, height, rgbaAt) {
   ]);
 }
 
-/** Match app/icon.svg: #1a1915 bg, ~ in #efece1 (ellipse approx) */
-function thusnessRgba(x, y, size) {
-  const bg = [26, 25, 21, 255];
-  const fg = [239, 236, 225, 255];
+const CREAM = [239, 236, 225, 255];
+const RED = [194, 58, 42, 255];
+
+/** RedDot: outer red disc, inner cream hole (~⅓ diameter). */
+function redDotRgba(x, y, size) {
   const cx = size / 2;
-  const cy = size * (22 / 32);
-  const w = size * 0.35;
-  const h = size * 0.22;
-  if (Math.abs(x - cx) < w / 2 && Math.abs(y - cy) < h / 2) return fg;
-  return bg;
+  const cy = size / 2;
+  const px = x + 0.5;
+  const py = y + 0.5;
+  const d = Math.hypot(px - cx, py - cy);
+  const margin = Math.max(1, size * 0.06);
+  const rOuter = size / 2 - margin;
+  const rInner = rOuter * 0.33;
+  if (d <= rInner) return CREAM;
+  if (d <= rOuter) return RED;
+  return CREAM;
 }
 
 function pngIco(size) {
-  return makePng(size, size, (x, y) => thusnessRgba(x, y, size));
+  return makePng(size, size, (x, y) => redDotRgba(x, y, size));
 }
 
 function pngToIco(pngBuf) {
@@ -89,8 +98,9 @@ function pngToIco(pngBuf) {
   const count = Buffer.alloc(2);
   count.writeUInt16LE(1, 0);
   const entry = Buffer.alloc(16);
-  entry[0] = 0;
-  entry[1] = 0;
+  const dim = 32;
+  entry.writeUInt8(dim < 256 ? dim : 0, 0);
+  entry.writeUInt8(dim < 256 ? dim : 0, 1);
   entry.writeUInt8(0, 2);
   entry.writeUInt8(0, 3);
   entry.writeUInt16LE(1, 4);
@@ -103,7 +113,9 @@ function pngToIco(pngBuf) {
 const fav32 = pngIco(32);
 const apple = pngIco(180);
 
+fs.mkdirSync(appDir, { recursive: true });
 fs.mkdirSync(pub, { recursive: true });
+fs.writeFileSync(path.join(appDir, "favicon.ico"), pngToIco(fav32));
 fs.writeFileSync(path.join(pub, "favicon.ico"), pngToIco(fav32));
 fs.writeFileSync(path.join(pub, "apple-touch-icon.png"), apple);
-console.log("Wrote public/favicon.ico and public/apple-touch-icon.png");
+console.log("Wrote app/favicon.ico, public/favicon.ico, public/apple-touch-icon.png");
