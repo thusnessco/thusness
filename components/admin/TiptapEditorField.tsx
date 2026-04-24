@@ -209,6 +209,8 @@ type Props = {
   onImageUploadMessage?: (msg: string) => void;
   /** TipTap could not apply JSON (e.g. invalid node); shown in admin. */
   onEditorError?: (msg: string) => void;
+  /** Taller editor area for full-page home editing. */
+  variant?: "default" | "page";
 };
 
 export const TiptapEditorField = forwardRef<TiptapEditorFieldHandle, Props>(
@@ -220,6 +222,7 @@ export const TiptapEditorField = forwardRef<TiptapEditorFieldHandle, Props>(
       imageUploadScope,
       onImageUploadMessage,
       onEditorError,
+      variant = "default",
     },
     ref
   ) {
@@ -336,10 +339,20 @@ export const TiptapEditorField = forwardRef<TiptapEditorFieldHandle, Props>(
             .
           </p>
         ) : null}
-        <div className="min-h-[12rem] border border-[var(--thusness-rule)] bg-[var(--thusness-bg)] px-4 py-3 transition-colors focus-within:border-[var(--thusness-ink)]">
+        <div
+          className={
+            variant === "page"
+              ? "min-h-[28rem] border border-[var(--thusness-rule)] bg-[var(--thusness-bg)] px-4 py-3 transition-colors focus-within:border-[var(--thusness-ink)] sm:min-h-[32rem]"
+              : "min-h-[12rem] border border-[var(--thusness-rule)] bg-[var(--thusness-bg)] px-4 py-3 transition-colors focus-within:border-[var(--thusness-ink)]"
+          }
+        >
           <EditorContent
             editor={editor}
-            className="tiptap-editor min-h-[10rem] text-base text-[var(--thusness-ink-soft)] outline-none md:text-[17px] [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[10rem] [&_.ProseMirror_img]:max-h-[min(70vh,36rem)] [&_.ProseMirror_img]:max-w-full [&_.ProseMirror_img]:w-auto [&_.ProseMirror_img]:object-contain [&_.ProseMirror_img]:rounded-none [&_.ProseMirror_a.tiptap-image-link]:max-w-full"
+            className={
+              variant === "page"
+                ? "tiptap-editor min-h-[24rem] text-base text-[var(--thusness-ink-soft)] outline-none md:min-h-[28rem] md:text-[17px] [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[24rem] md:[&_.ProseMirror]:min-h-[28rem] [&_.ProseMirror_img]:max-h-[min(70vh,36rem)] [&_.ProseMirror_img]:max-w-full [&_.ProseMirror_img]:w-auto [&_.ProseMirror_img]:object-contain [&_.ProseMirror_img]:rounded-none [&_.ProseMirror_a.tiptap-image-link]:max-w-full"
+                : "tiptap-editor min-h-[10rem] text-base text-[var(--thusness-ink-soft)] outline-none md:text-[17px] [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[10rem] [&_.ProseMirror_img]:max-h-[min(70vh,36rem)] [&_.ProseMirror_img]:max-w-full [&_.ProseMirror_img]:w-auto [&_.ProseMirror_img]:object-contain [&_.ProseMirror_img]:rounded-none [&_.ProseMirror_a.tiptap-image-link]:max-w-full"
+            }
           />
         </div>
       </div>

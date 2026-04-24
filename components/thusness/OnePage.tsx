@@ -400,6 +400,7 @@ export default function OnePage({ week, mode }: OnePageProps) {
                 All are welcome.
               </div>
             </div>
+
           </div>
         </div>
 

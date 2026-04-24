@@ -1,11 +1,28 @@
 import Link from "next/link";
 
+import { HomePageFromTipTap } from "@/components/thusness/HomePageFromTipTap";
 import OnePage from "@/components/thusness/OnePage";
+import { getSiteContentJsonOrEmpty } from "@/lib/data/site-content";
+import { createPublicSupabase } from "@/lib/supabase/public-server";
 import { getCurrentWeek } from "@/lib/weeks";
+import { tiptapJsonToHtml } from "@/lib/tiptap/to-html";
 
 export const dynamic = "force-dynamic";
 
+function textFromHtml(html: string): string {
+  return html.replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim();
+}
+
 export default async function Home() {
+  const supabase = createPublicSupabase();
+  if (supabase) {
+    const homePageDoc = await getSiteContentJsonOrEmpty("home_page");
+    const homePageHtml = tiptapJsonToHtml(homePageDoc);
+    if (textFromHtml(homePageHtml).length > 0) {
+      return <HomePageFromTipTap html={homePageHtml} />;
+    }
+  }
+
   const week = await getCurrentWeek();
   if (!week) {
     return (
@@ -16,9 +33,10 @@ export default async function Home() {
         }}
       >
         <p className="max-w-md text-center text-sm leading-relaxed">
-          No week files found. Add an MDX file under{" "}
-          <code className="text-[var(--thusness-muted)]">content/weeks/</code>{" "}
-          and deploy.
+          No home page in admin yet and no week files in the repo. Add content
+          under <span className="italic">Admin → Public home page</span>, or add
+          MDX under{" "}
+          <code className="text-[var(--thusness-muted)]">content/weeks/</code>.
         </p>
         <Link
           href="/notes"
@@ -29,5 +47,6 @@ export default async function Home() {
       </main>
     );
   }
+
   return <OnePage week={week} mode="home" />;
 }

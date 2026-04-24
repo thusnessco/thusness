@@ -1,8 +1,11 @@
+import type { JSONContent } from "@tiptap/core";
 import { unstable_noStore as noStore } from "next/cache";
 
 import { AdminDashboard } from "@/components/admin/AdminDashboard";
 import { getAllNotesForAdmin } from "@/lib/data/notes-admin";
+import { emptyDoc } from "@/lib/tiptap/empty-doc";
 import { getSupabasePublicConfig } from "@/lib/supabase/config";
+import { createServerSupabase } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
@@ -30,7 +33,21 @@ export default async function AdminPage() {
     );
   }
 
+  const supabase = await createServerSupabase();
+
+  const { data: siteRow } = await supabase
+    .from("site_content")
+    .select("content_json, updated_at")
+    .eq("key", "home_page")
+    .maybeSingle();
+
+  const homePage =
+    (siteRow?.content_json as JSONContent | undefined) ?? emptyDoc();
+  const homePageKey = siteRow?.updated_at ?? "home_page";
+
   const notes = await getAllNotesForAdmin();
 
-  return <AdminDashboard notes={notes} />;
+  return (
+    <AdminDashboard homePage={homePage} homePageKey={homePageKey} notes={notes} />
+  );
 }
