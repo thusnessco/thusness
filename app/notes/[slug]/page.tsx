@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { SiteFooter } from "@/components/thusness/SiteFooter";
+import { ThusnessPageShell } from "@/components/thusness/ThusnessPageShell";
 import { TiptapHtml } from "@/components/TiptapHtml";
 import {
   formatPublishedDate,
@@ -40,36 +42,41 @@ export default async function NotePage({ params }: Props) {
   const bodyHtml = tiptapJsonToHtml(note.content_json);
 
   return (
-    <main className="min-h-screen bg-black text-white px-6 py-20 md:py-28 font-sans">
-      <div className="max-w-xl mx-auto">
-        <nav className="mb-16 md:mb-20" aria-label="Archive">
+    <main className="min-h-screen bg-[var(--thusness-bg)] font-sans text-[var(--thusness-ink)]">
+      <ThusnessPageShell
+        headerAside={
           <Link
             href="/notes"
-            className="text-xs tracking-[0.2em] uppercase text-gray-500 transition-colors hover:text-gray-400"
+            className="transition-opacity hover:opacity-70"
           >
-            Notes
+            ~ notes
           </Link>
-        </nav>
-
-        <article>
-          <header className="mb-14 md:mb-16 border-b border-white/[0.08] pb-12 md:pb-14">
+        }
+      >
+        <article className="mx-auto max-w-[620px]">
+          <header className="mb-14 border-b border-[var(--thusness-rule)] pb-12 md:mb-16 md:pb-14">
+            <p className="text-[11px] uppercase tracking-[2.4px] text-[var(--thusness-muted)]">
+              ~ note
+            </p>
             <time
               dateTime={note.published_at}
-              className="text-xs font-normal tracking-[0.18em] uppercase text-gray-500 tabular-nums"
+              className="mt-4 block text-[11px] uppercase tracking-[2.4px] text-[var(--thusness-muted)] tabular-nums"
             >
               {formatPublishedDate(note.published_at)}
             </time>
-            <h1 className="mt-5 text-3xl md:text-[2rem] font-light tracking-tight text-white leading-snug">
+            <h1 className="mt-4 text-3xl font-medium leading-snug tracking-tight text-[var(--thusness-ink)] md:text-[2rem]">
               {note.title}
             </h1>
           </header>
 
           <TiptapHtml
             html={bodyHtml}
-            className="text-base md:text-lg leading-[1.75] text-gray-300"
+            className="text-[17px] leading-[1.7] text-[var(--thusness-ink-soft)]"
           />
         </article>
-      </div>
+
+        <SiteFooter />
+      </ThusnessPageShell>
     </main>
   );
 }

@@ -1,7 +1,9 @@
 // Thusness — single-page layout from design handoff.
-// Content is hardcoded; wire to MDX / CMS when ready.
+// Structured week fields default in code; invitation + sessions copy from Supabase (TipTap).
 
 import React from "react";
+
+import { TiptapHtml } from "@/components/TiptapHtml";
 
 import RedDot from "./RedDot";
 import SectionMark from "./SectionMark";
@@ -78,7 +80,19 @@ const defaultWeek: WeekData = {
   zoomLabel: "zoom.us/j/97461285343",
 };
 
-export default function OnePage({ week = defaultWeek }: { week?: WeekData }) {
+export type OnePageProps = {
+  week?: WeekData;
+  /** Renders below the hero when non-empty (site_content `home_intro`). */
+  invitationHtml?: string;
+  /** Renders under the Zoom block when non-empty (site_content `weekly_sessions`). */
+  weeklySessionsHtml?: string;
+};
+
+export default function OnePage({
+  week = defaultWeek,
+  invitationHtml,
+  weeklySessionsHtml,
+}: OnePageProps) {
   const listItem: React.CSSProperties = {
     display: "flex",
     gap: 20,
@@ -169,6 +183,23 @@ export default function OnePage({ week = defaultWeek }: { week?: WeekData }) {
             </div>
           </div>
         </div>
+
+        {invitationHtml?.trim() ? (
+          <div style={{ marginBottom: 72 }}>
+            <SectionMark label="~ invitation" />
+            <div
+              style={{
+                maxWidth: 620,
+                margin: "0 auto",
+                fontSize: 17,
+                lineHeight: 1.7,
+                color: c.inkSoft,
+              }}
+            >
+              <TiptapHtml html={invitationHtml} />
+            </div>
+          </div>
+        ) : null}
 
         <SectionMark label={`~ Theme · ${week.themeTitle}`} />
         <div
@@ -403,6 +434,33 @@ export default function OnePage({ week = defaultWeek }: { week?: WeekData }) {
                 All are welcome.
               </div>
             </div>
+
+            {weeklySessionsHtml?.trim() ? (
+              <div
+                style={{
+                  marginTop: 56,
+                  maxWidth: 620,
+                  marginLeft: "auto",
+                  marginRight: "auto",
+                  fontSize: 17,
+                  lineHeight: 1.7,
+                  color: c.inkSoft,
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: 11,
+                    letterSpacing: 2.4,
+                    textTransform: "uppercase",
+                    color: c.muted,
+                    marginBottom: 20,
+                  }}
+                >
+                  ~ this week
+                </div>
+                <TiptapHtml html={weeklySessionsHtml} />
+              </div>
+            ) : null}
           </div>
         </div>
 

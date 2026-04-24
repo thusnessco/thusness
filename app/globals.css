@@ -38,8 +38,7 @@ body.thusness ::selection {
 
 /*
  * Shared TipTap typography: `.tiptap-html` (site) + `.tiptap-editor .ProseMirror` (admin).
- * Vertical rhythm uses one stack rule (`> * + *`) so block spacing does not depend
- * on margin collapse (which differs from `<br>` inside a single `<p>`).
+ * Same rules so the editor matches published prose on the cream ground.
  */
 .tiptap-html,
 .tiptap-editor .ProseMirror {
@@ -68,42 +67,26 @@ body.thusness ::selection {
   margin-top: 1.75rem;
 }
 
-.tiptap-html h2 {
-  font-size: 1.125rem;
-  line-height: 1.35;
-  font-weight: 500;
-  letter-spacing: 0.06em;
-  color: var(--thusness-ink);
-}
-
+.tiptap-html h2,
 .tiptap-editor .ProseMirror h2 {
   font-size: 1.125rem;
   line-height: 1.35;
   font-weight: 500;
   letter-spacing: 0.06em;
-  color: rgb(255 255 255);
+  color: var(--thusness-ink);
 }
 
-.tiptap-html h3 {
+.tiptap-html h3,
+.tiptap-editor .ProseMirror h3 {
   font-size: 1rem;
   line-height: 1.35;
   font-weight: 500;
   color: var(--thusness-ink);
 }
 
-.tiptap-editor .ProseMirror h3 {
-  font-size: 1rem;
-  line-height: 1.35;
-  font-weight: 500;
-  color: rgb(255 255 255);
-}
-
-.tiptap-html p {
-  color: var(--thusness-ink-soft);
-}
-
+.tiptap-html p,
 .tiptap-editor .ProseMirror p {
-  color: rgb(209 213 219);
+  color: var(--thusness-ink-soft);
 }
 
 .tiptap-html p br,
@@ -112,16 +95,11 @@ body.thusness ::selection {
   margin: 0.45em 0 0;
 }
 
-.tiptap-html hr {
-  margin: 0;
-  border: 0;
-  border-top: 1px solid var(--thusness-rule);
-}
-
+.tiptap-html hr,
 .tiptap-editor .ProseMirror hr {
   margin: 0;
   border: 0;
-  border-top: 1px solid rgb(255 255 255 / 0.12);
+  border-top: 1px solid var(--thusness-rule);
 }
 
 .tiptap-html figure,
@@ -130,17 +108,12 @@ body.thusness ::selection {
 }
 
 .tiptap-html img.tiptap-image,
-.tiptap-html img {
-  max-width: 100%;
-  height: auto;
-  border-radius: 0;
-}
-
+.tiptap-html img,
 .tiptap-editor .ProseMirror img.tiptap-image,
 .tiptap-editor .ProseMirror img {
   max-width: 100%;
   height: auto;
-  border-radius: 0.25rem;
+  border-radius: 0;
 }
 
 .tiptap-html a.tiptap-image-link,
@@ -161,47 +134,31 @@ body.thusness ::selection {
   display: block;
 }
 
-.tiptap-html strong {
+.tiptap-html strong,
+.tiptap-editor .ProseMirror strong {
   font-weight: 500;
   color: var(--thusness-ink);
 }
 
-.tiptap-editor .ProseMirror strong {
-  font-weight: 500;
-  color: rgb(255 255 255);
-}
-
-.tiptap-html a.tiptap-link {
+.tiptap-html a.tiptap-link,
+.tiptap-editor .ProseMirror a.tiptap-link {
   color: var(--thusness-ink);
   text-decoration: none;
   border-bottom: 1px solid var(--thusness-ink);
   padding-bottom: 2px;
 }
 
-.tiptap-html a.tiptap-link:hover {
+.tiptap-html a.tiptap-link:hover,
+.tiptap-editor .ProseMirror a.tiptap-link:hover {
   opacity: 0.7;
 }
 
-.tiptap-editor .ProseMirror a.tiptap-link {
-  color: rgb(229 231 235);
-  text-decoration: underline;
-  text-underline-offset: 4px;
-}
-
-.tiptap-editor .ProseMirror a.tiptap-link:hover {
-  color: rgb(255 255 255);
-}
-
 .tiptap-html ul,
-.tiptap-html ol {
-  padding-left: 1.25rem;
-  color: var(--thusness-ink-soft);
-}
-
+.tiptap-html ol,
 .tiptap-editor .ProseMirror ul,
 .tiptap-editor .ProseMirror ol {
   padding-left: 1.25rem;
-  color: rgb(209 213 219);
+  color: var(--thusness-ink-soft);
 }
 
 .tiptap-html li + li,

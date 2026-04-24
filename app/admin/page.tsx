@@ -14,14 +14,20 @@ export default async function AdminPage() {
 
   if (!getSupabasePublicConfig()) {
     return (
-      <div className="mx-auto max-w-lg px-6 py-24 text-gray-300">
-        <h1 className="text-lg font-light text-white">Admin</h1>
+      <div className="mx-auto max-w-lg px-6 py-24 text-[var(--thusness-ink-soft)]">
+        <h1 className="text-lg font-medium tracking-tight text-[var(--thusness-ink)]">
+          Admin
+        </h1>
         <p className="mt-4 text-sm leading-relaxed">
           Set{" "}
-          <code className="text-gray-400">NEXT_PUBLIC_SUPABASE_URL</code> and{" "}
-          <code className="text-gray-400">NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY</code> (or{" "}
-          <code className="text-gray-400">NEXT_PUBLIC_SUPABASE_ANON_KEY</code>){" "}
-          in the environment, then redeploy.
+          <code className="text-[var(--thusness-muted)]">NEXT_PUBLIC_SUPABASE_URL</code>{" "}
+          and{" "}
+          <code className="text-[var(--thusness-muted)]">
+            NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+          </code>{" "}
+          (or{" "}
+          <code className="text-[var(--thusness-muted)]">NEXT_PUBLIC_SUPABASE_ANON_KEY</code>
+          ) in the environment, then redeploy.
         </p>
       </div>
     );

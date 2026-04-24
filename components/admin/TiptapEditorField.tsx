@@ -69,13 +69,15 @@ function Toolbar({
   if (!editor) return null;
 
   const btn =
-    "rounded px-2.5 py-1 text-xs tracking-wide transition-colors border border-transparent";
-  const active = "bg-white/10 text-white border-white/15";
-  const idle = "text-gray-400 hover:text-gray-200 hover:border-white/10";
+    "rounded-sm px-2.5 py-1 text-xs tracking-wide transition-opacity border border-transparent";
+  const active =
+    "border-[var(--thusness-rule)] bg-[color-mix(in_srgb,var(--thusness-rule)_25%,transparent)] text-[var(--thusness-ink)]";
+  const idle =
+    "text-[var(--thusness-muted)] hover:opacity-80 hover:border-[var(--thusness-rule)]";
 
   return (
     <div
-      className="mb-3 flex flex-wrap gap-1 rounded-md border border-white/10 bg-zinc-950/80 p-2"
+      className="mb-3 flex flex-wrap gap-1 border border-[var(--thusness-rule)] bg-[var(--thusness-bg)] p-2"
       role="toolbar"
       aria-label="Formatting"
     >
@@ -93,7 +95,7 @@ function Toolbar({
       >
         Italic
       </button>
-      <span className="mx-1 w-px self-stretch bg-white/10" aria-hidden />
+      <span className="mx-1 w-px self-stretch bg-[var(--thusness-rule)]" aria-hidden />
       <button
         type="button"
         className={`${btn} ${editor.isActive("heading", { level: 2 }) ? active : idle}`}
@@ -112,7 +114,7 @@ function Toolbar({
       >
         H3
       </button>
-      <span className="mx-1 w-px self-stretch bg-white/10" aria-hidden />
+      <span className="mx-1 w-px self-stretch bg-[var(--thusness-rule)]" aria-hidden />
       <button
         type="button"
         className={`${btn} ${editor.isActive("bulletList") ? active : idle}`}
@@ -127,7 +129,7 @@ function Toolbar({
       >
         1. List
       </button>
-      <span className="mx-1 w-px self-stretch bg-white/10" aria-hidden />
+      <span className="mx-1 w-px self-stretch bg-[var(--thusness-rule)]" aria-hidden />
       {imageUploadScope ? (
         <>
           <input
@@ -171,7 +173,7 @@ function Toolbar({
           >
             Image link
           </button>
-          <span className="mx-1 w-px self-stretch bg-white/10" aria-hidden />
+          <span className="mx-1 w-px self-stretch bg-[var(--thusness-rule)]" aria-hidden />
         </>
       ) : null}
       <button
@@ -313,7 +315,7 @@ export const TiptapEditorField = forwardRef<TiptapEditorFieldHandle, Props>(
 
     return (
       <div className="space-y-2">
-        <div className="text-xs tracking-[0.2em] uppercase text-gray-500">
+        <div className="text-[11px] uppercase tracking-[2.4px] text-[var(--thusness-muted)]">
           {label}
         </div>
         <Toolbar
@@ -322,21 +324,22 @@ export const TiptapEditorField = forwardRef<TiptapEditorFieldHandle, Props>(
           onImageUploadMessage={onImageUploadMessage}
         />
         {imageUploadScope ? (
-          <p className="text-[10px] leading-relaxed text-gray-600">
+          <p className="text-[10px] leading-relaxed text-[var(--thusness-muted)]">
             Point to a note with either tool:{" "}
-            <span className="text-gray-400">Image link</span> (select the image
-            first) or <span className="text-gray-400">Link</span> (select text
-            first). Use paths like{" "}
-            <code className="rounded bg-white/5 px-1 text-gray-400">
+            <span className="text-[var(--thusness-ink-soft)]">Image link</span>{" "}
+            (select the image first) or{" "}
+            <span className="text-[var(--thusness-ink-soft)]">Link</span> (select
+            text first). Use paths like{" "}
+            <code className="border border-[var(--thusness-rule)] px-1 text-[var(--thusness-muted)]">
               /notes/your-slug
             </code>
             .
           </p>
         ) : null}
-        <div className="rounded-md border border-white/10 bg-black px-4 py-3 min-h-[12rem] focus-within:border-white/20 transition-colors">
+        <div className="min-h-[12rem] border border-[var(--thusness-rule)] bg-[var(--thusness-bg)] px-4 py-3 transition-colors focus-within:border-[var(--thusness-ink)]">
           <EditorContent
             editor={editor}
-            className="tiptap-editor prose-invert min-h-[10rem] text-base md:text-lg text-gray-200 outline-none [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[10rem] [&_.ProseMirror_img]:max-h-[min(70vh,36rem)] [&_.ProseMirror_img]:max-w-full [&_.ProseMirror_img]:w-auto [&_.ProseMirror_img]:object-contain [&_.ProseMirror_img]:rounded-md [&_.ProseMirror_a.tiptap-image-link]:max-w-full"
+            className="tiptap-editor min-h-[10rem] text-base text-[var(--thusness-ink-soft)] outline-none md:text-[17px] [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[10rem] [&_.ProseMirror_img]:max-h-[min(70vh,36rem)] [&_.ProseMirror_img]:max-w-full [&_.ProseMirror_img]:w-auto [&_.ProseMirror_img]:object-contain [&_.ProseMirror_img]:rounded-none [&_.ProseMirror_a.tiptap-image-link]:max-w-full"
           />
         </div>
       </div>
