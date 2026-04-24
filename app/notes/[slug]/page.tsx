@@ -2,81 +2,45 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { SiteFooter } from "@/components/thusness/SiteFooter";
-import { ThusnessPageShell } from "@/components/thusness/ThusnessPageShell";
-import { TiptapHtml } from "@/components/TiptapHtml";
-import {
-  formatPublishedDate,
-  getPublishedNoteBySlug,
-} from "@/lib/data/notes-public";
-import { createPublicSupabase } from "@/lib/supabase/public-server";
-import { tiptapJsonToHtml } from "@/lib/tiptap/to-html";
+import OnePage from "@/components/thusness/OnePage";
+import { getWeekBySlug } from "@/lib/weeks";
 
 type Props = { params: Promise<{ slug: string }> };
 
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  if (!createPublicSupabase()) {
-    return { title: "Note" };
-  }
   const { slug } = await params;
-  const note = await getPublishedNoteBySlug(slug);
-  if (!note) return { title: "Note" };
+  const week = await getWeekBySlug(slug);
+  if (!week) return { title: "Note" };
   return {
-    title: note.title,
-    description: note.excerpt ?? note.title,
+    title: week.themeTitle,
+    description: week.question,
     robots: { index: false, follow: false },
   };
 }
 
-export default async function NotePage({ params }: Props) {
-  if (!createPublicSupabase()) {
-    notFound();
-  }
-
+export default async function ArchivedWeekPage({ params }: Props) {
   const { slug } = await params;
-  const note = await getPublishedNoteBySlug(slug);
-  if (!note) notFound();
-
-  const bodyHtml = tiptapJsonToHtml(note.content_json);
+  const week = await getWeekBySlug(slug);
+  if (!week) notFound();
 
   return (
-    <main className="min-h-screen bg-[var(--thusness-bg)] font-sans text-[var(--thusness-ink)]">
-      <ThusnessPageShell
-        headerAside={
+    <div>
+      <div className="border-b border-[var(--thusness-rule)] bg-[var(--thusness-bg)] px-6 py-4 sm:px-10">
+        <div className="mx-auto flex max-w-[880px] justify-end">
           <Link
             href="/notes"
-            className="transition-opacity hover:opacity-70"
+            className="text-[11px] uppercase tracking-[2.4px] text-[var(--thusness-muted)] transition-opacity hover:opacity-70"
+            style={{
+              fontFamily: 'Helvetica, "Helvetica Neue", Arial, sans-serif',
+            }}
           >
             ~ notes
           </Link>
-        }
-      >
-        <article className="mx-auto max-w-[620px]">
-          <header className="mb-14 border-b border-[var(--thusness-rule)] pb-12 md:mb-16 md:pb-14">
-            <p className="text-[11px] uppercase tracking-[2.4px] text-[var(--thusness-muted)]">
-              ~ note
-            </p>
-            <time
-              dateTime={note.published_at}
-              className="mt-4 block text-[11px] uppercase tracking-[2.4px] text-[var(--thusness-muted)] tabular-nums"
-            >
-              {formatPublishedDate(note.published_at)}
-            </time>
-            <h1 className="mt-4 text-3xl font-medium leading-snug tracking-tight text-[var(--thusness-ink)] md:text-[2rem]">
-              {note.title}
-            </h1>
-          </header>
-
-          <TiptapHtml
-            html={bodyHtml}
-            className="text-[17px] leading-[1.7] text-[var(--thusness-ink-soft)]"
-          />
-        </article>
-
-        <SiteFooter />
-      </ThusnessPageShell>
-    </main>
+        </div>
+      </div>
+      <OnePage week={week} mode="archive" />
+    </div>
   );
 }

@@ -4,13 +4,7 @@ import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import type { JSONContent } from "@tiptap/core";
 import { useRouter } from "next/navigation";
 
-import {
-  createNote,
-  deleteNote,
-  saveNote,
-  saveSiteContent,
-  signOut,
-} from "@/app/admin/actions";
+import { createNote, deleteNote, saveNote, signOut } from "@/app/admin/actions";
 import type { NoteRow } from "@/lib/supabase/public-server";
 
 import { jsonContentEqual } from "@/lib/tiptap/json-content-equal";
@@ -21,15 +15,11 @@ import {
 } from "./TiptapEditorField";
 
 type Props = {
-  homeIntro: JSONContent;
-  weeklySessions: JSONContent;
-  homeIntroKey: string;
-  weeklySessionsKey: string;
   notes: NoteRow[];
 };
 
 /** Client copy of last successful save until RSC props catch the same `updated_at`. */
-type SiteContentOverride = { doc: JSONContent; key: string };
+type NoteBodyOverride = { doc: JSONContent; key: string };
 
 const fieldLabel =
   "text-[10px] uppercase tracking-[0.2em] text-[var(--thusness-muted)]";
@@ -108,10 +98,10 @@ function NoteEditorPanel({
           Published
         </span>
         <span className="text-[10px] leading-relaxed text-[var(--thusness-muted)]">
-          Drafts only appear here in Admin. Check Published and save for a note
-          to show on{" "}
-          <code className="text-[var(--thusness-ink-soft)]">/notes</code> and in
-          the archive.
+          These records are not linked from the public navigation. The live site
+          week archive is{" "}
+          <code className="text-[var(--thusness-ink-soft)]">content/weeks/*.mdx</code>{" "}
+          in the repo.
         </span>
       </label>
 
@@ -188,49 +178,16 @@ function NoteEditorPanel({
   );
 }
 
-export function AdminDashboard({
-  homeIntro,
-  weeklySessions,
-  homeIntroKey,
-  weeklySessionsKey,
-  notes,
-}: Props) {
+export function AdminDashboard({ notes }: Props) {
   const router = useRouter();
   const [selectedId, setSelectedId] = useState<string | null>(
     notes[0]?.id ?? null
   );
   const [message, setMessage] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
-  const [homeIntroOverride, setHomeIntroOverride] =
-    useState<SiteContentOverride | null>(null);
-  const [weeklyOverride, setWeeklyOverride] =
-    useState<SiteContentOverride | null>(null);
   const [noteBodyOverrides, setNoteBodyOverrides] = useState<
-    Record<string, SiteContentOverride>
+    Record<string, NoteBodyOverride>
   >({});
-
-  const introDoc = homeIntroOverride?.doc ?? homeIntro;
-  const introSyncKey = homeIntroOverride?.key ?? homeIntroKey;
-  const weeklyDoc = weeklyOverride?.doc ?? weeklySessions;
-  const weeklySyncKey = weeklyOverride?.key ?? weeklySessionsKey;
-
-  useEffect(() => {
-    setHomeIntroOverride((o) => {
-      if (!o) return o;
-      if (o.key !== homeIntroKey) return o;
-      // Same revision but RSC can briefly return cached JSON; only drop override
-      // when props match what we saved.
-      return jsonContentEqual(o.doc, homeIntro) ? null : o;
-    });
-  }, [homeIntroKey, homeIntro]);
-
-  useEffect(() => {
-    setWeeklyOverride((o) => {
-      if (!o) return o;
-      if (o.key !== weeklySessionsKey) return o;
-      return jsonContentEqual(o.doc, weeklySessions) ? null : o;
-    });
-  }, [weeklySessionsKey, weeklySessions]);
 
   useEffect(() => {
     if (!selectedId) return;
@@ -245,8 +202,6 @@ export function AdminDashboard({
     });
   }, [notes, selectedId]);
 
-  const introRef = useRef<TiptapEditorFieldHandle>(null);
-  const weeklyRef = useRef<TiptapEditorFieldHandle>(null);
   const noteBodyRef = useRef<TiptapEditorFieldHandle>(null);
 
   const selected = notes.find((n) => n.id === selectedId) ?? null;
@@ -277,10 +232,10 @@ export function AdminDashboard({
             Admin
           </h1>
           <p className="mt-2 max-w-xl text-sm leading-relaxed text-[var(--thusness-ink-soft)]">
-            Invitation and weekly copy publish to the home page (below the hero
-            and under the Zoom block). Notes publish to{" "}
-            <code className="text-[var(--thusness-muted)]">/notes</code> when marked
-            published.
+            The public home page and <code className="text-[var(--thusness-muted)]">/notes</code>{" "}
+            archive come from <code className="text-[var(--thusness-muted)]">content/weeks</code>{" "}
+            (MDX in git). Use this area for optional TipTap records (not shown on the
+            public site).
           </p>
         </div>
         <form action={signOut}>
@@ -299,163 +254,80 @@ export function AdminDashboard({
         </p>
       ) : null}
 
-      <div className="space-y-20">
-        <section className="space-y-8">
-          <h2 className={sectionHeading}>Homepage</h2>
-          <TiptapEditorField
-            ref={introRef}
-            label="Invitation (home_intro) — on site below the hero"
-            contentSyncKey={introSyncKey}
-            initialDoc={introDoc}
-            imageUploadScope="site/home_intro"
-            onImageUploadMessage={flash}
-            onEditorError={flash}
-          />
+      <section className="space-y-6">
+        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <h2 className={sectionHeading}>TipTap notes</h2>
           <button
             type="button"
             disabled={isPending}
             onClick={() => {
-              const json = introRef.current?.getJSON();
-              if (!json) {
-                flash(
-                  "Editor is not ready yet. Wait a second, then try Save again."
-                );
-                return;
-              }
-              const snapshot = structuredClone(json) as JSONContent;
               startTransition(async () => {
-                const res = await saveSiteContent("home_intro", snapshot);
+                const res = await createNote();
                 if (!res.ok) flash(res.message);
                 else {
-                  setHomeIntroOverride({
-                    doc: res.content_json,
-                    key: res.updated_at,
-                  });
-                  flash("Saved invitation.");
+                  flash("Draft note created.");
+                  setSelectedId(res.id);
+                  router.refresh();
                 }
               });
             }}
-            className={btnPrimary}
+            className={btnSmall}
           >
-            Save invitation
+            New note
           </button>
+        </div>
 
-          <div className="border-t border-[var(--thusness-rule)] pt-10">
-            <TiptapEditorField
-              ref={weeklyRef}
-              label="This week (weekly_sessions) — on site under the Zoom link"
-              contentSyncKey={weeklySyncKey}
-              initialDoc={weeklyDoc}
-              imageUploadScope="site/weekly_sessions"
-              onImageUploadMessage={flash}
-              onEditorError={flash}
-            />
-            <button
-              type="button"
-              disabled={isPending}
-              onClick={() => {
-                const json = weeklyRef.current?.getJSON();
-                if (!json) {
-                  flash(
-                    "Editor is not ready yet. Wait a second, then try Save again."
-                  );
-                  return;
-                }
-                const snapshot = structuredClone(json) as JSONContent;
-                startTransition(async () => {
-                  const res = await saveSiteContent("weekly_sessions", snapshot);
-                  if (!res.ok) flash(res.message);
-                  else {
-                    setWeeklyOverride({
-                      doc: res.content_json,
-                      key: res.updated_at,
-                    });
-                    flash("Saved weekly sessions.");
-                  }
-                });
-              }}
-              className={`mt-4 ${btnPrimary}`}
-            >
-              Save weekly sessions
-            </button>
+        <div className="grid gap-10 md:grid-cols-[minmax(0,11rem)_minmax(0,1fr)]">
+          <nav
+            aria-label="Notes"
+            className="space-y-1 border-b border-[var(--thusness-rule)] pb-8 md:border-b-0 md:border-r md:border-[var(--thusness-rule)] md:pb-0 md:pr-8"
+          >
+            {notes.map((n) => (
+              <button
+                key={n.id}
+                type="button"
+                onClick={() => setSelectedId(n.id)}
+                className={`block w-full border border-transparent px-2 py-2 text-left text-sm transition-colors ${
+                  n.id === selectedId
+                    ? "border-[var(--thusness-ink)] text-[var(--thusness-ink)]"
+                    : "text-[var(--thusness-muted)] hover:border-[var(--thusness-rule)] hover:text-[var(--thusness-ink)]"
+                }`}
+              >
+                <span className="block truncate">{n.title || "Untitled"}</span>
+                {!n.published ? (
+                  <span className="mt-0.5 block text-[10px] uppercase tracking-wider text-[var(--thusness-muted)]">
+                    Draft
+                  </span>
+                ) : null}
+              </button>
+            ))}
+          </nav>
+
+          <div className="min-w-0 space-y-6">
+            {selectedForEditor ? (
+              <NoteEditorPanel
+                key={selectedForEditor.id}
+                note={selectedForEditor}
+                noteBodyRef={noteBodyRef}
+                isPending={isPending}
+                startTransition={startTransition}
+                router={router}
+                onMessage={flash}
+                onNoteBodySaved={(id, doc, updatedAt) => {
+                  setNoteBodyOverrides((p) => ({
+                    ...p,
+                    [id]: { doc, key: updatedAt },
+                  }));
+                }}
+              />
+            ) : (
+              <p className="text-sm text-[var(--thusness-muted)]">
+                Create a note to begin.
+              </p>
+            )}
           </div>
-        </section>
-
-        <section className="space-y-6 border-t border-[var(--thusness-rule)] pt-16">
-          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-            <h2 className={sectionHeading}>Notes</h2>
-            <button
-              type="button"
-              disabled={isPending}
-              onClick={() => {
-                startTransition(async () => {
-                  const res = await createNote();
-                  if (!res.ok) flash(res.message);
-                  else {
-                    flash("Draft note created.");
-                    setSelectedId(res.id);
-                    router.refresh();
-                  }
-                });
-              }}
-              className={btnSmall}
-            >
-              New note
-            </button>
-          </div>
-
-          <div className="grid gap-10 md:grid-cols-[minmax(0,11rem)_minmax(0,1fr)]">
-            <nav
-              aria-label="Notes"
-              className="space-y-1 border-b border-[var(--thusness-rule)] pb-8 md:border-b-0 md:border-r md:border-[var(--thusness-rule)] md:pb-0 md:pr-8"
-            >
-              {notes.map((n) => (
-                <button
-                  key={n.id}
-                  type="button"
-                  onClick={() => setSelectedId(n.id)}
-                  className={`block w-full border border-transparent px-2 py-2 text-left text-sm transition-colors ${
-                    n.id === selectedId
-                      ? "border-[var(--thusness-ink)] text-[var(--thusness-ink)]"
-                      : "text-[var(--thusness-muted)] hover:border-[var(--thusness-rule)] hover:text-[var(--thusness-ink)]"
-                  }`}
-                >
-                  <span className="block truncate">{n.title || "Untitled"}</span>
-                  {!n.published ? (
-                    <span className="mt-0.5 block text-[10px] uppercase tracking-wider text-[var(--thusness-muted)]">
-                      Draft
-                    </span>
-                  ) : null}
-                </button>
-              ))}
-            </nav>
-
-            <div className="min-w-0 space-y-6">
-              {selectedForEditor ? (
-                <NoteEditorPanel
-                  key={selectedForEditor.id}
-                  note={selectedForEditor}
-                  noteBodyRef={noteBodyRef}
-                  isPending={isPending}
-                  startTransition={startTransition}
-                  router={router}
-                  onMessage={flash}
-                  onNoteBodySaved={(id, doc, updatedAt) => {
-                    setNoteBodyOverrides((p) => ({
-                      ...p,
-                      [id]: { doc, key: updatedAt },
-                    }));
-                  }}
-                />
-              ) : (
-                <p className="text-sm text-[var(--thusness-muted)]">
-                  Create a note to begin.
-                </p>
-              )}
-            </div>
-          </div>
-        </section>
-      </div>
+        </div>
+      </section>
     </div>
   );
 }

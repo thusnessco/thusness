@@ -1,13 +1,13 @@
-// Thusness — single-page layout from design handoff.
-// Structured week fields default in code; invitation + sessions copy from Supabase (TipTap).
+// Thusness — week template: home (current week) or archive (/notes/[slug]).
 
 import React from "react";
 
-import { TiptapHtml } from "@/components/TiptapHtml";
+import type { Week } from "@/lib/weeks";
 
 import RedDot from "./RedDot";
 import SectionMark from "./SectionMark";
 import Wordmark from "./Wordmark";
+import { WeekProse } from "./WeekProse";
 
 const helv = 'Helvetica, "Helvetica Neue", Arial, sans-serif';
 const c = {
@@ -18,81 +18,29 @@ const c = {
   rule: "var(--thusness-rule, #c7c2b0)",
 };
 
-export type WeekData = {
-  dateLabel: string;
-  themeIndex: string;
-  question: string;
-  themeTitle: string;
-  prose: React.ReactNode;
-  pullQuote: React.ReactNode;
-  benefits: string[];
-  itinerary: string[];
-  pillar: string;
-  zoomUrl: string;
-  zoomLabel: string;
-};
-
-const defaultWeek: WeekData = {
-  dateLabel: "Week of April 24, 2026",
-  themeIndex: "Theme XVII",
-  question: "Is any effort necessary for experience to be?",
-  themeTitle: "Noticing Effort",
-  prose: (
-    <>
-      <p style={{ margin: "0 0 1.3em 0" }}>
-        Previously we explored <em>resistance</em> — a sense of <em>no</em> regarding
-        what&apos;s happening. Effort is a little more subtle, and might show up as a
-        sense that something needs to be done: adjusting, reaching, trying to get it
-        right, <em>I need to</em>, or holding things in place. A subtle doing, or a sense
-        of something added onto what&apos;s here. Striving and trying are its amplified
-        versions.
-      </p>
-      <p style={{ margin: "0 0 1.3em 0" }}>
-        Qualities of effort may appear in the body, the mind, or both. If effort
-        isn&apos;t present, what&apos;s left over may be relaxation, ease, openness, or
-        a feeling that nothing needs to change.
-      </p>
-    </>
-  ),
-  pullQuote: (
-    <>
-      What happens as we become more curious
-      <br />
-      and aware of effort in each moment?
-    </>
-  ),
-  benefits: [
-    "Practice noticing experience as it is",
-    "Increase sensitivity to the details of effort",
-    "Effort becomes more visible and optional",
-  ],
-  itinerary: [
-    "Notice where attention goes",
-    "Noticing gentle curiosity",
-    "Introductory exploration of effort",
-    "Notice any aspects of experience and how effort might relate",
-    "Integration exercise",
-    "Home integration instructions",
-    "Group sharing",
-  ],
-  pillar: "Gentle curiosity.",
-  zoomUrl: "https://zoom.us/j/97461285343",
-  zoomLabel: "zoom.us/j/97461285343",
-};
+export type OnePageMode = "home" | "archive";
 
 export type OnePageProps = {
-  week?: WeekData;
-  /** Renders below the hero when non-empty (site_content `home_intro`). */
-  invitationHtml?: string;
-  /** Renders under the Zoom block when non-empty (site_content `weekly_sessions`). */
-  weeklySessionsHtml?: string;
+  week: Week;
+  mode: OnePageMode;
 };
 
-export default function OnePage({
-  week = defaultWeek,
-  invitationHtml,
-  weeklySessionsHtml,
-}: OnePageProps) {
+function PullQuote({ text }: { text: string }) {
+  const lines = text.split(/\r?\n/).filter((l) => l.trim().length > 0);
+  if (lines.length === 0) return null;
+  return (
+    <>
+      {lines.map((line, i) => (
+        <React.Fragment key={i}>
+          {i > 0 ? <br /> : null}
+          {line.trim()}
+        </React.Fragment>
+      ))}
+    </>
+  );
+}
+
+export default function OnePage({ week, mode }: OnePageProps) {
   const listItem: React.CSSProperties = {
     display: "flex",
     gap: 20,
@@ -110,6 +58,9 @@ export default function OnePage({
     minWidth: 26,
     paddingTop: 3,
   };
+
+  const showHeroCircle = week.hero?.kind === "circle";
+  const showHeaderMeta = mode === "home";
 
   return (
     <div
@@ -131,21 +82,27 @@ export default function OnePage({
           }}
         >
           <Wordmark size={20} />
-          <div
-            style={{
-              fontFamily: helv,
-              fontSize: 11,
-              letterSpacing: 2.4,
-              textTransform: "uppercase",
-              color: c.muted,
-              textAlign: "right",
-              lineHeight: 1.6,
-            }}
-          >
-            {week.dateLabel}
-            <br />
-            {week.themeIndex}
-          </div>
+          {showHeaderMeta ? (
+            <div
+              style={{
+                fontFamily: helv,
+                fontSize: 11,
+                letterSpacing: 2.4,
+                textTransform: "uppercase",
+                color: c.muted,
+                textAlign: "right",
+                lineHeight: 1.6,
+              }}
+            >
+              {week.dateLabel}
+              {week.themeIndex ? (
+                <>
+                  <br />
+                  {week.themeIndex}
+                </>
+              ) : null}
+            </div>
+          ) : null}
         </div>
 
         <div
@@ -155,9 +112,33 @@ export default function OnePage({
             alignItems: "center",
             justifyContent: "center",
             margin: "0 -20px 72px",
+            position: "relative",
           }}
         >
-          <div style={{ textAlign: "center", padding: "0 24px" }}>
+          {showHeroCircle ? (
+            <div
+              aria-hidden="true"
+              style={{
+                position: "absolute",
+                width: 520,
+                height: 520,
+                borderRadius: "50%",
+                border: `1px solid ${c.rule}`,
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                pointerEvents: "none",
+              }}
+            />
+          ) : null}
+          <div
+            style={{
+              textAlign: "center",
+              padding: "0 24px",
+              position: "relative",
+              zIndex: 1,
+            }}
+          >
             <h1
               style={{
                 fontSize: 54,
@@ -184,23 +165,6 @@ export default function OnePage({
           </div>
         </div>
 
-        {invitationHtml?.trim() ? (
-          <div style={{ marginBottom: 72 }}>
-            <SectionMark label="~ invitation" />
-            <div
-              style={{
-                maxWidth: 620,
-                margin: "0 auto",
-                fontSize: 17,
-                lineHeight: 1.7,
-                color: c.inkSoft,
-              }}
-            >
-              <TiptapHtml html={invitationHtml} />
-            </div>
-          </div>
-        ) : null}
-
         <SectionMark label={`~ Theme · ${week.themeTitle}`} />
         <div
           style={{
@@ -211,25 +175,27 @@ export default function OnePage({
             color: c.inkSoft,
           }}
         >
-          {week.prose}
+          <WeekProse markdown={week.proseMarkdown} />
         </div>
 
-        <blockquote
-          style={{
-            textAlign: "center",
-            fontStyle: "italic",
-            fontSize: 22,
-            color: c.ink,
-            margin: "56px auto",
-            maxWidth: "34ch",
-            lineHeight: 1.4,
-            padding: "28px 0",
-            borderTop: `1px solid ${c.rule}`,
-            borderBottom: `1px solid ${c.rule}`,
-          }}
-        >
-          {week.pullQuote}
-        </blockquote>
+        {week.pullQuote.trim() ? (
+          <blockquote
+            style={{
+              textAlign: "center",
+              fontStyle: "italic",
+              fontSize: 22,
+              color: c.ink,
+              margin: "56px auto",
+              maxWidth: "34ch",
+              lineHeight: 1.4,
+              padding: "28px 0",
+              borderTop: `1px solid ${c.rule}`,
+              borderBottom: `1px solid ${c.rule}`,
+            }}
+          >
+            <PullQuote text={week.pullQuote} />
+          </blockquote>
+        ) : null}
 
         <div style={{ maxWidth: 620, margin: "0 auto 72px" }}>
           <div
@@ -434,33 +400,6 @@ export default function OnePage({
                 All are welcome.
               </div>
             </div>
-
-            {weeklySessionsHtml?.trim() ? (
-              <div
-                style={{
-                  marginTop: 56,
-                  maxWidth: 620,
-                  marginLeft: "auto",
-                  marginRight: "auto",
-                  fontSize: 17,
-                  lineHeight: 1.7,
-                  color: c.inkSoft,
-                }}
-              >
-                <div
-                  style={{
-                    fontSize: 11,
-                    letterSpacing: 2.4,
-                    textTransform: "uppercase",
-                    color: c.muted,
-                    marginBottom: 20,
-                  }}
-                >
-                  ~ this week
-                </div>
-                <TiptapHtml html={weeklySessionsHtml} />
-              </div>
-            ) : null}
           </div>
         </div>
 
