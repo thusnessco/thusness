@@ -26,13 +26,37 @@ body {
 }
 
 /*
- * Shared TipTap typography: public HTML (`.tiptap-html`) and admin live editor
- * (`.tiptap-editor .ProseMirror`) so invitation/home copy matches the site.
+ * Shared TipTap typography: `.tiptap-html` (site) + `.tiptap-editor .ProseMirror` (admin).
+ * Vertical rhythm uses one stack rule (`> * + *`) so block spacing does not depend
+ * on margin collapse (which differs from `<br>` inside a single `<p>`).
  */
+.tiptap-html,
+.tiptap-editor .ProseMirror {
+  line-height: 1.65;
+}
+
+.tiptap-html > *,
+.tiptap-editor .ProseMirror > * {
+  margin: 0;
+}
+
+.tiptap-html > * + *,
+.tiptap-editor .ProseMirror > * + * {
+  margin-top: 1rem;
+}
+
+.tiptap-html > * + h2,
+.tiptap-editor .ProseMirror > * + h2 {
+  margin-top: 2.25rem;
+}
+
+.tiptap-html > * + h3,
+.tiptap-editor .ProseMirror > * + h3 {
+  margin-top: 1.75rem;
+}
+
 .tiptap-html h2,
 .tiptap-editor .ProseMirror h2 {
-  margin-top: 2rem;
-  margin-bottom: 0.75rem;
   font-size: 1.125rem;
   line-height: 1.35;
   font-weight: 500;
@@ -40,15 +64,8 @@ body {
   color: rgb(255 255 255);
 }
 
-.tiptap-html h2:first-child,
-.tiptap-editor .ProseMirror h2:first-child {
-  margin-top: 0;
-}
-
 .tiptap-html h3,
 .tiptap-editor .ProseMirror h3 {
-  margin-top: 1.5rem;
-  margin-bottom: 0.5rem;
   font-size: 1rem;
   line-height: 1.35;
   font-weight: 500;
@@ -57,15 +74,26 @@ body {
 
 .tiptap-html p,
 .tiptap-editor .ProseMirror p {
-  margin-top: 0.75rem;
-  margin-bottom: 0.75rem;
   color: rgb(209 213 219);
+}
+
+/* Soft line breaks (Shift+Enter): nudge spacing so it sits between “one p” and “two p” rhythm */
+.tiptap-html p br,
+.tiptap-editor .ProseMirror p br {
+  display: block;
+  margin: 0.65em 0 0;
+}
+
+.tiptap-html hr,
+.tiptap-editor .ProseMirror hr {
+  margin: 0;
+  border: 0;
+  border-top: 1px solid rgb(255 255 255 / 0.12);
 }
 
 .tiptap-html figure,
 .tiptap-editor .ProseMirror figure {
-  margin-top: 0.75rem;
-  margin-bottom: 0.75rem;
+  margin: 0;
 }
 
 .tiptap-html img.tiptap-image,
@@ -117,16 +145,13 @@ body {
 .tiptap-html ol,
 .tiptap-editor .ProseMirror ul,
 .tiptap-editor .ProseMirror ol {
-  margin-top: 0.75rem;
-  margin-bottom: 0.75rem;
   padding-left: 1.25rem;
   color: rgb(209 213 219);
 }
 
-.tiptap-html li,
-.tiptap-editor .ProseMirror li {
+.tiptap-html li + li,
+.tiptap-editor .ProseMirror li + li {
   margin-top: 0.35rem;
-  margin-bottom: 0.35rem;
 }
 
 .tiptap-html ul,

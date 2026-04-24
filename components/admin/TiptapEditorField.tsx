@@ -325,7 +325,7 @@ export const TiptapEditorField = forwardRef<TiptapEditorFieldHandle, Props>(
         <div className="rounded-md border border-white/10 bg-black px-4 py-3 min-h-[12rem] focus-within:border-white/20 transition-colors">
           <EditorContent
             editor={editor}
-            className="tiptap-editor prose-invert min-h-[10rem] text-base md:text-lg leading-relaxed text-gray-200 outline-none [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[10rem] [&_.ProseMirror_img]:max-h-[min(70vh,36rem)] [&_.ProseMirror_img]:max-w-full [&_.ProseMirror_img]:w-auto [&_.ProseMirror_img]:object-contain [&_.ProseMirror_img]:rounded-md [&_.ProseMirror_a.tiptap-image-link]:max-w-full"
+            className="tiptap-editor prose-invert min-h-[10rem] text-base md:text-lg text-gray-200 outline-none [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[10rem] [&_.ProseMirror_img]:max-h-[min(70vh,36rem)] [&_.ProseMirror_img]:max-w-full [&_.ProseMirror_img]:w-auto [&_.ProseMirror_img]:object-contain [&_.ProseMirror_img]:rounded-md [&_.ProseMirror_a.tiptap-image-link]:max-w-full"
           />
         </div>
       </div>

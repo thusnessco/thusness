@@ -62,7 +62,7 @@ export default async function Home() {
         <article className="space-y-12 md:space-y-14 border-t border-white/10 pt-16 md:pt-20 text-left">
           <TiptapHtml
             html={introHtml}
-            className="text-base md:text-lg leading-relaxed"
+            className="text-base md:text-lg text-gray-200"
           />
         </article>
 
@@ -70,7 +70,7 @@ export default async function Home() {
           <section className="border-t border-white/10 pt-16 md:pt-20 text-left">
             <TiptapHtml
               html={weeklyHtml}
-              className="text-base md:text-lg leading-relaxed text-gray-300"
+              className="text-base md:text-lg text-gray-300"
             />
           </section>
         ) : null}
