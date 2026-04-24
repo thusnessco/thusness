@@ -25,8 +25,12 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* Public HTML rendered from Tiptap JSON */
-.tiptap-html h2 {
+/*
+ * Shared TipTap typography: public HTML (`.tiptap-html`) and admin live editor
+ * (`.tiptap-editor .ProseMirror`) so invitation/home copy matches the site.
+ */
+.tiptap-html h2,
+.tiptap-editor .ProseMirror h2 {
   margin-top: 2rem;
   margin-bottom: 0.75rem;
   font-size: 1.125rem;
@@ -36,11 +40,13 @@ body {
   color: rgb(255 255 255);
 }
 
-.tiptap-html h2:first-child {
+.tiptap-html h2:first-child,
+.tiptap-editor .ProseMirror h2:first-child {
   margin-top: 0;
 }
 
-.tiptap-html h3 {
+.tiptap-html h3,
+.tiptap-editor .ProseMirror h3 {
   margin-top: 1.5rem;
   margin-bottom: 0.5rem;
   font-size: 1rem;
@@ -49,71 +55,86 @@ body {
   color: rgb(255 255 255);
 }
 
-.tiptap-html p {
+.tiptap-html p,
+.tiptap-editor .ProseMirror p {
   margin-top: 0.75rem;
   margin-bottom: 0.75rem;
   color: rgb(209 213 219);
 }
 
-.tiptap-html figure {
+.tiptap-html figure,
+.tiptap-editor .ProseMirror figure {
   margin-top: 0.75rem;
   margin-bottom: 0.75rem;
 }
 
 .tiptap-html img.tiptap-image,
-.tiptap-html img {
+.tiptap-html img,
+.tiptap-editor .ProseMirror img.tiptap-image,
+.tiptap-editor .ProseMirror img {
   max-width: 100%;
   height: auto;
   border-radius: 0.25rem;
 }
 
-.tiptap-html a.tiptap-image-link {
+.tiptap-html a.tiptap-image-link,
+.tiptap-editor .ProseMirror a.tiptap-image-link {
   display: inline-block;
   max-width: 100%;
   text-decoration: none;
   color: inherit;
 }
 
-.tiptap-html a.tiptap-image-link:hover {
+.tiptap-html a.tiptap-image-link:hover,
+.tiptap-editor .ProseMirror a.tiptap-image-link:hover {
   opacity: 0.92;
 }
 
-.tiptap-html a.tiptap-image-link img {
+.tiptap-html a.tiptap-image-link img,
+.tiptap-editor .ProseMirror a.tiptap-image-link img {
   display: block;
 }
 
-.tiptap-html strong {
+.tiptap-html strong,
+.tiptap-editor .ProseMirror strong {
   font-weight: 500;
   color: rgb(255 255 255);
 }
 
-.tiptap-html a.tiptap-link {
+.tiptap-html a.tiptap-link,
+.tiptap-editor .ProseMirror a.tiptap-link {
   color: rgb(229 231 235);
   text-decoration: underline;
   text-underline-offset: 4px;
 }
 
-.tiptap-html a.tiptap-link:hover {
+.tiptap-html a.tiptap-link:hover,
+.tiptap-editor .ProseMirror a.tiptap-link:hover {
   color: rgb(255 255 255);
 }
 
 .tiptap-html ul,
-.tiptap-html ol {
+.tiptap-html ol,
+.tiptap-editor .ProseMirror ul,
+.tiptap-editor .ProseMirror ol {
   margin-top: 0.75rem;
   margin-bottom: 0.75rem;
   padding-left: 1.25rem;
   color: rgb(209 213 219);
 }
 
-.tiptap-html li {
+.tiptap-html li,
+.tiptap-editor .ProseMirror li {
   margin-top: 0.35rem;
   margin-bottom: 0.35rem;
 }
 
-.tiptap-html ul {
+.tiptap-html ul,
+.tiptap-editor .ProseMirror ul {
   list-style-type: disc;
 }
 
-.tiptap-html ol {
+.tiptap-html ol,
+.tiptap-editor .ProseMirror ol {
   list-style-type: decimal;
 }
