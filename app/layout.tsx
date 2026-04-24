@@ -34,9 +34,13 @@ export const metadata: Metadata = {
   title: "Thusness",
   description:
     "A quiet hour of guided noticing — small groups, one-on-one, and ongoing guidance.",
-  // `app/favicon.ico` is auto-wired by Next. Apple raster lives in /public.
+  // Explicit raster only — no default SVG / host placeholder tab icons.
   icons: {
-    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+    icon: [{ url: "/favicon.ico", sizes: "32x32", type: "image/x-icon" }],
+    shortcut: "/favicon.ico",
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
   },
 };
 
@@ -47,6 +51,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="h-full antialiased">
+      <head>
+        {/* Same-origin, first in document — avoids host-default / framework tab icons. */}
+        <link rel="icon" href="/favicon.ico" sizes="32x32" type="image/x-icon" />
+        <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+        <link
+          rel="apple-touch-icon"
+          href="/apple-touch-icon.png"
+          sizes="180x180"
+          type="image/png"
+        />
+      </head>
       <body className="thusness min-h-full flex flex-col font-sans">{children}</body>
     </html>
   );

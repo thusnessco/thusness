@@ -6,7 +6,7 @@ This bundle contains everything needed to implement the Thusness visual identity
 
 The files in this bundle are **design references** — an HTML/React prototype showing the intended look and behavior, plus production-ready CSS and assets. The prototype uses inline styles for iteration speed; for shipping, prefer the tokenized CSS in `tokens.css` and the component pattern in `components/`.
 
-Your task is to **apply this identity across the existing Next.js + Vercel site**, using the codebase's established patterns. The CSS tokens and SVG assets are drop-in. The component code is a reference — port it to match your existing file conventions (CSS Modules, Tailwind, styled-components, etc.).
+Your task is to **apply this identity across the existing Next.js site**, using the codebase's established patterns. The CSS tokens and SVG assets are drop-in. The component code is a reference — port it to match your existing file conventions (CSS Modules, Tailwind, styled-components, etc.).
 
 ## Fidelity
 
@@ -16,7 +16,7 @@ Your task is to **apply this identity across the existing Next.js + Vercel site*
 
 ## 1. The system in one paragraph
 
-Thusness is set in **Helvetica italic** on a **warm cream ground** (`#efece1`) with **near-black ink** (`#1a1915`). There is one structural glyph — the **tilde `~`** — which appears in the wordmark, as section markers, as list bullets, and as the favicon. There is one accent color — a **muted red dot** (`#c23a2a`) — which appears **once per page**, in the footer, as a signature. Separations are done primarily with **whitespace**; secondarily with **hairline rules** (`#c7c2b0`, 1px). No gradients, no drop shadows, no emoji, no icon libraries. Centered composition is preferred for focal moments (the week's question, "Pillar of Success"); left-aligned for reading prose.
+Thusness is set in **Helvetica italic** on a **warm cream ground** (`#efece1`) with **near-black ink** (`#1a1915`). There is one structural glyph — the **tilde `~`** — which appears in the wordmark, as section markers, and as list bullets. There is one accent color — a **muted red dot** (`#c23a2a`) — which appears **once per page**, in the footer, as a signature, and as the **favicon** on the live site. Separations are done primarily with **whitespace**; secondarily with **hairline rules** (`#c7c2b0`, 1px). No gradients, no drop shadows, no emoji, no icon libraries. Centered composition is preferred for focal moments (the week's question, "Pillar of Success"); left-aligned for reading prose.
 
 ---
 
@@ -73,7 +73,7 @@ See `assets/wordmark.svg` for a vector version sized for headers. See `component
 
 The **italic tilde `~`** is the secondary mark. Used for:
 
-- **Favicon** (`assets/favicon.svg` — italic tilde on dark background)
+- **Favicon** (live site: generated RedDot ICO; handoff: `assets/reddot.svg` or legacy `assets/favicon.svg` tilde)
 - **Social avatar** (same construction, square)
 - **Section markers** — prefixes a centered small-caps label, e.g. `~  Itinerary`
 - **Bullets** — inline in lists, replacing `•`
@@ -112,7 +112,7 @@ Apply the identity across the existing site. At minimum:
 
 1. **Swap the current theme** for the tokens in `tokens.css` (load globally — in Next.js, in `app/layout.tsx` or `_app.tsx`).
 2. **Replace the current wordmark** with `assets/wordmark.svg` (or the `<Wordmark />` component).
-3. **Add `assets/favicon.svg`** as the site favicon (in Next.js, put it at `app/icon.svg` or reference from `<head>`).
+3. **Favicon:** use the RedDot (`assets/reddot.svg`) or generate ICO/PNG for `/favicon.ico` (see repo `scripts/generate-favicons.mjs`).
 4. **Rebuild the home page** from `components/OnePage.tsx` as the reference. Port to your project's conventions. Content is hardcoded in the prototype — wire it up to your existing content source (MDX, CMS, whatever you're using).
 5. **Style the Notes index and individual note pages** using the same tokens, even though they're not currently shown. Use hairline rules, section markers with `~`, prose at 17px/1.7, prose max-width 620px.
 6. **The red dot** goes in the site footer, once, opposite the URL/domain.
@@ -130,7 +130,8 @@ design_handoff_thusness/
 │   ├── wordmark.svg           ← the full wordmark with hairline + tagline
 │   ├── wordmark-url.svg       ← variant with "thusness.co" tagline
 │   ├── tilde-glyph.svg        ← standalone italic tilde
-│   ├── favicon.svg            ← 32×32 safe, italic tilde on warm-dark
+│   ├── reddot.svg             ← signature dot (favicon motif on live site)
+│   ├── favicon.svg            ← legacy tilde-on-dark (optional)
 │   ├── favicon-light.svg      ← light-mode variant
 │   └── reddot.svg             ← the signature dot
 ├── components/
@@ -150,7 +151,7 @@ design_handoff_thusness/
 ## 8. Implementation notes for Next.js
 
 - Drop `tokens.css` into `app/globals.css` (or import it there).
-- Put SVG favicons at `app/icon.svg` (tilde, warm-dark) and `app/apple-icon.png` (rasterize at 180×180). Next.js will wire them automatically.
+- Put raster favicons at `app/favicon.ico` and `public/apple-touch-icon.png` (Next wires `/favicon.ico` automatically; Safari needs PNG/ICO, not SVG-only).
 - For the wordmark, either inline the SVG in a server component or use `next/image` with the SVG file.
 - **Do not** import a webfont. The system Helvetica stack is intentional — it's part of the identity.
 - **Do not** add Tailwind utilities that override the hairline weights (`border` defaults vary by framework). Set borders explicitly to `1px solid var(--rule)`.
