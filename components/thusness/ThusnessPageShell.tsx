@@ -9,7 +9,7 @@ type Props = {
 };
 
 /**
- * Shared page frame: matches OnePage shell (880px, padding, Helvetica).
+ * Shared page frame: 880px column, padding, Helvetica (notes / archive index).
  */
 export function ThusnessPageShell({ children, headerAside }: Props) {
   return (

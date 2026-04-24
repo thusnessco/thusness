@@ -16,6 +16,12 @@ import { countTiptapImages } from "@/lib/tiptap/count-tiptap-images";
 import { getTiptapExtensions } from "@/lib/tiptap/extensions";
 import { jsonContentEqual } from "@/lib/tiptap/json-content-equal";
 import { stripPastedHtml } from "@/lib/tiptap/sanitize-pasted-html";
+import {
+  getThusnessSnippetFragment,
+  getWeekPageTemplateDoc,
+  THUSNESS_SNIPPET_OPTIONS,
+  type ThusnessSnippetKey,
+} from "@/lib/tiptap/thusness-blocks";
 
 export type TiptapEditorFieldHandle = {
   getJSON: () => JSONContent | null;
@@ -25,16 +31,22 @@ function Toolbar({
   editor,
   imageUploadScope,
   onImageUploadMessage,
+  variant,
+  onTemplateNotice,
 }: {
   editor: Editor | null;
   imageUploadScope?: string;
   onImageUploadMessage?: (msg: string) => void;
+  variant?: "default" | "page";
+  onTemplateNotice?: (msg: string) => void;
 }) {
   const linkDefault =
-    imageUploadScope?.startsWith("site/") === true ||
-    imageUploadScope?.startsWith("note/") === true
-      ? "/notes/"
-      : "https://";
+    imageUploadScope?.startsWith("week/") === true
+      ? "https://"
+      : imageUploadScope?.startsWith("site/") === true ||
+          imageUploadScope?.startsWith("note/") === true
+        ? "/notes/"
+        : "https://";
   const [, tick] = useState(0);
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploadingImg, setUploadingImg] = useState(false);
@@ -195,6 +207,61 @@ function Toolbar({
       >
         Link
       </button>
+      {variant === "page" ? (
+        <>
+          <span
+            className="mx-1 w-px self-stretch bg-[var(--thusness-rule)]"
+            aria-hidden
+          />
+          <label className="flex items-center gap-1.5 text-[var(--thusness-muted)]">
+            <span className="sr-only">Insert layout block</span>
+            <select
+              className="max-w-[12rem] border border-[var(--thusness-rule)] bg-[var(--thusness-bg)] px-1.5 py-1 text-[11px] text-[var(--thusness-ink-soft)]"
+              defaultValue=""
+              onChange={(e) => {
+                const raw = e.currentTarget.value;
+                e.currentTarget.value = "";
+                if (!raw) return;
+                const key = raw as ThusnessSnippetKey;
+                editor
+                  .chain()
+                  .focus()
+                  .insertContent(getThusnessSnippetFragment(key))
+                  .run();
+                onTemplateNotice?.(
+                  "Inserted layout block — edit text in place. Use Link on the Zoom line when ready."
+                );
+              }}
+            >
+              <option value="">+ Layout block…</option>
+              {THUSNESS_SNIPPET_OPTIONS.map((o) => (
+                <option key={o.key} value={o.key}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <button
+            type="button"
+            className={`${btn} ${idle}`}
+            onClick={() => {
+              if (
+                !window.confirm(
+                  "Replace the entire page with the sample week layout (hero, ruled lists, session cards, Zoom row)? You will lose whatever is in the editor now."
+                )
+              ) {
+                return;
+              }
+              editor.chain().focus().setContent(getWeekPageTemplateDoc()).run();
+              onTemplateNotice?.(
+                "Loaded sample week layout — matches the design package. Save when done."
+              );
+            }}
+          >
+            Sample week page
+          </button>
+        </>
+      ) : null}
     </div>
   );
 }
@@ -211,6 +278,8 @@ type Props = {
   onEditorError?: (msg: string) => void;
   /** Taller editor area for full-page home editing. */
   variant?: "default" | "page";
+  /** Shown for week page template / snippet actions (e.g. pass the same handler as image upload toasts). */
+  onTemplateNotice?: (msg: string) => void;
 };
 
 export const TiptapEditorField = forwardRef<TiptapEditorFieldHandle, Props>(
@@ -223,6 +292,7 @@ export const TiptapEditorField = forwardRef<TiptapEditorFieldHandle, Props>(
       onImageUploadMessage,
       onEditorError,
       variant = "default",
+      onTemplateNotice,
     },
     ref
   ) {
@@ -325,6 +395,8 @@ export const TiptapEditorField = forwardRef<TiptapEditorFieldHandle, Props>(
           editor={editor}
           imageUploadScope={imageUploadScope}
           onImageUploadMessage={onImageUploadMessage}
+          variant={variant}
+          onTemplateNotice={onTemplateNotice}
         />
         {imageUploadScope ? (
           <p className="text-[10px] leading-relaxed text-[var(--thusness-muted)]">

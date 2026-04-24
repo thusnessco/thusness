@@ -6,8 +6,8 @@ import Wordmark from "./Wordmark";
 const helv = 'Helvetica, "Helvetica Neue", Arial, sans-serif';
 
 /**
- * Full public home when `site_content.home_page` is set: same shell and
- * `.tiptap-html` styles as the live site so admin TipTap matches production.
+ * Full-page public shell for TipTap HTML (current week home and archived weeks).
+ * Matches `.tiptap-html` in admin.
  */
 export function HomePageFromTipTap({ html }: { html: string }) {
   return (

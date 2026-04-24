@@ -4,13 +4,8 @@ import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import type { JSONContent } from "@tiptap/core";
 import { useRouter } from "next/navigation";
 
-import {
-  createNote,
-  deleteNote,
-  saveNote,
-  saveSiteContent,
-  signOut,
-} from "@/app/admin/actions";
+import { createNote, deleteNote, saveNote, signOut } from "@/app/admin/actions";
+import type { WeekDocument } from "@/lib/data/weeks-types";
 import type { NoteRow } from "@/lib/supabase/public-server";
 
 import { jsonContentEqual } from "@/lib/tiptap/json-content-equal";
@@ -19,14 +14,13 @@ import {
   TiptapEditorField,
   type TiptapEditorFieldHandle,
 } from "./TiptapEditorField";
+import { WeeksPanel } from "./WeeksPanel";
 
 type Props = {
-  homePage: JSONContent;
-  homePageKey: string;
+  weeks: WeekDocument[];
   notes: NoteRow[];
 };
 
-type SiteContentOverride = { doc: JSONContent; key: string };
 type NoteBodyOverride = { doc: JSONContent; key: string };
 
 const fieldLabel =
@@ -184,29 +178,16 @@ function NoteEditorPanel({
   );
 }
 
-export function AdminDashboard({ homePage, homePageKey, notes }: Props) {
+export function AdminDashboard({ weeks, notes }: Props) {
   const router = useRouter();
   const [selectedId, setSelectedId] = useState<string | null>(
     notes[0]?.id ?? null
   );
   const [message, setMessage] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
-  const [homePageOverride, setHomePageOverride] =
-    useState<SiteContentOverride | null>(null);
   const [noteBodyOverrides, setNoteBodyOverrides] = useState<
     Record<string, NoteBodyOverride>
   >({});
-
-  const homePageDoc = homePageOverride?.doc ?? homePage;
-  const homePageSyncKey = homePageOverride?.key ?? homePageKey;
-
-  useEffect(() => {
-    setHomePageOverride((o) => {
-      if (!o) return o;
-      if (o.key !== homePageKey) return o;
-      return jsonContentEqual(o.doc, homePage) ? null : o;
-    });
-  }, [homePageKey, homePage]);
 
   useEffect(() => {
     if (!selectedId) return;
@@ -222,7 +203,6 @@ export function AdminDashboard({ homePage, homePageKey, notes }: Props) {
     });
   }, [notes, selectedId]);
 
-  const homePageRef = useRef<TiptapEditorFieldHandle>(null);
   const noteBodyRef = useRef<TiptapEditorFieldHandle>(null);
 
   const selected = notes.find((n) => n.id === selectedId) ?? null;
@@ -253,12 +233,9 @@ export function AdminDashboard({ homePage, homePageKey, notes }: Props) {
             Admin
           </h1>
           <p className="mt-2 max-w-xl text-sm leading-relaxed text-[var(--thusness-ink-soft)]">
-            The editor below uses the same typography and list styles as the live
-            site. When you save with any text here, it becomes the{" "}
-            <span className="italic">entire</span> public home page. Clear
-            everything and save to switch back to the week layout from{" "}
-            <code className="text-[var(--thusness-muted)]">content/weeks</code>{" "}
-            in the repo.
+            Weeks and notes use the same TipTap setup as the public site: headings,
+            lists, and spacing match production. The home page is always the current
+            week (latest <span className="italic">week of</span> on or before today).
           </p>
         </div>
         <form action={signOut}>
@@ -278,52 +255,7 @@ export function AdminDashboard({ homePage, homePageKey, notes }: Props) {
       ) : null}
 
       <div className="space-y-20">
-        <section className="space-y-6">
-          <h2 className={sectionHeading}>Public home page</h2>
-          <p className="max-w-2xl text-[13px] leading-relaxed text-[var(--thusness-muted)]">
-            Use headings (H2/H3), lists, links, italics, and images. Bullets and
-            spacing match thusness.co because the site renders this with the same
-            stylesheet as the preview area.
-          </p>
-          <TiptapEditorField
-            ref={homePageRef}
-            label="Home (site_content: home_page)"
-            contentSyncKey={homePageSyncKey}
-            initialDoc={homePageDoc}
-            imageUploadScope="site/home_page"
-            onImageUploadMessage={flash}
-            onEditorError={flash}
-            variant="page"
-          />
-          <button
-            type="button"
-            disabled={isPending}
-            onClick={() => {
-              const json = homePageRef.current?.getJSON();
-              if (!json) {
-                flash(
-                  "Editor is not ready yet. Wait a second, then try Save again."
-                );
-                return;
-              }
-              const snapshot = structuredClone(json) as JSONContent;
-              startTransition(async () => {
-                const res = await saveSiteContent("home_page", snapshot);
-                if (!res.ok) flash(res.message);
-                else {
-                  setHomePageOverride({
-                    doc: res.content_json,
-                    key: res.updated_at,
-                  });
-                  flash("Saved home page.");
-                }
-              });
-            }}
-            className={btnPrimary}
-          >
-            Save home page
-          </button>
-        </section>
+        <WeeksPanel weeks={weeks} onMessage={flash} />
 
         <section className="space-y-6 border-t border-[var(--thusness-rule)] pt-16">
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">

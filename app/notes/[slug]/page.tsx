@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import OnePage from "@/components/thusness/OnePage";
+import { HomePageFromTipTap } from "@/components/thusness/HomePageFromTipTap";
 import { getWeekBySlug } from "@/lib/weeks";
+import { tiptapJsonToHtml } from "@/lib/tiptap/to-html";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -25,6 +26,8 @@ export default async function ArchivedWeekPage({ params }: Props) {
   const week = await getWeekBySlug(slug);
   if (!week) notFound();
 
+  const html = tiptapJsonToHtml(week.bodyJson);
+
   return (
     <div>
       <div className="border-b border-[var(--thusness-rule)] bg-[var(--thusness-bg)] px-6 py-4 sm:px-10">
@@ -40,7 +43,7 @@ export default async function ArchivedWeekPage({ params }: Props) {
           </Link>
         </div>
       </div>
-      <OnePage week={week} mode="archive" />
+      <HomePageFromTipTap html={html} />
     </div>
   );
 }

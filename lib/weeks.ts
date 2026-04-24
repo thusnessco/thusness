@@ -1,35 +1,34 @@
 import "server-only";
 
-import fs from "node:fs/promises";
-import path from "node:path";
-
-import matter from "gray-matter";
 import { cache } from "react";
 
-const WEEKS_DIR = path.join(process.cwd(), "content", "weeks");
+import { createPublicSupabase } from "@/lib/supabase/public-server";
 
-const DEFAULT_ZOOM_URL = "https://zoom.us/j/97461285343";
-const DEFAULT_ZOOM_LABEL = "zoom.us/j/97461285343";
+import type { WeekDocument } from "@/lib/data/weeks-types";
 
-export type WeekHero = { kind: "circle" | "text-only"; image?: string };
+export type { WeekDocument } from "@/lib/data/weeks-types";
 
-export type Week = {
+type WeekRow = {
+  id: string;
   slug: string;
-  weekOf: string;
-  themeIndex?: string;
-  themeTitle: string;
+  week_of: string;
+  theme_title: string;
   question: string;
-  pullQuote: string;
-  benefits: string[];
-  itinerary: string[];
-  pillar: string;
-  zoomUrl: string;
-  zoomLabel: string;
-  proseMarkdown: string;
-  hero?: WeekHero;
-  /** e.g. "Week of April 24, 2026" */
-  dateLabel: string;
+  body_json: unknown;
+  updated_at: string;
 };
+
+function mapWeek(r: WeekRow): WeekDocument {
+  return {
+    id: r.id,
+    slug: r.slug,
+    weekOf: r.week_of,
+    themeTitle: r.theme_title ?? "",
+    question: r.question ?? "",
+    bodyJson: r.body_json as WeekDocument["bodyJson"],
+    updatedAt: r.updated_at,
+  };
+}
 
 function utcDayStart(d: Date): number {
   return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
@@ -41,103 +40,20 @@ function weekOfUtc(weekOf: string): number {
   return Date.UTC(y, mo - 1, day);
 }
 
-function formatDateLabel(weekOf: string): string {
-  const t = weekOfUtc(weekOf);
-  if (Number.isNaN(t)) return `Week of ${weekOf}`;
-  const d = new Date(t);
-  const inner = d.toLocaleDateString("en-US", {
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-    timeZone: "UTC",
-  });
-  return `Week of ${inner}`;
-}
+export const getAllWeeks = cache(async (): Promise<WeekDocument[]> => {
+  const supabase = createPublicSupabase();
+  if (!supabase) return [];
 
-function asStringArray(v: unknown): string[] {
-  if (Array.isArray(v)) return v.map((x) => String(x).trim()).filter(Boolean);
-  return [];
-}
+  const { data, error } = await supabase
+    .from("weeks")
+    .select("id, slug, week_of, theme_title, question, body_json, updated_at")
+    .order("week_of", { ascending: false });
 
-function normalizeHero(v: unknown): WeekHero | undefined {
-  if (!v || typeof v !== "object") return undefined;
-  const o = v as Record<string, unknown>;
-  const kind = o.kind;
-  if (kind === "circle" || kind === "text-only") {
-    return {
-      kind,
-      image: typeof o.image === "string" ? o.image : undefined,
-    };
-  }
-  return undefined;
-}
-
-async function readWeekFile(absPath: string, fileBase: string): Promise<Week | null> {
-  const raw = await fs.readFile(absPath, "utf8");
-  const { data, content } = matter(raw);
-  const d = data as Record<string, unknown>;
-
-  const slug = String(d.slug ?? fileBase.replace(/\.mdx?$/i, "")).trim();
-  const weekOf = String(d.weekOf ?? "").trim();
-  if (!slug || !weekOf) return null;
-
-  const themeTitle = String(d.themeTitle ?? "").trim();
-  const question = String(d.question ?? "").trim();
-  if (!themeTitle || !question) return null;
-
-  const zoomUrl = String(d.zoomUrl ?? DEFAULT_ZOOM_URL).trim() || DEFAULT_ZOOM_URL;
-  const zoomLabel =
-    String(d.zoomLabel ?? DEFAULT_ZOOM_LABEL).trim() || DEFAULT_ZOOM_LABEL;
-
-  const themeIndexRaw = d.themeIndex;
-  const themeIndex =
-    themeIndexRaw === undefined || themeIndexRaw === null
-      ? undefined
-      : String(themeIndexRaw).trim() || undefined;
-
-  const pullQuote = String(d.pullQuote ?? "").trim();
-
-  return {
-    slug,
-    weekOf,
-    themeIndex,
-    themeTitle,
-    question,
-    pullQuote,
-    benefits: asStringArray(d.benefits),
-    itinerary: asStringArray(d.itinerary),
-    pillar: String(d.pillar ?? "").trim(),
-    zoomUrl,
-    zoomLabel,
-    proseMarkdown: String(content ?? "").trim(),
-    hero: normalizeHero(d.hero),
-    dateLabel: formatDateLabel(weekOf),
-  };
-}
-
-export const getAllWeeks = cache(async (): Promise<Week[]> => {
-  let names: string[] = [];
-  try {
-    names = await fs.readdir(WEEKS_DIR);
-  } catch {
-    return [];
-  }
-
-  const files = names.filter(
-    (n) => (n.endsWith(".mdx") || n.endsWith(".md")) && !n.startsWith("_")
-  );
-
-  const weeks: Week[] = [];
-  for (const name of files) {
-    const w = await readWeekFile(path.join(WEEKS_DIR, name), name);
-    if (w) weeks.push(w);
-  }
-
-  weeks.sort((a, b) => weekOfUtc(b.weekOf) - weekOfUtc(a.weekOf));
-  return weeks;
+  if (error || !data) return [];
+  return (data as WeekRow[]).map(mapWeek);
 });
 
-export async function getCurrentWeek(): Promise<Week | null> {
+export async function getCurrentWeek(): Promise<WeekDocument | null> {
   const all = await getAllWeeks();
   if (all.length === 0) return null;
 
@@ -146,14 +62,14 @@ export async function getCurrentWeek(): Promise<Week | null> {
   return eligible[0] ?? all[0];
 }
 
-export async function getArchivedWeeks(): Promise<Week[]> {
+export async function getArchivedWeeks(): Promise<WeekDocument[]> {
   const all = await getAllWeeks();
   const current = await getCurrentWeek();
   if (!current) return all;
   return all.filter((w) => w.slug !== current.slug);
 }
 
-export async function getWeekBySlug(slug: string): Promise<Week | null> {
+export async function getWeekBySlug(slug: string): Promise<WeekDocument | null> {
   const all = await getAllWeeks();
   return all.find((w) => w.slug === slug) ?? null;
 }
