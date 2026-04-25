@@ -122,7 +122,7 @@ export function AdminDashboard({ notes, homepagePin }: Props) {
             const res = await createNote();
             if (!res.ok) flash(res.message);
             else {
-              flash("Draft note created.");
+              flash("Blank draft note created.");
               setContentKey(`n:${res.id}`);
               router.refresh();
             }

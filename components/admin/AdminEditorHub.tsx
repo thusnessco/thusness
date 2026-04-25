@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { JSONContent } from "@tiptap/core";
 
+import { createDraftNoteFromHomepageTemplate } from "@/app/admin/actions";
 import type { HomepagePin } from "@/lib/homepage/homepage-pin";
 import type { NoteRow } from "@/lib/supabase/public-server";
 import type {
@@ -111,10 +112,57 @@ export function AdminEditorHub({
             type="button"
             disabled={isPending}
             onClick={onNewNote}
-            className={`${adminBtnSmall} mb-3 w-full`}
+            className={`${adminBtnSmall} mb-2 w-full`}
           >
-            New note
+            New blank note
           </button>
+          <div className="mb-1 grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              disabled={isPending}
+              className={adminBtnSmall}
+              onClick={() => {
+                startTransition(async () => {
+                  const res = await createDraftNoteFromHomepageTemplate({
+                    template: "simple_contemplation",
+                    fields: simple,
+                  });
+                  if (!res.ok) onMessage(res.message);
+                  else {
+                    onMessage("Draft created from Simple layout fields.");
+                    setContentKey(`n:${res.id}`);
+                    router.refresh();
+                  }
+                });
+              }}
+            >
+              New from Simple
+            </button>
+            <button
+              type="button"
+              disabled={isPending}
+              className={adminBtnSmall}
+              onClick={() => {
+                startTransition(async () => {
+                  const res = await createDraftNoteFromHomepageTemplate({
+                    template: "full_description",
+                    fields: full,
+                  });
+                  if (!res.ok) onMessage(res.message);
+                  else {
+                    onMessage("Draft created from Full layout fields.");
+                    setContentKey(`n:${res.id}`);
+                    router.refresh();
+                  }
+                });
+              }}
+            >
+              New from Full
+            </button>
+          </div>
+          <p className="mb-3 text-[10px] leading-snug text-[var(--thusness-muted)]">
+            From Simple/Full uses the same field values as those layout tabs.
+          </p>
           {notes.map((n) => (
             <button
               key={n.id}
