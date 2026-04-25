@@ -6,9 +6,7 @@ export async function getPublishedNotes(): Promise<NoteRow[]> {
 
   const { data, error } = await supabase
     .from("notes")
-    .select(
-      "id, slug, title, excerpt, content_json, published, published_at, updated_at, show_background_circle"
-    )
+    .select("*")
     .eq("published", true)
     .order("published_at", { ascending: false });
 
@@ -24,9 +22,7 @@ export async function getPublishedNoteBySlug(
 
   const { data, error } = await supabase
     .from("notes")
-    .select(
-      "id, slug, title, excerpt, content_json, published, published_at, updated_at, show_background_circle"
-    )
+    .select("*")
     .eq("slug", slug)
     .eq("published", true)
     .maybeSingle();

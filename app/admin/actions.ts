@@ -43,6 +43,21 @@ function extForUpload(file: File): string {
   return "img";
 }
 
+/** PostgREST when a migration added a column the remote DB does not have yet. */
+function noteUpdateMissingOptionalColumn(
+  err: { message?: string } | null,
+  column: string
+): boolean {
+  const m = (err?.message ?? "").toLowerCase();
+  const c = column.toLowerCase();
+  if (!m.includes(c)) return false;
+  return (
+    m.includes("does not exist") ||
+    m.includes("schema cache") ||
+    m.includes("unknown column")
+  );
+}
+
 function sanitizeUploadScope(raw: string): string {
   const s = raw.trim().replace(/[^a-zA-Z0-9/_-]+/g, "").replace(/^\/+|\/+$/g, "");
   return s.slice(0, 120) || "misc";
@@ -163,12 +178,28 @@ export async function saveNote(input: {
     patch.published_at = new Date().toISOString();
   }
 
-  const { data, error } = await supabase
+  let { data, error } = await supabase
     .from("notes")
     .update(patch)
     .eq("id", input.id)
-    .select("id, content_json, updated_at, show_background_circle")
+    .select("*")
     .maybeSingle();
+
+  if (
+    error &&
+    noteUpdateMissingOptionalColumn(error, "show_background_circle")
+  ) {
+    const legacy = { ...patch };
+    delete legacy.show_background_circle;
+    const retry = await supabase
+      .from("notes")
+      .update(legacy)
+      .eq("id", input.id)
+      .select("id, content_json, updated_at")
+      .maybeSingle();
+    data = retry.data;
+    error = retry.error;
+  }
 
   if (error) return { ok: false as const, message: error.message };
   if (!data?.content_json || !data.updated_at) {
@@ -226,7 +257,9 @@ export async function saveNote(input: {
     ok: true as const,
     content_json: stored,
     updated_at: data.updated_at as string,
-    show_background_circle: Boolean(data.show_background_circle),
+    show_background_circle: Boolean(
+      (data as { show_background_circle?: boolean }).show_background_circle
+    ),
   };
 }
 
