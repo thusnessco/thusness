@@ -1,22 +1,10 @@
 import type { NextConfig } from "next";
 
-/** MDX-era `/notes/[slug]` paths (frontmatter `slug` or filename) → archive index. */
-const LEGACY_NOTE_SLUG_REDIRECTS: { source: string }[] = [
-  { source: "/notes/noticing" },
-  { source: "/notes/resistance" },
-  { source: "/notes/noticing-effort" },
-  { source: "/notes/2026-04-10-noticing" },
-  { source: "/notes/2026-04-17-resistance" },
-  { source: "/notes/2026-04-20-noticing-effort" },
-];
-
 const nextConfig: NextConfig = {
   async redirects() {
-    return LEGACY_NOTE_SLUG_REDIRECTS.map(({ source }) => ({
-      source,
-      destination: "/notes",
-      permanent: true,
-    }));
+    // Legacy MDX-era redirects removed: they hijacked real TipTap slugs (e.g.
+    // /notes/resistance → /notes), which broke note links from /notes.
+    return [];
   },
 
   async headers() {
