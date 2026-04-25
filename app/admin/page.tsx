@@ -5,6 +5,7 @@ import { getHomepagePinForAdmin } from "@/lib/data/homepage-source";
 import { getAllNotesForAdmin } from "@/lib/data/notes-admin";
 import { getAllWeeksForAdmin } from "@/lib/data/weeks-admin";
 import { getSupabasePublicConfig } from "@/lib/supabase/config";
+import { getCurrentWeek } from "@/lib/weeks";
 
 export const dynamic = "force-dynamic";
 
@@ -32,13 +33,19 @@ export default async function AdminPage() {
     );
   }
 
-  const [weeks, notes, homepagePin] = await Promise.all([
+  const [weeks, notes, homepagePin, currentWeek] = await Promise.all([
     getAllWeeksForAdmin(),
     getAllNotesForAdmin(),
     getHomepagePinForAdmin(),
+    getCurrentWeek(),
   ]);
 
   return (
-    <AdminDashboard weeks={weeks} notes={notes} homepagePin={homepagePin} />
+    <AdminDashboard
+      weeks={weeks}
+      notes={notes}
+      homepagePin={homepagePin}
+      currentWeek={currentWeek}
+    />
   );
 }
