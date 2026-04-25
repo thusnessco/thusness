@@ -350,7 +350,7 @@ export function getThusnessSnippetFragment(
       return {
         type: zoomBlock,
         content: [
-          para(text("https://zoom.us/j/your-meeting")),
+          para(text("https://zoom.us/j/97461285343")),
           para(text("All are welcome.")),
         ],
       };
@@ -493,7 +493,7 @@ export function getPageLayoutSampleDoc(): JSONContent {
       {
         type: zoomBlock,
         content: [
-          para(text("https://zoom.us/j/00000000000")),
+          para(text("https://zoom.us/j/97461285343")),
           para(text("All are welcome.")),
         ],
       },

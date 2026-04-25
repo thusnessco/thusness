@@ -75,7 +75,7 @@ export const DEFAULT_SIMPLE_FIELDS: SimpleContemplationFields = {
   heroSubtitle: "— a question to sit with —",
   session1: { ...DEFAULT_SESSION_SLOT },
   session2: { ...DEFAULT_SESSION_SLOT_B },
-  zoomUrl: "https://zoom.us/j/",
+  zoomUrl: "https://zoom.us/j/97461285343",
   zoomClosing: "All are welcome.",
 };
 
@@ -109,7 +109,7 @@ export const DEFAULT_FULL_FIELDS: FullDescriptionFields = {
     "A quiet hour of guided noticing, with space for sharing. Held on Zoom.",
   session1: { ...DEFAULT_SESSION_SLOT },
   session2: { ...DEFAULT_SESSION_SLOT_B },
-  zoomUrl: "https://zoom.us/j/",
+  zoomUrl: "https://zoom.us/j/97461285343",
   zoomClosing: "All are welcome.",
 };
 
