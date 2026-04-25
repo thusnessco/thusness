@@ -602,9 +602,7 @@ export function AdminEditorHub({
                   onChange={(e) =>
                     setFull((f) => ({
                       ...f,
-                      benefitLines: e.target.value
-                        .split("\n")
-                        .map((s) => s.trimEnd()),
+                      benefitLines: e.target.value.split("\n"),
                     }))
                   }
                 />
@@ -627,9 +625,7 @@ export function AdminEditorHub({
                   onChange={(e) =>
                     setFull((f) => ({
                       ...f,
-                      itineraryLines: e.target.value
-                        .split("\n")
-                        .map((s) => s.trimEnd()),
+                      itineraryLines: e.target.value.split("\n"),
                     }))
                   }
                 />
