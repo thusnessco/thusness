@@ -1,23 +1,34 @@
 "use client";
 
-import { useState, type RefObject } from "react";
+import { useEffect, useState, type RefObject } from "react";
 import type { JSONContent } from "@tiptap/core";
 import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
-import { deleteNote, saveNote } from "@/app/admin/actions";
+
+import {
+  deleteNote,
+  resetHomepagePinToDefaultLayout,
+  saveNote,
+  setHomepagePinToNoteSlug,
+} from "@/app/admin/actions";
 import type { HomepagePin } from "@/lib/homepage/homepage-pin";
 import type { NoteRow } from "@/lib/supabase/public-server";
 
+import {
+  adminBtnGhost,
+  adminBtnPrimary,
+  adminFieldInput,
+  adminFieldLabel,
+} from "./admin-ui";
+import { noteDrivesRoot } from "./homepage-helpers";
 import {
   TiptapEditorField,
   type TiptapEditorFieldHandle,
 } from "./TiptapEditorField";
 
-const fieldLabel =
-  "text-[10px] uppercase tracking-[0.2em] text-[var(--thusness-muted)]";
-const fieldInput =
-  "w-full border border-[var(--thusness-rule)] bg-[var(--thusness-bg)] px-3 py-2 text-sm text-[var(--thusness-ink)] outline-none focus:border-[var(--thusness-ink)]";
-const btnPrimary =
-  "border border-[var(--thusness-ink)] px-4 py-2 text-xs tracking-wide text-[var(--thusness-ink)] transition-opacity hover:opacity-70 disabled:opacity-40";
+const checkRow =
+  "flex items-start gap-2 text-sm text-[var(--thusness-ink-soft)]";
+const checkHint = "text-[10px] leading-relaxed text-[var(--thusness-muted)]";
+
 export function NoteEditorPanel({
   note,
   homepagePin,
@@ -27,7 +38,6 @@ export function NoteEditorPanel({
   router,
   onMessage,
   onNoteBodySaved,
-  published,
 }: {
   note: NoteRow;
   homepagePin: HomepagePin;
@@ -41,67 +51,133 @@ export function NoteEditorPanel({
     doc: JSONContent,
     updatedAt: string
   ) => void;
-  published: boolean;
 }) {
   const [slug, setSlug] = useState(note.slug);
   const [title, setTitle] = useState(note.title);
   const [excerpt, setExcerpt] = useState(note.excerpt ?? "");
+  const [published, setPublished] = useState(note.published);
+
+  useEffect(() => {
+    setPublished(note.published);
+  }, [note.id, note.published, note.updated_at]);
+
+  const slugDirty = slug.trim() !== note.slug;
+  const liveOnRoot = noteDrivesRoot(homepagePin, note);
+  const canPinToRoot = published && !slugDirty;
 
   return (
     <>
+      <fieldset className="space-y-4 border border-[var(--thusness-rule)] px-4 py-4">
+        <legend className={`px-1 ${adminFieldLabel}`}>Visibility</legend>
+
+        <label className={checkRow}>
+          <input
+            type="checkbox"
+            className="mt-1 border-[var(--thusness-rule)] accent-[var(--thusness-ink)]"
+            checked={published}
+            disabled={isPending}
+            onChange={(e) => setPublished(e.target.checked)}
+          />
+          <span>
+            <span className="font-medium text-[var(--thusness-ink)]">
+              Listed on /notes
+            </span>
+            <span className={`mt-1 block ${checkHint}`}>
+              Public index for this slug. Save the note to apply.
+            </span>
+          </span>
+        </label>
+
+        <label className={checkRow}>
+          <input
+            type="checkbox"
+            className="mt-1 border-[var(--thusness-rule)] accent-[var(--thusness-ink)]"
+            checked={liveOnRoot}
+            disabled={isPending || (!liveOnRoot && !canPinToRoot)}
+            title={
+              !published
+                ? "Publish first (listed on /notes)."
+                : slugDirty
+                  ? "Save slug changes before changing the homepage."
+                  : undefined
+            }
+            onChange={(e) => {
+              const on = e.target.checked;
+              if (on) {
+                startTransition(async () => {
+                  const res = await setHomepagePinToNoteSlug(note.slug);
+                  if (!res.ok) onMessage(res.message);
+                  else {
+                    onMessage("This note is now live at /.");
+                    router.refresh();
+                  }
+                });
+              } else if (liveOnRoot) {
+                startTransition(async () => {
+                  const res = await resetHomepagePinToDefaultLayout();
+                  if (!res.ok) onMessage(res.message);
+                  else {
+                    onMessage("Homepage reset to default Simple layout.");
+                    router.refresh();
+                  }
+                });
+              }
+            }}
+          />
+          <span>
+            <span className="font-medium text-[var(--thusness-ink)]">
+              Same note at /
+            </span>
+            <span className={`mt-1 block ${checkHint}`}>
+              Same body as here — only the URL changes. Requires published + saved
+              slug.
+            </span>
+          </span>
+        </label>
+      </fieldset>
+
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="block space-y-1.5">
-          <span className={fieldLabel}>Title</span>
+          <span className={adminFieldLabel}>Title</span>
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className={fieldInput}
+            className={adminFieldInput}
           />
         </label>
         <label className="block space-y-1.5">
-          <span className={fieldLabel}>Slug (URL)</span>
+          <span className={adminFieldLabel}>Slug (URL)</span>
           <input
             value={slug}
             onChange={(e) => setSlug(e.target.value)}
-            className={fieldInput}
+            className={adminFieldInput}
           />
         </label>
       </div>
       <label className="block space-y-1.5">
-        <span className={fieldLabel}>Excerpt (optional)</span>
+        <span className={adminFieldLabel}>Excerpt (optional)</span>
         <textarea
           value={excerpt}
           onChange={(e) => setExcerpt(e.target.value)}
           rows={2}
-          className={`${fieldInput} resize-y`}
+          className={`${adminFieldInput} resize-y`}
         />
       </label>
 
       <TiptapEditorField
         ref={noteBodyRef}
-        label="Body (TipTap — Custom layout)"
+        label="Body"
         contentSyncKey={note.updated_at}
         initialDoc={note.content_json}
         imageUploadScope={`note/${note.id}`}
         onImageUploadMessage={onMessage}
         onEditorError={onMessage}
+        variant="page"
+        onTemplateNotice={onMessage}
       />
 
       <div className="mt-10 space-y-4 border-t border-[var(--thusness-rule)] pt-8">
-        <p className={fieldLabel}>Note actions</p>
-        {homepagePin.source === "note" && homepagePin.slug === note.slug ? (
-          <p className="text-sm italic text-[var(--thusness-ink-soft)]">
-            This published note is the live homepage at{" "}
-            <span className="not-italic">/</span>. Use the Homepage checkbox above to
-            change that.
-          </p>
-        ) : (
-          <p className="max-w-2xl text-[13px] leading-relaxed text-[var(--thusness-muted)]">
-            Use <span className="font-medium text-[var(--thusness-ink)]">Homepage</span>{" "}
-            in the placement bar to pin this note to <span className="italic">/</span>{" "}
-            after it is published and saved.
-          </p>
-        )}
+        <p className={adminFieldLabel}>Save</p>
         <div className="flex flex-wrap items-center gap-3">
           <button
             type="button"
@@ -110,7 +186,7 @@ export function NoteEditorPanel({
               const json = noteBodyRef.current?.getJSON();
               if (!json) {
                 onMessage(
-                  "Editor is not ready yet. Wait a moment, then try Save again."
+                  "Editor is not ready yet. Wait a moment, then try again."
                 );
                 return;
               }
@@ -127,12 +203,12 @@ export function NoteEditorPanel({
                 if (!res.ok) onMessage(res.message);
                 else {
                   onNoteBodySaved?.(note.id, res.content_json, res.updated_at);
-                  onMessage("Note saved.");
+                  onMessage("Saved.");
                   router.refresh();
                 }
               });
             }}
-            className={btnPrimary}
+            className={adminBtnPrimary}
           >
             Save note
           </button>
@@ -157,7 +233,7 @@ export function NoteEditorPanel({
                 }
               });
             }}
-            className="border border-[var(--thusness-rule)] px-4 py-2 text-xs tracking-wide text-[var(--thusness-ink-soft)] italic transition-opacity hover:border-[var(--thusness-ink)] disabled:opacity-40"
+            className={adminBtnGhost}
           >
             Delete
           </button>

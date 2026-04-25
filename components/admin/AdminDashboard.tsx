@@ -11,12 +11,12 @@ import type { NoteRow } from "@/lib/supabase/public-server";
 import { jsonContentEqual } from "@/lib/tiptap/json-content-equal";
 
 import type { TiptapEditorFieldHandle } from "./TiptapEditorField";
+import { AdminEditorHub } from "./AdminEditorHub";
 import {
-  AdminEditorHub,
   initialContentKey,
   parseNoteId,
   type ContentKey,
-} from "./AdminEditorHub";
+} from "./homepage-helpers";
 
 type Props = {
   notes: NoteRow[];
@@ -90,8 +90,9 @@ export function AdminDashboard({ notes, homepagePin }: Props) {
             Admin
           </h1>
           <p className="mt-2 max-w-xl text-sm leading-relaxed text-[var(--thusness-ink-soft)]">
-            Edit notes and the public home in one place. The root URL still uses
-            your homepage pin (note or Simple/Full layout).
+            One place for notes, the site root, and the two built-in layouts. What
+            visitors see at <span className="italic">/</span> is summarized at the top
+            of the editor.
           </p>
         </div>
         <form action={signOut}>

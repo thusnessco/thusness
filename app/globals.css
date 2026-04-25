@@ -216,7 +216,9 @@ body.thusness ::selection {
   margin: 0 auto 48px;
 }
 
-.tiptap-thusness-section-mark__hair {
+.tiptap-thusness-section-mark::before,
+.tiptap-thusness-section-mark::after {
+  content: "";
   flex: 1;
   height: 1px;
   min-width: 12px;

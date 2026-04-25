@@ -33,22 +33,15 @@ export const ThusnessSectionMark = Node.create({
     ];
   },
   renderHTML({ HTMLAttributes }) {
-    const hair: [string, Record<string, string>] = [
-      "span",
-      {
-        class: "tiptap-thusness-section-mark__hair",
-        "aria-hidden": "true",
-      },
-    ];
+    // ProseMirror allows only a single `0` content hole per node spec — no sibling DOM
+    // nodes at the same level. Side rules are drawn with CSS (::before / ::after).
     return [
       "div",
       mergeAttributes(HTMLAttributes, {
         "data-thusness-node": sectionMark,
         class: "tiptap-thusness-section-mark",
       }),
-      hair,
       0,
-      hair,
     ];
   },
 });
