@@ -1,5 +1,6 @@
 import { mergeAttributes, Node } from "@tiptap/core";
 import type { JSONContent } from "@tiptap/core";
+import { TextSelection } from "@tiptap/pm/state";
 
 const sectionMark = "thusnessSectionMark";
 const hero = "thusnessHero";
@@ -123,6 +124,43 @@ export const ThusnessRuleListItem = Node.create({
       }),
       0,
     ];
+  },
+  addKeyboardShortcuts() {
+    return {
+      Enter: ({ editor }) => {
+        if (!editor.isActive(ruleListItem)) return false;
+        const { state } = editor;
+        const { selection } = state;
+        if (!selection.empty) return false;
+        const { $from } = selection;
+        let itemDepth = -1;
+        for (let d = $from.depth; d >= 1; d--) {
+          if ($from.node(d).type.name === ruleListItem) {
+            itemDepth = d;
+            break;
+          }
+        }
+        if (itemDepth < 0) return false;
+        const parent = $from.parent;
+        if (!parent.type.isTextblock || parent.type.name !== "paragraph") {
+          return false;
+        }
+        if ($from.parentOffset !== parent.content.size) return false;
+        const insertPos = $from.after(itemDepth);
+        const itemType = state.schema.nodes[ruleListItem];
+        const paraType = state.schema.nodes.paragraph;
+        if (!itemType || !paraType) return false;
+        const next = itemType.create(null, paraType.create());
+        const tr = state.tr.insert(insertPos, next);
+        const $inner = tr.doc.resolve(insertPos + 1);
+        const sel =
+          TextSelection.findFrom($inner, 1, true) ??
+          TextSelection.near(tr.doc.resolve(insertPos + 2), 1);
+        tr.setSelection(sel);
+        editor.view.dispatch(tr);
+        return true;
+      },
+    };
   },
 });
 
