@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
 import {
@@ -76,14 +76,24 @@ export function HomepageSourcePanel({
   );
   const [full, setFull] = useState<FullDescriptionFields>(DEFAULT_FULL_FIELDS);
 
+  const pinSyncKey = useMemo(() => JSON.stringify(homepagePin), [homepagePin]);
+
   useEffect(() => {
     if (homepagePin.source !== "site_template") return;
     if (homepagePin.template === "simple_contemplation") {
-      setSimple(homepagePin.fields);
+      const next = homepagePin.fields;
+      setSimple((prev) =>
+        JSON.stringify(prev) === JSON.stringify(next) ? prev : next
+      );
     } else if (homepagePin.template === "full_description") {
-      setFull(homepagePin.fields);
+      const next = homepagePin.fields;
+      setFull((prev) =>
+        JSON.stringify(prev) === JSON.stringify(next) ? prev : next
+      );
     }
-  }, [homepagePin]);
+    // pinSyncKey is JSON.stringify(homepagePin); avoids redundant setState when unchanged.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pinSyncKey]);
 
   const status =
     homepagePin.source === "week"
