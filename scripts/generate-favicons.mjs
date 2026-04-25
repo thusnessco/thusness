@@ -2,8 +2,10 @@
  * Writes raster favicons matching `RedDot`: cream field, red ring, cream center.
  * Run: node scripts/generate-favicons.mjs
  *
- * Outputs:
- *   app/favicon.ico — Next serves /favicon.ico (Safari-friendly)
+ * Outputs (public only — avoid `app/favicon.ico`, which makes Next inject a
+ * second hashed favicon URL and duplicate `<link rel="icon">` tags):
+ *   public/favicon.ico — ICO for legacy clients
+ *   public/favicon-32.png — PNG first for Safari tab icons
  *   public/apple-touch-icon.png — 180×180 for iOS
  */
 import fs from "node:fs";
@@ -13,7 +15,6 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, "..");
-const appDir = path.join(root, "app");
 const pub = path.join(root, "public");
 
 function crc32(buf) {
@@ -113,9 +114,8 @@ function pngToIco(pngBuf) {
 const fav32 = pngIco(32);
 const apple = pngIco(180);
 
-fs.mkdirSync(appDir, { recursive: true });
 fs.mkdirSync(pub, { recursive: true });
-fs.writeFileSync(path.join(appDir, "favicon.ico"), pngToIco(fav32));
 fs.writeFileSync(path.join(pub, "favicon.ico"), pngToIco(fav32));
+fs.writeFileSync(path.join(pub, "favicon-32.png"), fav32);
 fs.writeFileSync(path.join(pub, "apple-touch-icon.png"), apple);
-console.log("Wrote app/favicon.ico, public/favicon.ico, public/apple-touch-icon.png");
+console.log("Wrote public/favicon.ico, public/favicon-32.png, public/apple-touch-icon.png");

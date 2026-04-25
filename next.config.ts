@@ -28,6 +28,12 @@ const nextConfig: NextConfig = {
         ],
       },
       {
+        source: "/favicon-32.png",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=604800, immutable" },
+        ],
+      },
+      {
         source: "/apple-touch-icon.png",
         headers: [
           { key: "Cache-Control", value: "public, max-age=604800, immutable" },
