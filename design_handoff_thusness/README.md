@@ -6,6 +6,8 @@ This bundle contains everything needed to implement the Thusness visual identity
 
 The files in this bundle are **design references** — an HTML/React prototype showing the intended look and behavior, plus production-ready CSS and assets. The prototype uses inline styles for iteration speed; for shipping, prefer the tokenized CSS in `tokens.css` and the component pattern in `components/`.
 
+**`prototype/Thusness-standalone.html`** — Claude-exported single file (~1.2MB) that unpacks the bundled UI in the browser (open locally; needs JavaScript). Use it as the latest shared snapshot alongside `prototype/Thusness.html` + `site/onepage.jsx`.
+
 Your task is to **apply this identity across the existing Next.js site**, using the codebase's established patterns. The CSS tokens and SVG assets are drop-in. The component code is a reference — port it to match your existing file conventions (CSS Modules, Tailwind, styled-components, etc.).
 
 ## Fidelity
