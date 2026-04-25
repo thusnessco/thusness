@@ -12,13 +12,13 @@ import type { NoteRow } from "@/lib/supabase/public-server";
 import { jsonContentEqual } from "@/lib/tiptap/json-content-equal";
 
 import type { TiptapEditorFieldHandle } from "./TiptapEditorField";
-import { WeeksPanel } from "./WeeksPanel";
 import {
-  UnifiedPagesEditor,
-  initialPageKey,
+  AdminEditorHub,
+  initialContentKey,
   parseNoteId,
-  type PageKey,
-} from "./UnifiedPagesEditor";
+  parseWeekId,
+  type ContentKey,
+} from "./AdminEditorHub";
 
 type Props = {
   weeks: WeekDocument[];
@@ -36,8 +36,8 @@ export function AdminDashboard({
   currentWeek,
 }: Props) {
   const router = useRouter();
-  const [pageKey, setPageKey] = useState<PageKey>(() =>
-    initialPageKey(homepagePin, notes)
+  const [contentKey, setContentKey] = useState<ContentKey>(() =>
+    initialContentKey(homepagePin, notes, currentWeek, weeks)
   );
   const [message, setMessage] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -45,7 +45,7 @@ export function AdminDashboard({
     Record<string, NoteBodyOverride>
   >({});
 
-  const selectedNoteId = useMemo(() => parseNoteId(pageKey), [pageKey]);
+  const selectedNoteId = useMemo(() => parseNoteId(contentKey), [contentKey]);
 
   useEffect(() => {
     if (!selectedNoteId) return;
@@ -62,14 +62,22 @@ export function AdminDashboard({
   }, [notes, selectedNoteId]);
 
   useEffect(() => {
-    const id = parseNoteId(pageKey);
+    const id = parseNoteId(contentKey);
     if (!id) return;
     if (!notes.some((n) => n.id === id)) {
-      setPageKey(initialPageKey(homepagePin, notes));
+      setContentKey(initialContentKey(homepagePin, notes, currentWeek, weeks));
     }
-  }, [notes, pageKey, homepagePin]);
+  }, [notes, contentKey, homepagePin, currentWeek, weeks]);
 
-  const noteBodyRef = useRef<TiptapEditorFieldHandle>(null);
+  useEffect(() => {
+    const wid = parseWeekId(contentKey);
+    if (!wid) return;
+    if (!weeks.some((w) => w.id === wid)) {
+      setContentKey(initialContentKey(homepagePin, notes, currentWeek, weeks));
+    }
+  }, [weeks, contentKey, homepagePin, notes, currentWeek]);
+
+  const editorRef = useRef<TiptapEditorFieldHandle>(null);
 
   const selected = useMemo(
     () =>
@@ -79,7 +87,7 @@ export function AdminDashboard({
     [notes, selectedNoteId]
   );
 
-  const selectedForEditor = useMemo(() => {
+  const selectedNoteForEditor = useMemo(() => {
     if (!selected) return null;
     const o = noteBodyOverrides[selected.id];
     if (!o) return selected;
@@ -99,10 +107,8 @@ export function AdminDashboard({
             Admin
           </h1>
           <p className="mt-2 max-w-xl text-sm leading-relaxed text-[var(--thusness-ink-soft)]">
-            Weeks use the same TipTap setup as the public site. The root URL
-            (/) follows the scheduled week unless you pin a note or homepage
-            template in <span className="italic">Pages &amp; notes</span>{" "}
-            below.
+            Edit weeks, notes, and homepage layouts in one place. The public site
+            still resolves the root URL the same way as before.
           </p>
         </div>
         <form action={signOut}>
@@ -121,39 +127,36 @@ export function AdminDashboard({
         </p>
       ) : null}
 
-      <div className="space-y-20">
-        <WeeksPanel weeks={weeks} onMessage={flash} />
-
-        <UnifiedPagesEditor
-          notes={notes}
-          homepagePin={homepagePin}
-          currentWeek={currentWeek}
-          pageKey={pageKey}
-          setPageKey={setPageKey}
-          onMessage={flash}
-          onNewNote={() => {
-            startTransition(async () => {
-              const res = await createNote();
-              if (!res.ok) flash(res.message);
-              else {
-                flash("Draft note created.");
-                setPageKey(`n:${res.id}`);
-                router.refresh();
-              }
-            });
-          }}
-          noteBodyRef={noteBodyRef}
-          selectedForEditor={selectedForEditor}
-          isPending={isPending}
-          startTransition={startTransition}
-          onNoteBodySaved={(id, doc, updatedAt) => {
-            setNoteBodyOverrides((p) => ({
-              ...p,
-              [id]: { doc, key: updatedAt },
-            }));
-          }}
-        />
-      </div>
+      <AdminEditorHub
+        weeks={weeks}
+        notes={notes}
+        homepagePin={homepagePin}
+        currentWeek={currentWeek}
+        contentKey={contentKey}
+        setContentKey={setContentKey}
+        onMessage={flash}
+        onNewNote={() => {
+          startTransition(async () => {
+            const res = await createNote();
+            if (!res.ok) flash(res.message);
+            else {
+              flash("Draft note created.");
+              setContentKey(`n:${res.id}`);
+              router.refresh();
+            }
+          });
+        }}
+        editorRef={editorRef}
+        selectedNoteForEditor={selectedNoteForEditor}
+        isPending={isPending}
+        startTransition={startTransition}
+        onNoteBodySaved={(id, doc, updatedAt) => {
+          setNoteBodyOverrides((p) => ({
+            ...p,
+            [id]: { doc, key: updatedAt },
+          }));
+        }}
+      />
     </div>
   );
 }
