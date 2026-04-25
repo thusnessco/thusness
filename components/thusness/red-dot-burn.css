@@ -1,0 +1,226 @@
+/* Full-viewport “paper burns away” easter egg (triggered from footer RedDot). */
+
+.thusness-burn-root {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  overflow: hidden;
+  touch-action: none;
+}
+
+.thusness-burn-root[data-phase="burning"] {
+  pointer-events: auto;
+}
+
+.thusness-burn-root[data-phase="ashes"] {
+  pointer-events: auto;
+  cursor: pointer;
+  background: #000;
+}
+
+.thusness-burn-ember {
+  position: absolute;
+  left: var(--thusness-burn-cx, 50vw);
+  top: var(--thusness-burn-cy, 92vh);
+  width: 6px;
+  height: 6px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    #fff8e8 0%,
+    #ffdd66 18%,
+    #ff6b2e 42%,
+    #8b1a00 72%,
+    #1a0500 100%
+  );
+  mix-blend-mode: screen;
+  opacity: 0;
+  animation: thusness-burn-ember 5.1s cubic-bezier(0.35, 0, 0.15, 1) forwards;
+}
+
+.thusness-burn-flames {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+      5deg,
+      rgba(255, 120, 40, 0.45) 0%,
+      transparent 42%
+    ),
+    linear-gradient(-8deg, rgba(255, 200, 80, 0.25) 0%, transparent 38%),
+    linear-gradient(to top, rgba(255, 60, 20, 0.35) 0%, transparent 55%);
+  opacity: 0;
+  animation: thusness-burn-flames-op 5s ease-in forwards;
+}
+
+.thusness-burn-scorch {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+      circle at var(--thusness-burn-cx, 50vw) var(--thusness-burn-cy, 92vh),
+      rgba(255, 140, 60, 0.5) 0%,
+      rgba(60, 18, 4, 0.55) 28%,
+      rgba(12, 6, 2, 0.92) 62%,
+      #000 100%
+    ),
+    linear-gradient(to top, #000 0%, transparent 45%);
+  opacity: 0;
+  animation: thusness-burn-scorch 5.05s ease-in forwards;
+}
+
+.thusness-burn-paper {
+  position: absolute;
+  inset: 0;
+  background: var(--thusness-bg, #efece1);
+  opacity: 0;
+  animation: thusness-burn-paper 5s ease-in forwards;
+}
+
+.thusness-burn-ash {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at 50% 108%,
+    rgba(255, 255, 255, 0.04) 0%,
+    transparent 42%
+  );
+  opacity: 0;
+  animation: thusness-burn-ash 4.8s ease-out forwards;
+}
+
+.thusness-burn-hint {
+  position: absolute;
+  left: 50%;
+  bottom: max(24px, env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  max-width: min(90vw, 22rem);
+  text-align: center;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.22);
+  font-family: var(--thusness-font, system-ui, sans-serif);
+  pointer-events: none;
+}
+
+.thusness-burn-reduced {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  opacity: 0;
+  animation: thusness-burn-reduced-fade 0.75s ease-out forwards;
+}
+
+@keyframes thusness-burn-ember {
+  0% {
+    opacity: 1;
+    width: 6px;
+    height: 6px;
+    filter: brightness(2.8) blur(0);
+  }
+  14% {
+    width: min(110vw, 820px);
+    height: min(110vw, 820px);
+    opacity: 1;
+    filter: brightness(2) blur(1px);
+  }
+  42% {
+    width: 200vmin;
+    height: 200vmin;
+    opacity: 0.65;
+    filter: brightness(1.1) blur(18px);
+  }
+  100% {
+    width: 240vmin;
+    height: 240vmin;
+    opacity: 0;
+    filter: brightness(0.2) blur(48px);
+  }
+}
+
+@keyframes thusness-burn-flames-op {
+  0% {
+    opacity: 0;
+  }
+  8% {
+    opacity: 0.85;
+  }
+  55% {
+    opacity: 0.55;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes thusness-burn-scorch {
+  0% {
+    opacity: 0;
+  }
+  18% {
+    opacity: 0.35;
+  }
+  48% {
+    opacity: 0.88;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes thusness-burn-paper {
+  0% {
+    opacity: 0.2;
+    filter: brightness(1) sepia(0);
+  }
+  22% {
+    opacity: 0.75;
+    filter: brightness(1.15) sepia(0.35) saturate(1.4);
+  }
+  50% {
+    opacity: 1;
+    filter: brightness(0.45) sepia(0.9) contrast(1.35) hue-rotate(-12deg);
+  }
+  82% {
+    opacity: 1;
+    filter: brightness(0.08) sepia(0.5) contrast(1.6);
+  }
+  100% {
+    opacity: 1;
+    filter: brightness(0);
+  }
+}
+
+@keyframes thusness-burn-ash {
+  0% {
+    opacity: 0;
+  }
+  40% {
+    opacity: 0.12;
+  }
+  100% {
+    opacity: 0.2;
+  }
+}
+
+@keyframes thusness-burn-reduced-fade {
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .thusness-burn-ember,
+  .thusness-burn-flames,
+  .thusness-burn-scorch,
+  .thusness-burn-paper,
+  .thusness-burn-ash {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    opacity: 0 !important;
+  }
+
+  .thusness-burn-reduced {
+    animation-duration: 0.65s;
+  }
+}
