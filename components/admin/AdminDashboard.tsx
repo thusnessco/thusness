@@ -1,6 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, useTransition } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useTransition,
+} from "react";
 import type { JSONContent } from "@tiptap/core";
 import { useRouter } from "next/navigation";
 
@@ -35,39 +42,61 @@ export function AdminDashboard({ notes, homepagePin }: Props) {
   const [noteBodyOverrides, setNoteBodyOverrides] = useState<
     Record<string, NoteBodyOverride>
   >({});
+  /** Row returned from create actions before the next RSC refresh includes it in `notes`. */
+  const [pendingNote, setPendingNote] = useState<NoteRow | null>(null);
+
+  const notesMerged = useMemo(() => {
+    if (pendingNote && !notes.some((n) => n.id === pendingNote.id)) {
+      return [pendingNote, ...notes];
+    }
+    return notes;
+  }, [notes, pendingNote]);
+
+  const onCreatedNoteAwaitingRefresh = useCallback((note: NoteRow) => {
+    setPendingNote(note);
+    setContentKey(`n:${note.id}`);
+  }, []);
 
   const selectedNoteId = useMemo(() => parseNoteId(contentKey), [contentKey]);
+
+  useEffect(() => {
+    if (!pendingNote) return;
+    if (notes.some((n) => n.id === pendingNote.id)) {
+      setPendingNote(null);
+    }
+  }, [notes, pendingNote]);
 
   useEffect(() => {
     if (!selectedNoteId) return;
     setNoteBodyOverrides((prev) => {
       const o = prev[selectedNoteId];
       if (!o) return prev;
-      const srv = notes.find((n) => n.id === selectedNoteId);
+      const srv = notesMerged.find((n) => n.id === selectedNoteId);
       if (!srv || o.key !== srv.updated_at) return prev;
       if (!jsonContentEqual(o.doc, srv.content_json)) return prev;
       const next = { ...prev };
       delete next[selectedNoteId];
       return next;
     });
-  }, [notes, selectedNoteId]);
+  }, [notesMerged, selectedNoteId]);
 
   useEffect(() => {
     const id = parseNoteId(contentKey);
     if (!id) return;
-    if (!notes.some((n) => n.id === id)) {
-      setContentKey(initialContentKey(homepagePin, notes));
-    }
-  }, [notes, contentKey, homepagePin]);
+    if (notes.some((n) => n.id === id)) return;
+    if (pendingNote?.id === id) return;
+    setContentKey(initialContentKey(homepagePin, notes));
+    setPendingNote(null);
+  }, [notes, contentKey, homepagePin, pendingNote]);
 
   const editorRef = useRef<TiptapEditorFieldHandle>(null);
 
   const selected = useMemo(
     () =>
       selectedNoteId
-        ? (notes.find((n) => n.id === selectedNoteId) ?? null)
+        ? (notesMerged.find((n) => n.id === selectedNoteId) ?? null)
         : null,
-    [notes, selectedNoteId]
+    [notesMerged, selectedNoteId]
   );
 
   const selectedNoteForEditor = useMemo(() => {
@@ -112,18 +141,19 @@ export function AdminDashboard({ notes, homepagePin }: Props) {
       ) : null}
 
       <AdminEditorHub
-        notes={notes}
+        notes={notesMerged}
         homepagePin={homepagePin}
         contentKey={contentKey}
         setContentKey={setContentKey}
         onMessage={flash}
+        onCreatedNoteAwaitingRefresh={onCreatedNoteAwaitingRefresh}
         onNewNote={() => {
           startTransition(async () => {
             const res = await createNote();
             if (!res.ok) flash(res.message);
             else {
               flash("Blank draft note created.");
-              setContentKey(`n:${res.id}`);
+              onCreatedNoteAwaitingRefresh(res.note);
               router.refresh();
             }
           });

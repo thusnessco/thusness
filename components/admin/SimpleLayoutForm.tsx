@@ -9,6 +9,7 @@ import {
   saveHomepageSiteTemplate,
 } from "@/app/admin/actions";
 import type { SimpleContemplationFields } from "@/lib/homepage/site-templates";
+import type { NoteRow } from "@/lib/supabase/public-server";
 
 import {
   adminBtnGhost,
@@ -27,7 +28,7 @@ type Props = {
   onMessage: (msg: string) => void;
   /** Whether Simple is what `/` shows right now. */
   isLiveAtRoot: boolean;
-  onDraftNoteCreated?: (id: string) => void;
+  onDraftNoteCreated?: (note: NoteRow) => void;
 };
 
 export function SimpleLayoutForm({
@@ -135,8 +136,8 @@ export function SimpleLayoutForm({
                 });
                 if (!res.ok) onMessage(res.message);
                 else {
-                  onMessage(`Draft note created (${res.slug}).`);
-                  onDraftNoteCreated?.(res.id);
+                  onMessage(`Draft note created (${res.note.slug}).`);
+                  onDraftNoteCreated?.(res.note);
                   router.refresh();
                 }
               });

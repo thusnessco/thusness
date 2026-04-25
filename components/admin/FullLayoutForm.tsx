@@ -9,6 +9,7 @@ import {
   saveHomepageSiteTemplate,
 } from "@/app/admin/actions";
 import type { FullDescriptionFields } from "@/lib/homepage/site-templates";
+import type { NoteRow } from "@/lib/supabase/public-server";
 
 import {
   adminBtnGhost,
@@ -26,7 +27,7 @@ type Props = {
   startTransition: (cb: () => void) => void;
   onMessage: (msg: string) => void;
   isLiveAtRoot: boolean;
-  onDraftNoteCreated?: (id: string) => void;
+  onDraftNoteCreated?: (note: NoteRow) => void;
 };
 
 export function FullLayoutForm({
@@ -237,8 +238,8 @@ export function FullLayoutForm({
                 });
                 if (!res.ok) onMessage(res.message);
                 else {
-                  onMessage(`Draft note created (${res.slug}).`);
-                  onDraftNoteCreated?.(res.id);
+                  onMessage(`Draft note created (${res.note.slug}).`);
+                  onDraftNoteCreated?.(res.note);
                   router.refresh();
                 }
               });

@@ -20,6 +20,7 @@ import {
   normalizeSiteTemplateFields,
 } from "@/lib/homepage/site-templates";
 import { createServerSupabase } from "@/lib/supabase/server";
+import type { NoteRow } from "@/lib/supabase/public-server";
 import { countTiptapImages } from "@/lib/tiptap/count-tiptap-images";
 import { emptyDoc } from "@/lib/tiptap/empty-doc";
 
@@ -343,7 +344,7 @@ export async function createDraftNoteFromHomepageTemplate(input: {
   template: SiteTemplateId;
   fields: unknown;
 }): Promise<
-  { ok: true; id: string; slug: string } | { ok: false; message: string }
+  { ok: true; note: NoteRow } | { ok: false; message: string }
 > {
   const supabase = await createServerSupabase();
   const normalized = normalizeSiteTemplateFields(input.template, input.fields);
@@ -366,7 +367,7 @@ export async function createDraftNoteFromHomepageTemplate(input: {
       content_json: payload,
       published: false,
     })
-    .select("id, slug")
+    .select("*")
     .single();
 
   if (error) return { ok: false as const, message: error.message };
@@ -378,7 +379,7 @@ export async function createDraftNoteFromHomepageTemplate(input: {
   }
   revalidatePath("/admin");
   revalidatePath("/notes");
-  return { ok: true as const, id: data.id, slug: data.slug };
+  return { ok: true as const, note: data as NoteRow };
 }
 
 export async function saveHomepageSiteTemplate(
@@ -443,7 +444,7 @@ export async function deleteNote(input: {
 }
 
 export async function createNote(): Promise<
-  { ok: true; id: string } | { ok: false; message: string }
+  { ok: true; note: NoteRow } | { ok: false; message: string }
 > {
   const supabase = await createServerSupabase();
   const slug = `draft-${randomUUID().slice(0, 8)}`;
@@ -456,13 +457,14 @@ export async function createNote(): Promise<
       content_json: emptyDoc(),
       published: false,
     })
-    .select("id")
+    .select("*")
     .single();
 
   if (error) return { ok: false, message: error.message };
+  if (!data?.id) return { ok: false, message: "Insert did not return the new note." };
   revalidatePath("/admin");
   revalidatePath("/notes");
-  return { ok: true, id: data.id };
+  return { ok: true, note: data as NoteRow };
 }
 
 export async function signOut() {

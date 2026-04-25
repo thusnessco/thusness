@@ -37,6 +37,8 @@ type Props = {
   setContentKey: (k: ContentKey) => void;
   onMessage: (msg: string) => void;
   onNewNote: () => void;
+  /** Called with the row returned from the server so the UI can show the editor before RSC refresh lists the note. */
+  onCreatedNoteAwaitingRefresh: (note: NoteRow) => void;
   editorRef: RefObject<TiptapEditorFieldHandle | null>;
   selectedNoteForEditor: NoteRow | null;
   isPending: boolean;
@@ -55,6 +57,7 @@ export function AdminEditorHub({
   setContentKey,
   onMessage,
   onNewNote,
+  onCreatedNoteAwaitingRefresh,
   editorRef,
   selectedNoteForEditor,
   isPending,
@@ -130,7 +133,7 @@ export function AdminEditorHub({
                   if (!res.ok) onMessage(res.message);
                   else {
                     onMessage("Draft created from Simple layout fields.");
-                    setContentKey(`n:${res.id}`);
+                    onCreatedNoteAwaitingRefresh(res.note);
                     router.refresh();
                   }
                 });
@@ -151,7 +154,7 @@ export function AdminEditorHub({
                   if (!res.ok) onMessage(res.message);
                   else {
                     onMessage("Draft created from Full layout fields.");
-                    setContentKey(`n:${res.id}`);
+                    onCreatedNoteAwaitingRefresh(res.note);
                     router.refresh();
                   }
                 });
@@ -160,8 +163,14 @@ export function AdminEditorHub({
               New from Full
             </button>
           </div>
-          <p className="mb-3 text-[10px] leading-snug text-[var(--thusness-muted)]">
+          <p className="mb-2 text-[10px] leading-snug text-[var(--thusness-muted)]">
             From Simple/Full uses the same field values as those layout tabs.
+          </p>
+          <p className="mb-3 text-[10px] leading-snug text-[var(--thusness-muted)]">
+            A blank note is free-form TipTap — use{" "}
+            <span className="text-[var(--thusness-ink-soft)]">+ Layout block…</span>{" "}
+            or <span className="text-[var(--thusness-ink-soft)]">Sample page layout</span>{" "}
+            in the body toolbar.
           </p>
           {notes.map((n) => (
             <button
@@ -253,7 +262,7 @@ export function AdminEditorHub({
               startTransition={startTransition}
               onMessage={onMessage}
               isLiveAtRoot={isLiveAtRoot(homepagePin, "tpl:simple", notes)}
-              onDraftNoteCreated={(id) => setContentKey(`n:${id}`)}
+              onDraftNoteCreated={onCreatedNoteAwaitingRefresh}
             />
           ) : null}
 
@@ -265,7 +274,7 @@ export function AdminEditorHub({
               startTransition={startTransition}
               onMessage={onMessage}
               isLiveAtRoot={isLiveAtRoot(homepagePin, "tpl:full", notes)}
-              onDraftNoteCreated={(id) => setContentKey(`n:${id}`)}
+              onDraftNoteCreated={onCreatedNoteAwaitingRefresh}
             />
           ) : null}
         </div>
