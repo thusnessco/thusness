@@ -258,8 +258,8 @@ const OnePage = () => {
             </div>
 
             <div style={s.join}>
-              <a href="https://zoom.us/j/97461285343" style={s.zoomLink}>
-                zoom.us/j/97461285343
+              <a href="https://thusness.as.me/" style={s.zoomLink}>
+                thusness.as.me
                 <span style={{ fontStyle: 'italic', fontSize: 18 }}>→</span>
               </a>
               <div style={s.welcome}>All are welcome.</div>

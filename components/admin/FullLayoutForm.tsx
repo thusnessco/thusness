@@ -179,7 +179,7 @@ export function FullLayoutForm({
           onChange={(session2) => setFull((f) => ({ ...f, session2 }))}
         />
         <label className="block space-y-1">
-          <span className={adminFieldLabel}>Zoom URL</span>
+          <span className={adminFieldLabel}>Join / booking URL</span>
           <input
             className={adminFieldInput}
             value={full.zoomUrl}

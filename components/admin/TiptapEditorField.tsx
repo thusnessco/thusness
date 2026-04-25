@@ -229,7 +229,7 @@ function Toolbar({
                   .insertContent(getThusnessSnippetFragment(key))
                   .run();
                 onTemplateNotice?.(
-                  "Inserted layout block — edit text in place. Use Link on the Zoom line when ready."
+                  "Inserted layout block — edit text in place. Use Link on the join row when ready."
                 );
               }}
             >
@@ -247,7 +247,7 @@ function Toolbar({
             onClick={() => {
               if (
                 !window.confirm(
-                  "Replace the entire page with the sample week layout (hero, ruled lists, session cards, Zoom row)? You will lose whatever is in the editor now."
+                  "Replace the entire page with the sample week layout (hero, ruled lists, session cards, join row)? You will lose whatever is in the editor now."
                 )
               ) {
                 return;

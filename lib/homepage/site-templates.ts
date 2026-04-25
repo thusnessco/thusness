@@ -1,7 +1,7 @@
 import type { JSONContent } from "@tiptap/core";
 
 import {
-  DEFAULT_ZOOM_JOIN_URL,
+  DEFAULT_PUBLIC_JOIN_URL,
   makeThusnessSessionCard,
   paragraphWithHttpLink,
 } from "@/lib/tiptap/thusness-blocks";
@@ -79,7 +79,7 @@ export const DEFAULT_SIMPLE_FIELDS: SimpleContemplationFields = {
   heroSubtitle: "— a question to sit with —",
   session1: { ...DEFAULT_SESSION_SLOT },
   session2: { ...DEFAULT_SESSION_SLOT_B },
-  zoomUrl: DEFAULT_ZOOM_JOIN_URL,
+  zoomUrl: DEFAULT_PUBLIC_JOIN_URL,
   zoomClosing: "All are welcome.",
 };
 
@@ -113,7 +113,7 @@ export const DEFAULT_FULL_FIELDS: FullDescriptionFields = {
     "A quiet hour of guided noticing, with space for sharing. Held on Zoom.",
   session1: { ...DEFAULT_SESSION_SLOT },
   session2: { ...DEFAULT_SESSION_SLOT_B },
-  zoomUrl: DEFAULT_ZOOM_JOIN_URL,
+  zoomUrl: DEFAULT_PUBLIC_JOIN_URL,
   zoomClosing: "All are welcome.",
 };
 

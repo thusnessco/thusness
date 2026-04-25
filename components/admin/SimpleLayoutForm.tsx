@@ -76,7 +76,7 @@ export function SimpleLayoutForm({
           onChange={(session2) => setSimple((s) => ({ ...s, session2 }))}
         />
         <label className="block space-y-1">
-          <span className={adminFieldLabel}>Zoom URL</span>
+          <span className={adminFieldLabel}>Join / booking URL</span>
           <input
             className={adminFieldInput}
             value={simple.zoomUrl}

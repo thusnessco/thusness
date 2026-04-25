@@ -35,8 +35,8 @@ export function paragraphWithHttpLink(url: string): JSONContent {
   };
 }
 
-/** Default join URL used in snippets and the sample week layout. */
-export const DEFAULT_ZOOM_JOIN_URL = "https://zoom.us/j/97461285343";
+/** Public scheduling / join link (Acuity). Used in snippets, samples, and template defaults. */
+export const DEFAULT_PUBLIC_JOIN_URL = "https://thusness.as.me/";
 
 export const ThusnessSectionMark = Node.create({
   name: sectionMark,
@@ -289,7 +289,7 @@ export const THUSNESS_SNIPPET_OPTIONS: { key: ThusnessSnippetKey; label: string 
     { key: "ruleList", label: "Ruled numbered list" },
     { key: "pillar", label: "Pillar of Success" },
     { key: "sessionGrid", label: "Session tabs (2 cards)" },
-    { key: "zoomBlock", label: "Zoom link row" },
+    { key: "zoomBlock", label: "Join / book link row" },
   ];
 
 export function getThusnessSnippetFragment(
@@ -362,7 +362,7 @@ export function getThusnessSnippetFragment(
       return {
         type: zoomBlock,
         content: [
-          paragraphWithHttpLink(DEFAULT_ZOOM_JOIN_URL),
+          paragraphWithHttpLink(DEFAULT_PUBLIC_JOIN_URL),
           para(text("All are welcome.")),
         ],
       };
@@ -505,7 +505,7 @@ export function getPageLayoutSampleDoc(): JSONContent {
       {
         type: zoomBlock,
         content: [
-          paragraphWithHttpLink(DEFAULT_ZOOM_JOIN_URL),
+          paragraphWithHttpLink(DEFAULT_PUBLIC_JOIN_URL),
           para(text("All are welcome.")),
         ],
       },

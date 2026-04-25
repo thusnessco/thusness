@@ -29,8 +29,8 @@ type WeekData = {
   benefits: string[];
   itinerary: string[];
   pillar: string;        // e.g. "Gentle curiosity."
-  zoomUrl: string;       // e.g. "https://zoom.us/j/97461285343"
-  zoomLabel: string;     // e.g. "zoom.us/j/97461285343"
+  zoomUrl: string;       // e.g. "https://thusness.as.me/"
+  zoomLabel: string;     // e.g. "thusness.as.me"
 };
 
 const defaultWeek: WeekData = {
@@ -77,8 +77,8 @@ const defaultWeek: WeekData = {
     'Group sharing',
   ],
   pillar: 'Gentle curiosity.',
-  zoomUrl: 'https://zoom.us/j/97461285343',
-  zoomLabel: 'zoom.us/j/97461285343',
+  zoomUrl: 'https://thusness.as.me/',
+  zoomLabel: 'thusness.as.me',
 };
 
 export default function OnePage({ week = defaultWeek }: { week?: WeekData }) {
