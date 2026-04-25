@@ -19,6 +19,25 @@ function para(...content: JSONContent[]): JSONContent {
   return { type: "paragraph", content: content.length ? content : undefined };
 }
 
+/** Zoom / join row: store URL with a link mark so HTML output is a real `<a>`. */
+export function paragraphWithHttpLink(url: string): JSONContent {
+  const href = url.trim();
+  if (!href) return { type: "paragraph", content: [] };
+  return {
+    type: "paragraph",
+    content: [
+      {
+        type: "text",
+        text: href,
+        marks: [{ type: "link", attrs: { href } }],
+      },
+    ],
+  };
+}
+
+/** Default join URL used in snippets and the sample week layout. */
+export const DEFAULT_ZOOM_JOIN_URL = "https://zoom.us/j/97461285343";
+
 export const ThusnessSectionMark = Node.create({
   name: sectionMark,
   group: "block",
@@ -343,7 +362,7 @@ export function getThusnessSnippetFragment(
       return {
         type: zoomBlock,
         content: [
-          para(text("https://zoom.us/j/97461285343")),
+          paragraphWithHttpLink(DEFAULT_ZOOM_JOIN_URL),
           para(text("All are welcome.")),
         ],
       };
@@ -486,7 +505,7 @@ export function getPageLayoutSampleDoc(): JSONContent {
       {
         type: zoomBlock,
         content: [
-          para(text("https://zoom.us/j/97461285343")),
+          paragraphWithHttpLink(DEFAULT_ZOOM_JOIN_URL),
           para(text("All are welcome.")),
         ],
       },

@@ -1,6 +1,10 @@
 import type { JSONContent } from "@tiptap/core";
 
-import { makeThusnessSessionCard } from "@/lib/tiptap/thusness-blocks";
+import {
+  DEFAULT_ZOOM_JOIN_URL,
+  makeThusnessSessionCard,
+  paragraphWithHttpLink,
+} from "@/lib/tiptap/thusness-blocks";
 
 export type SiteTemplateId = "simple_contemplation" | "full_description";
 
@@ -75,7 +79,7 @@ export const DEFAULT_SIMPLE_FIELDS: SimpleContemplationFields = {
   heroSubtitle: "— a question to sit with —",
   session1: { ...DEFAULT_SESSION_SLOT },
   session2: { ...DEFAULT_SESSION_SLOT_B },
-  zoomUrl: "https://zoom.us/j/97461285343",
+  zoomUrl: DEFAULT_ZOOM_JOIN_URL,
   zoomClosing: "All are welcome.",
 };
 
@@ -109,7 +113,7 @@ export const DEFAULT_FULL_FIELDS: FullDescriptionFields = {
     "A quiet hour of guided noticing, with space for sharing. Held on Zoom.",
   session1: { ...DEFAULT_SESSION_SLOT },
   session2: { ...DEFAULT_SESSION_SLOT_B },
-  zoomUrl: "https://zoom.us/j/97461285343",
+  zoomUrl: DEFAULT_ZOOM_JOIN_URL,
   zoomClosing: "All are welcome.",
 };
 
@@ -225,7 +229,7 @@ export function buildSimpleContemplationDoc(
       },
       {
         type: ZB,
-        content: [p(tx(f.zoomUrl)), p(tx(f.zoomClosing))],
+        content: [paragraphWithHttpLink(f.zoomUrl), p(tx(f.zoomClosing))],
       },
     ],
   };
@@ -271,7 +275,7 @@ export function buildFullDescriptionDoc(f: FullDescriptionFields): JSONContent {
       },
       {
         type: ZB,
-        content: [p(tx(f.zoomUrl)), p(tx(f.zoomClosing))],
+        content: [paragraphWithHttpLink(f.zoomUrl), p(tx(f.zoomClosing))],
       },
     ],
   };
