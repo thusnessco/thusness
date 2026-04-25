@@ -6,7 +6,10 @@ import type { JSONContent } from "@tiptap/core";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { parseHomepagePin } from "@/lib/homepage/homepage-pin";
+import {
+  defaultHomepagePin,
+  parseHomepagePin,
+} from "@/lib/homepage/homepage-pin";
 import type {
   FullDescriptionFields,
   SimpleContemplationFields,
@@ -196,7 +199,12 @@ export async function saveNote(input: {
 
   if (pin.source === "note") {
     if (!input.published && pin.slug === prevSlug) {
-      await upsertHomepagePinJson(supabase, { source: "week" });
+      const d = defaultHomepagePin();
+      await upsertHomepagePinJson(supabase, {
+        source: d.source,
+        template: d.template,
+        fields: d.fields,
+      });
       revalidatePath("/");
     } else if (pin.slug === prevSlug && newSlug !== prevSlug) {
       await upsertHomepagePinJson(supabase, {
@@ -273,11 +281,17 @@ export async function setHomepagePinToNoteSlug(
   return { ok: true as const };
 }
 
-export async function clearHomepagePinToWeek(): Promise<
+/** Restore the public home to the default Simple layout (replaces legacy “scheduled week”). */
+export async function resetHomepagePinToDefaultLayout(): Promise<
   { ok: true } | { ok: false; message: string }
 > {
   const supabase = await createServerSupabase();
-  const msg = await upsertHomepagePinJson(supabase, { source: "week" });
+  const d = defaultHomepagePin();
+  const msg = await upsertHomepagePinJson(supabase, {
+    source: d.source,
+    template: d.template,
+    fields: d.fields,
+  });
   if (msg) return { ok: false as const, message: msg };
 
   revalidatePath("/");
@@ -376,129 +390,15 @@ export async function deleteNote(input: {
     .maybeSingle();
   const pin = parseHomepagePin(pinRow?.content_json);
   if (pin.source === "note" && pin.slug === input.slug.trim()) {
-    await upsertHomepagePinJson(supabase, { source: "week" });
+    const d = defaultHomepagePin();
+    await upsertHomepagePinJson(supabase, {
+      source: d.source,
+      template: d.template,
+      fields: d.fields,
+    });
     revalidatePath("/");
   }
 
-  revalidatePath("/notes");
-  revalidatePath("/admin");
-  revalidatePath(`/notes/${input.slug.trim()}`);
-  return { ok: true as const };
-}
-
-function isoDateUtc(d: Date): string {
-  const y = d.getUTCFullYear();
-  const m = String(d.getUTCMonth() + 1).padStart(2, "0");
-  const day = String(d.getUTCDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
-}
-
-export async function createWeek(): Promise<
-  { ok: true; id: string } | { ok: false; message: string }
-> {
-  const supabase = await createServerSupabase();
-  const slug = `week-${randomUUID().slice(0, 8)}`;
-  const { data, error } = await supabase
-    .from("weeks")
-    .insert({
-      slug,
-      week_of: isoDateUtc(new Date()),
-      theme_title: "New week",
-      question: "Add a question for the archive list.",
-      body_json: emptyDoc(),
-    })
-    .select("id")
-    .single();
-
-  if (error) return { ok: false, message: error.message };
-  revalidatePath("/");
-  revalidatePath("/notes");
-  revalidatePath("/admin");
-  return { ok: true, id: data.id };
-}
-
-export async function saveWeek(input: {
-  id: string;
-  slug: string;
-  weekOf: string;
-  themeTitle: string;
-  question: string;
-  bodyJson: JSONContent;
-  previousSlug: string;
-}): Promise<
-  | { ok: true; body_json: JSONContent; updated_at: string }
-  | { ok: false; message: string }
-> {
-  const supabase = await createServerSupabase();
-  const bodyNormalized = JSON.parse(
-    JSON.stringify(input.bodyJson)
-  ) as JSONContent;
-
-  const { data, error } = await supabase
-    .from("weeks")
-    .update({
-      slug: input.slug.trim(),
-      week_of: input.weekOf.trim(),
-      theme_title: input.themeTitle.trim(),
-      question: input.question.trim(),
-      body_json: bodyNormalized,
-    })
-    .eq("id", input.id)
-    .select("body_json, updated_at")
-    .maybeSingle();
-
-  if (error) return { ok: false as const, message: error.message };
-  if (!data?.body_json || !data.updated_at) {
-    return {
-      ok: false as const,
-      message: "Save did not return the updated row. Try again or refresh.",
-    };
-  }
-  const stored = data.body_json as JSONContent;
-  const inImages = countTiptapImages(bodyNormalized);
-  const outImages = countTiptapImages(stored);
-  if (inImages > outImages) {
-    return {
-      ok: false as const,
-      message: `Save lost ${inImages - outImages} image(s). Refresh and try again.`,
-    };
-  }
-
-  revalidatePath("/");
-  revalidatePath("/notes");
-  revalidatePath("/admin");
-  revalidatePath(`/notes/${input.previousSlug.trim()}`);
-  if (input.previousSlug.trim() !== input.slug.trim()) {
-    revalidatePath(`/notes/${input.slug.trim()}`);
-  }
-  return {
-    ok: true as const,
-    body_json: stored,
-    updated_at: data.updated_at as string,
-  };
-}
-
-export async function deleteWeek(input: {
-  id: string;
-  slug: string;
-}): Promise<{ ok: true } | { ok: false; message: string }> {
-  const supabase = await createServerSupabase();
-  const { data, error } = await supabase
-    .from("weeks")
-    .delete()
-    .eq("id", input.id)
-    .select("id")
-    .maybeSingle();
-
-  if (error) return { ok: false as const, message: error.message };
-  if (!data) {
-    return {
-      ok: false as const,
-      message: "Could not delete this week. Refresh and try again.",
-    };
-  }
-
-  revalidatePath("/");
   revalidatePath("/notes");
   revalidatePath("/admin");
   revalidatePath(`/notes/${input.slug.trim()}`);

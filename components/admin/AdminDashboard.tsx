@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 
 import { createNote, signOut } from "@/app/admin/actions";
 import type { HomepagePin } from "@/lib/homepage/homepage-pin";
-import type { WeekDocument } from "@/lib/data/weeks-types";
 import type { NoteRow } from "@/lib/supabase/public-server";
 
 import { jsonContentEqual } from "@/lib/tiptap/json-content-equal";
@@ -16,28 +15,20 @@ import {
   AdminEditorHub,
   initialContentKey,
   parseNoteId,
-  parseWeekId,
   type ContentKey,
 } from "./AdminEditorHub";
 
 type Props = {
-  weeks: WeekDocument[];
   notes: NoteRow[];
   homepagePin: HomepagePin;
-  currentWeek: WeekDocument | null;
 };
 
 type NoteBodyOverride = { doc: JSONContent; key: string };
 
-export function AdminDashboard({
-  weeks,
-  notes,
-  homepagePin,
-  currentWeek,
-}: Props) {
+export function AdminDashboard({ notes, homepagePin }: Props) {
   const router = useRouter();
   const [contentKey, setContentKey] = useState<ContentKey>(() =>
-    initialContentKey(homepagePin, notes, currentWeek, weeks)
+    initialContentKey(homepagePin, notes)
   );
   const [message, setMessage] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -65,17 +56,9 @@ export function AdminDashboard({
     const id = parseNoteId(contentKey);
     if (!id) return;
     if (!notes.some((n) => n.id === id)) {
-      setContentKey(initialContentKey(homepagePin, notes, currentWeek, weeks));
+      setContentKey(initialContentKey(homepagePin, notes));
     }
-  }, [notes, contentKey, homepagePin, currentWeek, weeks]);
-
-  useEffect(() => {
-    const wid = parseWeekId(contentKey);
-    if (!wid) return;
-    if (!weeks.some((w) => w.id === wid)) {
-      setContentKey(initialContentKey(homepagePin, notes, currentWeek, weeks));
-    }
-  }, [weeks, contentKey, homepagePin, notes, currentWeek]);
+  }, [notes, contentKey, homepagePin]);
 
   const editorRef = useRef<TiptapEditorFieldHandle>(null);
 
@@ -107,8 +90,8 @@ export function AdminDashboard({
             Admin
           </h1>
           <p className="mt-2 max-w-xl text-sm leading-relaxed text-[var(--thusness-ink-soft)]">
-            Edit weeks, notes, and homepage layouts in one place. The public site
-            still resolves the root URL the same way as before.
+            Edit notes and the public home in one place. The root URL still uses
+            your homepage pin (note or Simple/Full layout).
           </p>
         </div>
         <form action={signOut}>
@@ -128,10 +111,8 @@ export function AdminDashboard({
       ) : null}
 
       <AdminEditorHub
-        weeks={weeks}
         notes={notes}
         homepagePin={homepagePin}
-        currentWeek={currentWeek}
         contentKey={contentKey}
         setContentKey={setContentKey}
         onMessage={flash}

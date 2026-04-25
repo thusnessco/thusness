@@ -14,7 +14,7 @@ npm run lint
 
 ## Content
 
-- **Weeks** live in Supabase (`weeks`); `/` uses the current week or a pinned published note.
-- **Notes** are TipTap documents in `notes`; published notes appear on `/notes`.
+- **Homepage** is driven by `site_content.homepage_pin`: a **published note** slug, or a **Simple / Full** structured layout stored with that pin. Legacy `{ "source": "week" }` rows are treated as the default Simple layout.
+- **Notes** are TipTap documents in `notes`; published notes appear on `/notes` and can be pinned to `/`.
 
 Design reference lives under `design_handoff_thusness/` (not served by the app).

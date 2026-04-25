@@ -1,21 +1,17 @@
 "use client";
 
 import type { RefObject } from "react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { JSONContent } from "@tiptap/core";
 
 import {
-  clearHomepagePinToWeek,
   createDraftNoteFromHomepageTemplate,
-  createWeek,
-  deleteWeek,
+  resetHomepagePinToDefaultLayout,
   saveHomepageSiteTemplate,
-  saveWeek,
   setHomepagePinToNoteSlug,
 } from "@/app/admin/actions";
 import type { HomepagePin } from "@/lib/homepage/homepage-pin";
-import type { WeekDocument } from "@/lib/data/weeks-types";
 import type { NoteRow } from "@/lib/supabase/public-server";
 import type {
   FullDescriptionFields,
@@ -27,48 +23,30 @@ import {
   DEFAULT_SIMPLE_FIELDS,
 } from "@/lib/homepage/site-templates";
 
-import {
-  TiptapEditorField,
-  type TiptapEditorFieldHandle,
-} from "./TiptapEditorField";
 import { NoteEditorPanel } from "./NoteEditorPanel";
+import type { TiptapEditorFieldHandle } from "./TiptapEditorField";
 
-export type ContentKey = `w:${string}` | `n:${string}` | "tpl:simple" | "tpl:full";
+export type ContentKey = `n:${string}` | "tpl:simple" | "tpl:full";
 
 export function parseNoteId(pk: ContentKey): string | null {
   return pk.startsWith("n:") ? pk.slice(2) : null;
 }
 
-export function parseWeekId(pk: ContentKey): string | null {
-  return pk.startsWith("w:") ? pk.slice(2) : null;
-}
-
 export function initialContentKey(
   pin: HomepagePin,
-  notes: NoteRow[],
-  currentWeek: WeekDocument | null,
-  weeks: WeekDocument[]
+  notes: NoteRow[]
 ): ContentKey {
-  if (pin.source === "week") {
-    if (currentWeek?.id) return `w:${currentWeek.id}`;
-    if (weeks[0]?.id) return `w:${weeks[0].id}`;
-    if (notes[0]) return `n:${notes[0].id}`;
-    return "tpl:simple";
-  }
   if (pin.source === "site_template") {
     return pin.template === "simple_contemplation" ? "tpl:simple" : "tpl:full";
   }
-  const n = notes.find((x) => x.slug === pin.slug);
-  if (n) return `n:${n.id}`;
-  if (notes[0]) return `n:${notes[0].id}`;
-  if (currentWeek?.id) return `w:${currentWeek.id}`;
-  if (weeks[0]?.id) return `w:${weeks[0].id}`;
-  return "tpl:simple";
+  if (pin.source === "note") {
+    const n = notes.find((x) => x.slug === pin.slug);
+    if (n) return `n:${n.id}`;
+  }
+  return notes[0] ? `n:${notes[0].id}` : "tpl:simple";
 }
 
 function liveOnHome(hp: HomepagePin, key: ContentKey, notes: NoteRow[]): boolean {
-  const wid = parseWeekId(key);
-  if (wid) return hp.source === "week";
   if (key === "tpl:simple") {
     return hp.source === "site_template" && hp.template === "simple_contemplation";
   }
@@ -126,10 +104,8 @@ function SessionSlotFieldsEditor({
 }
 
 type Props = {
-  weeks: WeekDocument[];
   notes: NoteRow[];
   homepagePin: HomepagePin;
-  currentWeek: WeekDocument | null;
   contentKey: ContentKey;
   setContentKey: (k: ContentKey) => void;
   onMessage: (msg: string) => void;
@@ -146,10 +122,8 @@ type Props = {
 };
 
 export function AdminEditorHub({
-  weeks,
   notes,
   homepagePin,
-  currentWeek,
   contentKey,
   setContentKey,
   onMessage,
@@ -165,35 +139,6 @@ export function AdminEditorHub({
     DEFAULT_SIMPLE_FIELDS
   );
   const [full, setFull] = useState<FullDescriptionFields>(DEFAULT_FULL_FIELDS);
-
-  const selectedWeekId = parseWeekId(contentKey);
-  const selectedWeek = useMemo(
-    () => (selectedWeekId ? weeks.find((w) => w.id === selectedWeekId) ?? null : null),
-    [weeks, selectedWeekId]
-  );
-
-  const [weekDraft, setWeekDraft] = useState({
-    slug: "",
-    weekOf: "",
-    themeTitle: "",
-    question: "",
-  });
-  const previousSlugRef = useRef("");
-
-  useEffect(() => {
-    if (!selectedWeek) {
-      setWeekDraft({ slug: "", weekOf: "", themeTitle: "", question: "" });
-      previousSlugRef.current = "";
-      return;
-    }
-    setWeekDraft({
-      slug: selectedWeek.slug,
-      weekOf: selectedWeek.weekOf,
-      themeTitle: selectedWeek.themeTitle,
-      question: selectedWeek.question,
-    });
-    previousSlugRef.current = selectedWeek.slug;
-  }, [selectedWeek?.id, selectedWeek?.updatedAt]);
 
   const [notePublished, setNotePublished] = useState(false);
   useEffect(() => {
@@ -225,9 +170,6 @@ export function AdminEditorHub({
         : "border-transparent text-[var(--thusness-muted)] hover:border-[var(--thusness-rule)] hover:text-[var(--thusness-ink)]"
     }`;
 
-  const isCurrentWeekRow =
-    Boolean(selectedWeek && currentWeek && selectedWeek.id === currentWeek.id);
-
   const templateLive =
     homepagePin.source === "site_template" &&
     ((contentKey === "tpl:simple" &&
@@ -240,15 +182,15 @@ export function AdminEditorHub({
     homepagePin.source === "note" &&
     homepagePin.slug === selectedNoteForEditor.slug;
 
-  const weekHomepageChecked =
-    selectedWeek && homepagePin.source === "week" && isCurrentWeekRow;
-
   const tplHomepageChecked =
     (contentKey === "tpl:simple" || contentKey === "tpl:full") && templateLive;
 
-  function firstWeekKey(): ContentKey {
-    return weeks[0]?.id ? `w:${weeks[0].id}` : "tpl:simple";
-  }
+  const postTypeBtn = (active: boolean) =>
+    `border px-3 py-1.5 text-xs tracking-wide transition-colors ${
+      active
+        ? "border-[var(--thusness-ink)] text-[var(--thusness-ink)]"
+        : "border-[var(--thusness-rule)] text-[var(--thusness-muted)] hover:border-[var(--thusness-ink)] hover:text-[var(--thusness-ink)]"
+    }`;
 
   return (
     <section className="space-y-8">
@@ -258,68 +200,22 @@ export function AdminEditorHub({
             Site content
           </h2>
           <p className="mt-2 max-w-2xl text-[13px] leading-relaxed text-[var(--thusness-ink-soft)]">
-            One editor for weeks, notes, and homepage layouts. Use{" "}
+            Notes and homepage layouts in one place. Use{" "}
             <span className="italic">Homepage</span> for the site root,{" "}
             <span className="italic">Notes</span> and{" "}
-            <span className="italic">Published</span> for the public{" "}
-            <span className="italic">/notes</span> index (drafts off), and{" "}
-            <span className="italic">Simple / Full / Custom</span> for structured
-            layouts vs TipTap blocks.
+            <span className="italic">Published</span> for{" "}
+            <span className="italic">/notes</span>, and the type buttons to jump between
+            Simple, Full, and Custom (TipTap) editing.
           </p>
         </div>
       </div>
 
       <div className="grid gap-10 lg:grid-cols-[minmax(0,14rem)_minmax(0,1fr)]">
         <nav
-          aria-label="Weeks, notes, and homepage"
+          aria-label="Notes and homepage"
           className="space-y-1 border-b border-[var(--thusness-rule)] pb-8 lg:border-b-0 lg:border-r lg:border-[var(--thusness-rule)] lg:pb-0 lg:pr-8"
         >
-          <div className="mb-4 flex flex-col gap-2">
-            <p className={fieldLabel}>Weeks</p>
-            <button
-              type="button"
-              disabled={isPending}
-              className={btnSmall}
-              onClick={() => {
-                startTransition(async () => {
-                  const res = await createWeek();
-                  if (!res.ok) onMessage(res.message);
-                  else {
-                    onMessage("New week created.");
-                    setContentKey(`w:${res.id}`);
-                    router.refresh();
-                  }
-                });
-              }}
-            >
-              New week
-            </button>
-          </div>
-          {weeks.map((w) => (
-            <button
-              key={w.id}
-              type="button"
-              className={navBtn(contentKey === `w:${w.id}`)}
-              onClick={() => setContentKey(`w:${w.id}`)}
-            >
-              <span className="block truncate font-medium">
-                {w.themeTitle || w.slug}
-              </span>
-              <span className="mt-0.5 block text-[10px] uppercase tracking-wider text-[var(--thusness-muted)]">
-                {w.weekOf}
-                {currentWeek?.id === w.id ? (
-                  <span className="text-[var(--thusness-ink)]"> · Scheduled</span>
-                ) : null}
-              </span>
-              {liveOnHome(homepagePin, `w:${w.id}`, notes) ? (
-                <span className="mt-0.5 block text-[10px] uppercase tracking-wider text-[var(--thusness-red,#c23a2a)]">
-                  Live on /
-                </span>
-              ) : null}
-            </button>
-          ))}
-
-          <p className={`${fieldLabel} mb-2 mt-8`}>Notes</p>
+          <p className={`${fieldLabel} mb-2`}>Notes</p>
           <button
             type="button"
             disabled={isPending}
@@ -392,24 +288,22 @@ export function AdminEditorHub({
                 checked={
                   selectedNoteForEditor
                     ? Boolean(noteHomepageChecked)
-                    : selectedWeek
-                      ? Boolean(weekHomepageChecked)
-                      : contentKey === "tpl:simple" || contentKey === "tpl:full"
-                        ? tplHomepageChecked
-                        : false
+                    : contentKey === "tpl:simple" || contentKey === "tpl:full"
+                      ? tplHomepageChecked
+                      : false
                 }
                 disabled={
                   isPending ||
-                  (Boolean(selectedWeek) &&
-                    (!isCurrentWeekRow ||
-                      (homepagePin.source === "week" && isCurrentWeekRow)))
+                  (Boolean(selectedNoteForEditor) &&
+                    !notePublished &&
+                    !noteHomepageChecked)
                 }
                 title={
-                  selectedWeek && !isCurrentWeekRow
-                    ? "Only the scheduled (current) week can take over / this way."
-                    : homepagePin.source === "week" && isCurrentWeekRow
-                      ? "Homepage already follows the schedule. Pin a note or template to change it, or use another row."
-                      : undefined
+                  selectedNoteForEditor &&
+                  !notePublished &&
+                  !noteHomepageChecked
+                    ? "Publish this note (Notes · Published) and save before pinning to /."
+                    : undefined
                 }
                 onChange={(e) => {
                   const on = e.target.checked;
@@ -427,23 +321,11 @@ export function AdminEditorHub({
                       });
                     } else if (noteHomepageChecked) {
                       startTransition(async () => {
-                        const res = await clearHomepagePinToWeek();
+                        const res = await resetHomepagePinToDefaultLayout();
                         if (!res.ok) onMessage(res.message);
                         else {
-                          onMessage("Homepage now uses the scheduled week.");
-                          router.refresh();
-                        }
-                      });
-                    }
-                    return;
-                  }
-                  if (selectedWeek && isCurrentWeekRow) {
-                    if (on && homepagePin.source !== "week") {
-                      startTransition(async () => {
-                        const res = await clearHomepagePinToWeek();
-                        if (!res.ok) onMessage(res.message);
-                        else {
-                          onMessage("Homepage now uses the scheduled week.");
+                          onMessage("Homepage reset to the default Simple layout.");
+                          setContentKey("tpl:simple");
                           router.refresh();
                         }
                       });
@@ -468,15 +350,11 @@ export function AdminEditorHub({
                       });
                     } else if (tplHomepageChecked) {
                       startTransition(async () => {
-                        const res = await clearHomepagePinToWeek();
+                        const res = await resetHomepagePinToDefaultLayout();
                         if (!res.ok) onMessage(res.message);
                         else {
-                          onMessage("Homepage now uses the scheduled week.");
-                          setContentKey(
-                            currentWeek?.id
-                              ? `w:${currentWeek.id}`
-                              : firstWeekKey()
-                          );
+                          onMessage("Homepage reset to the default Simple layout.");
+                          setContentKey("tpl:simple");
                           router.refresh();
                         }
                       });
@@ -487,8 +365,7 @@ export function AdminEditorHub({
               <span>
                 <span className="font-medium text-[var(--thusness-ink)]">Homepage</span>
                 <span className={`mt-1 block ${checkHint}`}>
-                  When checked, visitors see this row at the site root (/) where the
-                  product allows it.
+                  When checked, visitors see this note or layout at the site root (/).
                 </span>
               </span>
             </label>
@@ -540,184 +417,44 @@ export function AdminEditorHub({
 
             <div className="space-y-2">
               <span className={fieldLabel}>Post type</span>
-              <div className="flex flex-wrap gap-4 text-sm text-[var(--thusness-ink-soft)]">
-                {(["simple", "full", "custom"] as const).map((t) => {
-                  const active =
-                    (t === "simple" && contentKey === "tpl:simple") ||
-                    (t === "full" && contentKey === "tpl:full") ||
-                    (t === "custom" &&
-                      (Boolean(selectedWeek) || Boolean(selectedNoteForEditor)));
-                  const disabled =
-                    isPending ||
-                    (t === "simple" && contentKey !== "tpl:simple") ||
-                    (t === "full" && contentKey !== "tpl:full") ||
-                    (t === "custom" &&
-                      (contentKey === "tpl:simple" || contentKey === "tpl:full"));
-                  return (
-                    <label
-                      key={t}
-                      className={`flex items-center gap-2 ${disabled ? "opacity-40" : ""}`}
-                    >
-                      <input
-                        type="radio"
-                        name="post-type"
-                        checked={active}
-                        disabled={disabled}
-                        className="accent-[var(--thusness-ink)]"
-                      />
-                      {t === "simple"
-                        ? "Simple"
-                        : t === "full"
-                          ? "Full"
-                          : "Custom"}
-                    </label>
-                  );
-                })}
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  disabled={isPending}
+                  className={postTypeBtn(contentKey === "tpl:simple")}
+                  onClick={() => setContentKey("tpl:simple")}
+                >
+                  Simple
+                </button>
+                <button
+                  type="button"
+                  disabled={isPending}
+                  className={postTypeBtn(contentKey === "tpl:full")}
+                  onClick={() => setContentKey("tpl:full")}
+                >
+                  Full
+                </button>
+                <button
+                  type="button"
+                  disabled={isPending || notes.length === 0}
+                  className={postTypeBtn(parseNoteId(contentKey) != null)}
+                  onClick={() => {
+                    const id = parseNoteId(contentKey);
+                    if (id) return;
+                    const first = notes[0];
+                    if (first) setContentKey(`n:${first.id}`);
+                    else onMessage("Create a note first.");
+                  }}
+                >
+                  Custom
+                </button>
               </div>
               <p className={checkHint}>
-                Simple and Full are the structured homepage layouts. Custom is this
-                TipTap document (weeks and notes). Switch type by choosing a row in the
-                list.
+                Simple and Full edit the structured homepage layouts. Custom is the
+                TipTap note editor. These buttons switch what you are editing.
               </p>
             </div>
           </fieldset>
-
-          {parseWeekId(contentKey) && !selectedWeek ? (
-            <p className="text-sm text-[var(--thusness-muted)]">
-              This week no longer exists. Choose another row.
-            </p>
-          ) : null}
-
-          {selectedWeek ? (
-            <>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <label className="block space-y-1.5">
-                  <span className={fieldLabel}>Slug (URL)</span>
-                  <input
-                    value={weekDraft.slug}
-                    onChange={(e) =>
-                      setWeekDraft((d) => ({ ...d, slug: e.target.value }))
-                    }
-                    className={fieldInput}
-                  />
-                </label>
-                <label className="block space-y-1.5">
-                  <span className={fieldLabel}>Week of</span>
-                  <input
-                    type="date"
-                    value={weekDraft.weekOf}
-                    onChange={(e) =>
-                      setWeekDraft((d) => ({ ...d, weekOf: e.target.value }))
-                    }
-                    className={fieldInput}
-                  />
-                </label>
-              </div>
-              <label className="block space-y-1.5">
-                <span className={fieldLabel}>Theme title (archive list)</span>
-                <input
-                  value={weekDraft.themeTitle}
-                  onChange={(e) =>
-                    setWeekDraft((d) => ({ ...d, themeTitle: e.target.value }))
-                  }
-                  className={fieldInput}
-                />
-              </label>
-              <label className="block space-y-1.5">
-                <span className={fieldLabel}>Question (archive subtitle)</span>
-                <input
-                  value={weekDraft.question}
-                  onChange={(e) =>
-                    setWeekDraft((d) => ({ ...d, question: e.target.value }))
-                  }
-                  className={fieldInput}
-                />
-              </label>
-
-              <TiptapEditorField
-                key={selectedWeek.id}
-                ref={editorRef}
-                label="Page body (TipTap — Custom layout)"
-                contentSyncKey={selectedWeek.updatedAt}
-                initialDoc={selectedWeek.bodyJson}
-                imageUploadScope={`week/${selectedWeek.id}`}
-                onImageUploadMessage={onMessage}
-                onEditorError={onMessage}
-                onTemplateNotice={onMessage}
-                variant="page"
-              />
-
-              <div className="flex flex-wrap gap-3">
-                <button
-                  type="button"
-                  disabled={isPending}
-                  className={btnPrimary}
-                  onClick={() => {
-                    const json = editorRef.current?.getJSON();
-                    if (!json) {
-                      onMessage("Editor is not ready yet. Try Save again.");
-                      return;
-                    }
-                    startTransition(async () => {
-                      const res = await saveWeek({
-                        id: selectedWeek.id,
-                        slug: weekDraft.slug,
-                        weekOf: weekDraft.weekOf,
-                        themeTitle: weekDraft.themeTitle,
-                        question: weekDraft.question,
-                        bodyJson: structuredClone(json) as JSONContent,
-                        previousSlug: previousSlugRef.current,
-                      });
-                      if (!res.ok) onMessage(res.message);
-                      else {
-                        previousSlugRef.current = weekDraft.slug.trim();
-                        onMessage("Week saved.");
-                        router.refresh();
-                      }
-                    });
-                  }}
-                >
-                  Save week
-                </button>
-                <button
-                  type="button"
-                  disabled={isPending}
-                  className="border border-[var(--thusness-rule)] px-4 py-2 text-xs tracking-wide text-[var(--thusness-ink-soft)] italic transition-opacity hover:border-[var(--thusness-ink)] disabled:opacity-40"
-                  onClick={() => {
-                    if (
-                      !window.confirm(
-                        "Delete this week from the database? This cannot be undone."
-                      )
-                    ) {
-                      return;
-                    }
-                    startTransition(async () => {
-                      const res = await deleteWeek({
-                        id: selectedWeek.id,
-                        slug: selectedWeek.slug,
-                      });
-                      if (!res.ok) onMessage(res.message);
-                      else {
-                        onMessage("Week deleted.");
-                        const nextWeeks = weeks.filter((w) => w.id !== selectedWeek.id);
-                        setContentKey(
-                          initialContentKey(
-                            homepagePin,
-                            notes,
-                            currentWeek,
-                            nextWeeks
-                          )
-                        );
-                        router.refresh();
-                      }
-                    });
-                  }}
-                >
-                  Delete week
-                </button>
-              </div>
-            </>
-          ) : null}
 
           {parseNoteId(contentKey) && selectedNoteForEditor ? (
             <NoteEditorPanel
@@ -1028,21 +765,17 @@ export function AdminEditorHub({
                   onClick={() => {
                     if (
                       !window.confirm(
-                        "Remove this layout from the homepage? Visitors will see the scheduled week until you pick something else."
+                        "Remove this layout from the homepage? The site will fall back to the default Simple layout until you pin something else."
                       )
                     ) {
                       return;
                     }
                     startTransition(async () => {
-                      const res = await clearHomepagePinToWeek();
+                      const res = await resetHomepagePinToDefaultLayout();
                       if (!res.ok) onMessage(res.message);
                       else {
-                        onMessage("Homepage now uses the scheduled week.");
-                        setContentKey(
-                          currentWeek?.id
-                            ? `w:${currentWeek.id}`
-                            : firstWeekKey()
-                        );
+                        onMessage("Homepage reset to the default Simple layout.");
+                        setContentKey("tpl:simple");
                         router.refresh();
                       }
                     });

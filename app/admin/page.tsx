@@ -3,9 +3,7 @@ import { unstable_noStore as noStore } from "next/cache";
 import { AdminDashboard } from "@/components/admin/AdminDashboard";
 import { getHomepagePinForAdmin } from "@/lib/data/homepage-source";
 import { getAllNotesForAdmin } from "@/lib/data/notes-admin";
-import { getAllWeeksForAdmin } from "@/lib/data/weeks-admin";
 import { getSupabasePublicConfig } from "@/lib/supabase/config";
-import { getCurrentWeek } from "@/lib/weeks";
 
 export const dynamic = "force-dynamic";
 
@@ -33,19 +31,12 @@ export default async function AdminPage() {
     );
   }
 
-  const [weeks, notes, homepagePin, currentWeek] = await Promise.all([
-    getAllWeeksForAdmin(),
+  const [notes, homepagePin] = await Promise.all([
     getAllNotesForAdmin(),
     getHomepagePinForAdmin(),
-    getCurrentWeek(),
   ]);
 
   return (
-    <AdminDashboard
-      weeks={weeks}
-      notes={notes}
-      homepagePin={homepagePin}
-      currentWeek={currentWeek}
-    />
+    <AdminDashboard notes={notes} homepagePin={homepagePin} />
   );
 }

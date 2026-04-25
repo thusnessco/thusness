@@ -18,7 +18,7 @@ import { jsonContentEqual } from "@/lib/tiptap/json-content-equal";
 import { stripPastedHtml } from "@/lib/tiptap/sanitize-pasted-html";
 import {
   getThusnessSnippetFragment,
-  getWeekPageTemplateDoc,
+  getPageLayoutSampleDoc,
   THUSNESS_SNIPPET_OPTIONS,
   type ThusnessSnippetKey,
 } from "@/lib/tiptap/thusness-blocks";
@@ -252,13 +252,13 @@ function Toolbar({
               ) {
                 return;
               }
-              editor.chain().focus().setContent(getWeekPageTemplateDoc()).run();
+              editor.chain().focus().setContent(getPageLayoutSampleDoc()).run();
               onTemplateNotice?.(
                 "Loaded sample week layout — matches the design package. Save when done."
               );
             }}
           >
-            Sample week page
+            Sample page layout
           </button>
         </>
       ) : null}

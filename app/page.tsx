@@ -21,10 +21,9 @@ export default async function Home() {
       }}
     >
       <p className="max-w-md text-center text-sm leading-relaxed">
-        No week content is available yet. Sign in to{" "}
-        <span className="italic">Admin</span>, create a week and set its{" "}
-        <span className="italic">week of</span> date, or choose a homepage
-        template or a published note as the public home.
+        Nothing is available for the public home yet. Sign in to{" "}
+        <span className="italic">Admin</span> to set a homepage layout or publish
+        a note and pin it to <span className="italic">/</span>.
       </p>
       <Link
         href="/notes"

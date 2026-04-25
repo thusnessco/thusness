@@ -358,7 +358,7 @@ export function getThusnessSnippetFragment(
 }
 
 /** Full homepage-style stack matching the design-handoff sample (editable in place). */
-export function getWeekPageTemplateDoc(): JSONContent {
+export function getPageLayoutSampleDoc(): JSONContent {
   return {
     type: "doc",
     content: [

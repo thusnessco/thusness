@@ -6,7 +6,7 @@ import Wordmark from "./Wordmark";
 const helv = 'Helvetica, "Helvetica Neue", Arial, sans-serif';
 
 /**
- * Full-page public shell for TipTap HTML (current week home and archived weeks).
+ * Full-page public shell for TipTap HTML (home and notes).
  * Matches `.tiptap-html` in admin.
  */
 export function HomePageFromTipTap({ html }: { html: string }) {
