@@ -5,14 +5,13 @@ import type { JSONContent } from "@tiptap/core";
 import { useRouter } from "next/navigation";
 
 import {
-  clearHomepagePinToWeek,
   createNote,
   deleteNote,
   saveNote,
   setHomepagePinToNoteSlug,
   signOut,
 } from "@/app/admin/actions";
-import type { HomepagePin } from "@/lib/data/homepage-source";
+import type { HomepagePin } from "@/lib/homepage/homepage-pin";
 import type { WeekDocument } from "@/lib/data/weeks-types";
 import type { NoteRow } from "@/lib/supabase/public-server";
 
@@ -22,6 +21,7 @@ import {
   TiptapEditorField,
   type TiptapEditorFieldHandle,
 } from "./TiptapEditorField";
+import { HomepageSourcePanel } from "./HomepageSourcePanel";
 import { WeeksPanel } from "./WeeksPanel";
 
 type Props = {
@@ -290,9 +290,10 @@ export function AdminDashboard({ weeks, notes, homepagePin }: Props) {
             Admin
           </h1>
           <p className="mt-2 max-w-xl text-sm leading-relaxed text-[var(--thusness-ink-soft)]">
-            Weeks and notes use the same TipTap setup as the public site: headings,
-            lists, and spacing match production. The home page is always the current
-            week (latest <span className="italic">week of</span> on or before today).
+            Weeks and notes use the same TipTap setup as the public site. The public
+            home defaults to the current week unless you pin a note or choose a
+            homepage template in{" "}
+            <span className="italic">Public homepage</span> below.
           </p>
         </div>
         <form action={signOut}>
@@ -314,49 +315,7 @@ export function AdminDashboard({ weeks, notes, homepagePin }: Props) {
       <div className="space-y-20">
         <WeeksPanel weeks={weeks} onMessage={flash} />
 
-        <div className="border border-[var(--thusness-rule)] bg-[var(--thusness-bg)] px-4 py-5 sm:px-5">
-          <p className={sectionHeading}>Public homepage</p>
-          <p className="mt-3 max-w-2xl text-[13px] leading-relaxed text-[var(--thusness-ink-soft)]">
-            {homepagePin.source === "week" ? (
-              <>
-                Visitors see the{" "}
-                <span className="font-medium text-[var(--thusness-ink)]">
-                  current week
-                </span>{" "}
-                (latest <span className="italic">week of</span> on or before today).
-                Open a published note below and choose &ldquo;Use as public home&rdquo;
-                to override.
-              </>
-            ) : (
-              <>
-                Homepage is pinned to the published note at{" "}
-                <code className="text-[var(--thusness-ink)]">
-                  /notes/{homepagePin.slug}
-                </code>
-                .
-              </>
-            )}
-          </p>
-          {homepagePin.source === "note" ? (
-            <button
-              type="button"
-              disabled={isPending}
-              className={`${btnSmall} mt-4`}
-              onClick={() => {
-                startTransition(async () => {
-                  const res = await clearHomepagePinToWeek();
-                  if (!res.ok) flash(res.message);
-                  else {
-                    flash("Homepage uses the scheduled week again.");
-                    router.refresh();
-                  }
-                });
-              }}
-            >
-              Use scheduled week for home
-            </button>
-          ) : null}
-        </div>
+        <HomepageSourcePanel homepagePin={homepagePin} onMessage={flash} />
 
         <section className="space-y-6 border-t border-[var(--thusness-rule)] pt-16">
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">

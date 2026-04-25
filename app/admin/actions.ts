@@ -6,7 +6,9 @@ import type { JSONContent } from "@tiptap/core";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { parseHomepagePin } from "@/lib/data/homepage-source";
+import { parseHomepagePin } from "@/lib/homepage/homepage-pin";
+import type { SiteTemplateId } from "@/lib/homepage/site-templates";
+import { normalizeSiteTemplateFields } from "@/lib/homepage/site-templates";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { countTiptapImages } from "@/lib/tiptap/count-tiptap-images";
 import { emptyDoc } from "@/lib/tiptap/empty-doc";
@@ -269,6 +271,26 @@ export async function clearHomepagePinToWeek(): Promise<
 > {
   const supabase = await createServerSupabase();
   const msg = await upsertHomepagePinJson(supabase, { source: "week" });
+  if (msg) return { ok: false as const, message: msg };
+
+  revalidatePath("/");
+  revalidatePath("/admin");
+  revalidatePath("/notes");
+  return { ok: true as const };
+}
+
+/** Pin the public home to a built-in template (fill-in-the-blanks), replacing week/note. */
+export async function saveHomepageSiteTemplate(
+  template: SiteTemplateId,
+  fields: unknown
+): Promise<{ ok: true } | { ok: false; message: string }> {
+  const supabase = await createServerSupabase();
+  const normalized = normalizeSiteTemplateFields(template, fields);
+  const msg = await upsertHomepagePinJson(supabase, {
+    source: "site_template",
+    template,
+    fields: normalized,
+  });
   if (msg) return { ok: false as const, message: msg };
 
   revalidatePath("/");

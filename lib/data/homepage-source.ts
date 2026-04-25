@@ -1,23 +1,13 @@
 import "server-only";
 
+import type { HomepagePin } from "@/lib/homepage/homepage-pin";
+import { parseHomepagePin } from "@/lib/homepage/homepage-pin";
 import { createPublicSupabase } from "@/lib/supabase/public-server";
 import { createServerSupabase } from "@/lib/supabase/server";
 
-export type HomepagePin =
-  | { source: "week" }
-  | { source: "note"; slug: string };
+export type { HomepagePin, SiteTemplateId } from "@/lib/homepage/homepage-pin";
 
-export function parseHomepagePin(raw: unknown): HomepagePin {
-  if (!raw || typeof raw !== "object") return { source: "week" };
-  const o = raw as Record<string, unknown>;
-  if (o.source === "note" && typeof o.slug === "string") {
-    const slug = o.slug.trim();
-    if (slug) return { source: "note", slug };
-  }
-  return { source: "week" };
-}
-
-/** Public read: which body drives `/` — current week or a published note. */
+/** Public read: which body drives `/` — current week, a published note, or a site template. */
 export async function getHomepagePin(): Promise<HomepagePin> {
   const supabase = createPublicSupabase();
   if (!supabase) return { source: "week" };
