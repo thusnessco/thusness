@@ -1,6 +1,10 @@
 /**
- * Writes raster favicons matching `RedDot`: cream field, red ring, cream center.
- * Run: node scripts/generate-favicons.mjs
+ * Writes raster favicons. Run: node scripts/generate-favicons.mjs
+ *
+ * Tab icons (32px PNG + ICO): small solid brand red on **transparent** so
+ * dark-mode browser chrome does not show a cream tile.
+ *
+ * Apple touch (180): full RedDot (cream field, red ring, cream hole) for iOS.
  *
  * Outputs (public only — avoid `app/favicon.ico`, which makes Next inject a
  * second hashed favicon URL and duplicate `<link rel="icon">` tags):
@@ -72,6 +76,23 @@ function makePng(width, height, rgbaAt) {
 
 const CREAM = [239, 236, 225, 255];
 const RED = [194, 58, 42, 255];
+const TRANSPARENT = [0, 0, 0, 0];
+
+/** Small solid disc for tab favicons; transparent outside (dark-mode friendly). */
+function smallRedDotRgba(x, y, size) {
+  const cx = size / 2;
+  const cy = size / 2;
+  const px = x + 0.5;
+  const py = y + 0.5;
+  const d = Math.hypot(px - cx, py - cy);
+  const radius = size * 0.175;
+  const edge = 0.55;
+  if (d >= radius + edge) return TRANSPARENT;
+  if (d <= radius - edge) return RED;
+  const t = 1 - (d - (radius - edge)) / (2 * edge);
+  const a = Math.max(0, Math.min(1, t)) * 255;
+  return [RED[0], RED[1], RED[2], Math.round(a)];
+}
 
 /** RedDot: outer red disc, inner cream hole (~⅓ diameter). */
 function redDotRgba(x, y, size) {
@@ -86,10 +107,6 @@ function redDotRgba(x, y, size) {
   if (d <= rInner) return CREAM;
   if (d <= rOuter) return RED;
   return CREAM;
-}
-
-function pngIco(size) {
-  return makePng(size, size, (x, y) => redDotRgba(x, y, size));
 }
 
 function pngToIco(pngBuf) {
@@ -111,8 +128,8 @@ function pngToIco(pngBuf) {
   return Buffer.concat([reserved, type, count, entry, pngBuf]);
 }
 
-const fav32 = pngIco(32);
-const apple = pngIco(180);
+const fav32 = makePng(32, 32, (x, y) => smallRedDotRgba(x, y, 32));
+const apple = makePng(180, 180, (x, y) => redDotRgba(x, y, 180));
 
 fs.mkdirSync(pub, { recursive: true });
 fs.writeFileSync(path.join(pub, "favicon.ico"), pngToIco(fav32));
