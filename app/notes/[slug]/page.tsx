@@ -44,7 +44,10 @@ export default async function NotePage({ params }: Props) {
           </Link>
         </div>
       </div>
-      <HomePageFromTipTap html={html} />
+      <HomePageFromTipTap
+        html={html}
+        showBackgroundCircle={note.show_background_circle ?? false}
+      />
     </div>
   );
 }

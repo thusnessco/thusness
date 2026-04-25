@@ -56,10 +56,17 @@ export function NoteEditorPanel({
   const [title, setTitle] = useState(note.title);
   const [excerpt, setExcerpt] = useState(note.excerpt ?? "");
   const [published, setPublished] = useState(note.published);
+  const [showBackgroundCircle, setShowBackgroundCircle] = useState(
+    () => note.show_background_circle ?? false
+  );
 
   useEffect(() => {
     setPublished(note.published);
   }, [note.id, note.published, note.updated_at]);
+
+  useEffect(() => {
+    setShowBackgroundCircle(note.show_background_circle ?? false);
+  }, [note.id, note.updated_at, note.show_background_circle]);
 
   const slugDirty = slug.trim() !== note.slug;
   const liveOnRoot = noteDrivesRoot(homepagePin, note);
@@ -136,6 +143,29 @@ export function NoteEditorPanel({
         </label>
       </fieldset>
 
+      <fieldset className="space-y-4 border border-[var(--thusness-rule)] px-4 py-4">
+        <legend className={`px-1 ${adminFieldLabel}`}>Public layout</legend>
+        <label className={checkRow}>
+          <input
+            type="checkbox"
+            className="mt-1 border-[var(--thusness-rule)] accent-[var(--thusness-ink)]"
+            checked={showBackgroundCircle}
+            disabled={isPending}
+            onChange={(e) => setShowBackgroundCircle(e.target.checked)}
+          />
+          <span>
+            <span className="font-medium text-[var(--thusness-ink)]">
+              Decorative circle behind the body
+            </span>
+            <span className={`mt-1 block ${checkHint}`}>
+              Thin ring framing the opening block on the public note page (and at{" "}
+              <span className="italic">/</span> when this note is pinned). Save to
+              apply.
+            </span>
+          </span>
+        </label>
+      </fieldset>
+
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="block space-y-1.5">
           <span className={adminFieldLabel}>Title</span>
@@ -199,6 +229,7 @@ export function NoteEditorPanel({
                   excerpt: excerpt || null,
                   content_json: bodySnapshot,
                   published,
+                  show_background_circle: showBackgroundCircle,
                 });
                 if (!res.ok) onMessage(res.message);
                 else {

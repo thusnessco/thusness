@@ -25,4 +25,6 @@ export type NoteRow = {
   published: boolean;
   published_at: string;
   updated_at: string;
+  /** Thin decorative circle behind the body on public note pages (and / when pinned). */
+  show_background_circle?: boolean;
 };

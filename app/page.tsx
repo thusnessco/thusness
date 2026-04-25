@@ -10,7 +10,12 @@ export default async function Home() {
   const body = await getHomepageTipTapDoc();
   if (body.ok) {
     const html = tiptapJsonToHtml(body.doc);
-    return <HomePageFromTipTap html={html} />;
+    return (
+      <HomePageFromTipTap
+        html={html}
+        showBackgroundCircle={Boolean(body.showBackgroundCircle)}
+      />
+    );
   }
 
   return (

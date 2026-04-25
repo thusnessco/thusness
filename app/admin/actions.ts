@@ -136,6 +136,7 @@ export async function saveNote(input: {
   excerpt: string | null;
   content_json: JSONContent;
   published: boolean;
+  show_background_circle: boolean;
 }) {
   const supabase = await createServerSupabase();
 
@@ -155,6 +156,7 @@ export async function saveNote(input: {
     excerpt: input.excerpt?.trim() || null,
     content_json: contentNormalized,
     published: input.published,
+    show_background_circle: input.show_background_circle,
   };
 
   if (input.published) {
@@ -165,7 +167,7 @@ export async function saveNote(input: {
     .from("notes")
     .update(patch)
     .eq("id", input.id)
-    .select("id, content_json, updated_at")
+    .select("id, content_json, updated_at, show_background_circle")
     .maybeSingle();
 
   if (error) return { ok: false as const, message: error.message };
@@ -216,6 +218,7 @@ export async function saveNote(input: {
     }
   }
 
+  revalidatePath("/");
   revalidatePath("/notes");
   revalidatePath("/admin");
   revalidatePath(`/notes/${newSlug}`);
@@ -223,6 +226,7 @@ export async function saveNote(input: {
     ok: true as const,
     content_json: stored,
     updated_at: data.updated_at as string,
+    show_background_circle: Boolean(data.show_background_circle),
   };
 }
 

@@ -9,7 +9,14 @@ const helv = 'Helvetica, "Helvetica Neue", Arial, sans-serif';
  * Full-page public shell for TipTap HTML (home and notes).
  * Matches `.tiptap-html` in admin.
  */
-export function HomePageFromTipTap({ html }: { html: string }) {
+export function HomePageFromTipTap({
+  html,
+  showBackgroundCircle = false,
+}: {
+  html: string;
+  /** Large thin ring behind the article body (social-style framing). */
+  showBackgroundCircle?: boolean;
+}) {
   return (
     <div
       style={{
@@ -25,10 +32,31 @@ export function HomePageFromTipTap({ html }: { html: string }) {
           <Wordmark size={20} />
         </header>
 
-        <TiptapHtml
-          html={html}
-          className="tiptap-html mx-auto max-w-[620px] text-[17px] leading-[1.7] text-[var(--thusness-ink-soft)]"
-        />
+        <div style={{ position: "relative", margin: "0 auto", maxWidth: 620 }}>
+          {showBackgroundCircle ? (
+            <div
+              aria-hidden
+              style={{
+                position: "absolute",
+                left: "50%",
+                transform: "translateX(-50%)",
+                top: "-12px",
+                width: "min(88vw, 500px)",
+                height: "min(88vw, 500px)",
+                maxWidth: "100%",
+                borderRadius: "50%",
+                boxSizing: "border-box",
+                border: "1px solid rgba(199, 194, 176, 0.55)",
+                pointerEvents: "none",
+                zIndex: 0,
+              }}
+            />
+          ) : null}
+          <TiptapHtml
+            html={html}
+            className="tiptap-html relative z-[1] mx-auto max-w-[620px] text-[17px] leading-[1.7] text-[var(--thusness-ink-soft)]"
+          />
+        </div>
 
         <footer
           style={{
