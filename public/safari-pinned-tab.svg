@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" aria-hidden="true">
+  <defs>
+    <mask id="thusness-pin-tab" maskUnits="userSpaceOnUse">
+      <rect width="32" height="32" fill="black" />
+      <circle cx="16" cy="16" r="12" fill="white" />
+      <circle cx="16" cy="16" r="2.04" fill="black" />
+    </mask>
+  </defs>
+  <rect width="32" height="32" fill="#000000" mask="url(#thusness-pin-tab)" />
+</svg>

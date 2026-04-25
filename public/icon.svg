@@ -1,7 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 12" role="img" aria-label="Thusness">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Thusness">
   <mask id="thusness-dot-ring">
-    <circle cx="6" cy="6" r="6" fill="white" />
-    <circle cx="6" cy="6" r="1.98" fill="black" />
+    <rect width="32" height="32" fill="black" />
+    <circle cx="16" cy="16" r="12" fill="white" />
+    <circle cx="16" cy="16" r="2.04" fill="black" />
   </mask>
-  <circle cx="6" cy="6" r="6" fill="#c23a2a" mask="url(#thusness-dot-ring)" />
+  <circle cx="16" cy="16" r="12" fill="#c23a2a" mask="url(#thusness-dot-ring)" />
 </svg>

@@ -1,9 +1,9 @@
 /**
  * Writes raster favicons. Run: node scripts/generate-favicons.mjs
  *
- * Tab icons (32px PNG + ICO): same proportions as `components/thusness/RedDot.tsx`
- * (12px reference: red ring, inner hole **transparent** — not cream — so pinned
- * Safari tabs do not show an off-white disk; address bar stays transparent too).
+ * Tab icons (32px PNG + ICO): smaller ring than the footer dot, with a **small**
+ * transparent center (not cream). Safari pinned tabs also need `safari-pinned-tab.svg`
+ * (`rel="mask-icon"`) so they do not sit the PNG on a light plate.
  *
  * Apple touch (180): full RedDot (cream field, red ring, cream hole) for iOS.
  *
@@ -80,20 +80,22 @@ const RED = [194, 58, 42, 255];
 const TRANSPARENT = [0, 0, 0, 0];
 
 /**
- * Footer-matched ring: outer radius = 6/12 of canvas (inset 1px), inner radius =
- * (12 * 0.33 / 2) / 12 of scaled design — thick band, small hole (not a thin donut).
- * Hole and canvas outside the ring are fully transparent (pinned-tab safe).
+ * Tab strip: modest red ring, tiny transparent punch (not a wide donut).
+ * Keep `public/safari-pinned-tab.svg` radii in sync for size 32: rOuter = 12,
+ * rInner = 2.04.
  */
+const TAB_RING_PAD = 4;
+const TAB_INNER_AS_OUTER_FRAC = 0.17;
+
 function tabRedDotRingRgba(x, y, size) {
   const cx = size / 2;
   const cy = size / 2;
   const px = x + 0.5;
   const py = y + 0.5;
   const d = Math.hypot(px - cx, py - cy);
-  const scale = size / 12;
-  const rOuter = Math.min(size / 2 - 1, 6 * scale);
-  const rInner = ((12 * 0.33) / 2) * scale;
-  const edge = 0.38;
+  const rOuter = size / 2 - TAB_RING_PAD;
+  const rInner = rOuter * TAB_INNER_AS_OUTER_FRAC;
+  const edge = 0.35;
 
   let a = 0;
   if (d < rInner - edge) {
@@ -154,4 +156,6 @@ fs.mkdirSync(pub, { recursive: true });
 fs.writeFileSync(path.join(pub, "favicon.ico"), pngToIco(fav32));
 fs.writeFileSync(path.join(pub, "favicon-32.png"), fav32);
 fs.writeFileSync(path.join(pub, "apple-touch-icon.png"), apple);
-console.log("Wrote public/favicon.ico, public/favicon-32.png, public/apple-touch-icon.png");
+console.log(
+  "Wrote public/favicon.ico, public/favicon-32.png, public/apple-touch-icon.png",
+);

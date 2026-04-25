@@ -39,6 +39,12 @@ const nextConfig: NextConfig = {
           { key: "Cache-Control", value: "public, max-age=604800, immutable" },
         ],
       },
+      {
+        source: "/safari-pinned-tab.svg",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=604800, immutable" },
+        ],
+      },
     ];
   },
 };
