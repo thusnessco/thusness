@@ -1,8 +1,9 @@
 /**
  * Writes raster favicons. Run: node scripts/generate-favicons.mjs
  *
- * Tab icons (32px PNG + ICO): small solid brand red on **transparent** so
- * dark-mode browser chrome does not show a cream tile.
+ * Tab icons (32px PNG + ICO): same proportions as `components/thusness/RedDot.tsx`
+ * (12px reference: red ring, inner hole **transparent** — not cream — so pinned
+ * Safari tabs do not show an off-white disk; address bar stays transparent too).
  *
  * Apple touch (180): full RedDot (cream field, red ring, cream hole) for iOS.
  *
@@ -78,20 +79,38 @@ const CREAM = [239, 236, 225, 255];
 const RED = [194, 58, 42, 255];
 const TRANSPARENT = [0, 0, 0, 0];
 
-/** Small solid disc for tab favicons; transparent outside (dark-mode friendly). */
-function smallRedDotRgba(x, y, size) {
+/**
+ * Footer-matched ring: outer radius = 6/12 of canvas (inset 1px), inner radius =
+ * (12 * 0.33 / 2) / 12 of scaled design — thick band, small hole (not a thin donut).
+ * Hole and canvas outside the ring are fully transparent (pinned-tab safe).
+ */
+function tabRedDotRingRgba(x, y, size) {
   const cx = size / 2;
   const cy = size / 2;
   const px = x + 0.5;
   const py = y + 0.5;
   const d = Math.hypot(px - cx, py - cy);
-  const radius = size * 0.175;
-  const edge = 0.55;
-  if (d >= radius + edge) return TRANSPARENT;
-  if (d <= radius - edge) return RED;
-  const t = 1 - (d - (radius - edge)) / (2 * edge);
-  const a = Math.max(0, Math.min(1, t)) * 255;
-  return [RED[0], RED[1], RED[2], Math.round(a)];
+  const scale = size / 12;
+  const rOuter = Math.min(size / 2 - 1, 6 * scale);
+  const rInner = ((12 * 0.33) / 2) * scale;
+  const edge = 0.38;
+
+  let a = 0;
+  if (d < rInner - edge) {
+    a = 0;
+  } else if (d < rInner + edge) {
+    a = (d - (rInner - edge)) / (2 * edge);
+  } else if (d <= rOuter - edge) {
+    a = 1;
+  } else if (d <= rOuter + edge) {
+    a = (rOuter + edge - d) / (2 * edge);
+  } else {
+    a = 0;
+  }
+  a = Math.max(0, Math.min(1, a));
+  if (a === 0) return TRANSPARENT;
+  if (a === 1) return RED;
+  return [RED[0], RED[1], RED[2], Math.round(255 * a)];
 }
 
 /** RedDot: outer red disc, inner cream hole (~⅓ diameter). */
@@ -128,7 +147,7 @@ function pngToIco(pngBuf) {
   return Buffer.concat([reserved, type, count, entry, pngBuf]);
 }
 
-const fav32 = makePng(32, 32, (x, y) => smallRedDotRgba(x, y, 32));
+const fav32 = makePng(32, 32, (x, y) => tabRedDotRingRgba(x, y, 32));
 const apple = makePng(180, 180, (x, y) => redDotRgba(x, y, 180));
 
 fs.mkdirSync(pub, { recursive: true });

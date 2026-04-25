@@ -1,3 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Thusness">
-  <circle cx="32" cy="32" r="11" fill="#c23a2a" />
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 12" role="img" aria-label="Thusness">
+  <mask id="thusness-dot-ring">
+    <circle cx="6" cy="6" r="6" fill="white" />
+    <circle cx="6" cy="6" r="1.98" fill="black" />
+  </mask>
+  <circle cx="6" cy="6" r="6" fill="#c23a2a" mask="url(#thusness-dot-ring)" />
 </svg>
