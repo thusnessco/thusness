@@ -7,8 +7,15 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { parseHomepagePin } from "@/lib/homepage/homepage-pin";
-import type { SiteTemplateId } from "@/lib/homepage/site-templates";
-import { normalizeSiteTemplateFields } from "@/lib/homepage/site-templates";
+import type {
+  FullDescriptionFields,
+  SimpleContemplationFields,
+  SiteTemplateId,
+} from "@/lib/homepage/site-templates";
+import {
+  buildSiteTemplateDoc,
+  normalizeSiteTemplateFields,
+} from "@/lib/homepage/site-templates";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { countTiptapImages } from "@/lib/tiptap/count-tiptap-images";
 import { emptyDoc } from "@/lib/tiptap/empty-doc";
@@ -280,6 +287,49 @@ export async function clearHomepagePinToWeek(): Promise<
 }
 
 /** Pin the public home to a built-in template (fill-in-the-blanks), replacing week/note. */
+/** Create an unpublished note whose body matches the current template fields (TipTap). */
+export async function createDraftNoteFromHomepageTemplate(input: {
+  template: SiteTemplateId;
+  fields: unknown;
+}): Promise<
+  { ok: true; id: string; slug: string } | { ok: false; message: string }
+> {
+  const supabase = await createServerSupabase();
+  const normalized = normalizeSiteTemplateFields(input.template, input.fields);
+  const doc = buildSiteTemplateDoc(input.template, normalized);
+  const slug = `from-home-${randomUUID().slice(0, 8)}`;
+  const hero =
+    input.template === "simple_contemplation"
+      ? (normalized as SimpleContemplationFields).heroQuestion
+      : (normalized as FullDescriptionFields).heroQuestion;
+  const title =
+    hero.trim().replace(/\s+/g, " ").slice(0, 120) || "From homepage template";
+
+  const payload = JSON.parse(JSON.stringify(doc)) as JSONContent;
+  const { data, error } = await supabase
+    .from("notes")
+    .insert({
+      slug,
+      title,
+      excerpt: null,
+      content_json: payload,
+      published: false,
+    })
+    .select("id, slug")
+    .single();
+
+  if (error) return { ok: false as const, message: error.message };
+  if (!data?.id || !data.slug) {
+    return {
+      ok: false as const,
+      message: "Insert did not return the new note. Try again.",
+    };
+  }
+  revalidatePath("/admin");
+  revalidatePath("/notes");
+  return { ok: true as const, id: data.id, slug: data.slug };
+}
+
 export async function saveHomepageSiteTemplate(
   template: SiteTemplateId,
   fields: unknown

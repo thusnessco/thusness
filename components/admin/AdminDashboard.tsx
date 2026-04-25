@@ -118,50 +118,6 @@ function NoteEditorPanel({
         </span>
       </label>
 
-      <div className="space-y-3 border-t border-[var(--thusness-rule)] pt-6">
-        <p className={fieldLabel}>Public homepage (thusness.co)</p>
-        {homepagePin.source === "note" && homepagePin.slug === note.slug ? (
-          <p className="text-sm italic text-[var(--thusness-ink-soft)]">
-            This published note is the live homepage.
-          </p>
-        ) : (
-          <p className="text-[13px] leading-relaxed text-[var(--thusness-muted)]">
-            Pin this note so visitors see it on <span className="italic">/</span>{" "}
-            instead of the scheduled week. The note must be published and the slug
-            field must match what you last saved.
-          </p>
-        )}
-        <button
-          type="button"
-          disabled={
-            isPending ||
-            !note.published ||
-            slug.trim() !== note.slug ||
-            slug.trim().length === 0
-          }
-          className={btnSmall}
-          title={
-            !note.published
-              ? "Publish this note first."
-              : slug.trim() !== note.slug
-                ? "Save the note so the slug matches before pinning."
-                : undefined
-          }
-          onClick={() => {
-            startTransition(async () => {
-              const res = await setHomepagePinToNoteSlug(note.slug);
-              if (!res.ok) onMessage(res.message);
-              else {
-                onMessage("Homepage now uses this note.");
-                router.refresh();
-              }
-            });
-          }}
-        >
-          Use as public home
-        </button>
-      </div>
-
       <TiptapEditorField
         ref={noteBodyRef}
         label="Body"
@@ -172,64 +128,110 @@ function NoteEditorPanel({
         onEditorError={onMessage}
       />
 
-      <div className="flex flex-wrap items-center gap-3">
-        <button
-          type="button"
-          disabled={isPending}
-          onClick={() => {
-            const json = noteBodyRef.current?.getJSON();
-            if (!json) {
-              onMessage(
-                "Editor is not ready yet. Wait a second, then try Save note again."
-              );
-              return;
-            }
-            const bodySnapshot = structuredClone(json) as JSONContent;
-            startTransition(async () => {
-              const res = await saveNote({
-                id: note.id,
-                slug,
-                title,
-                excerpt: excerpt || null,
-                content_json: bodySnapshot,
-                published,
+      <div className="mt-10 space-y-4 border-t border-[var(--thusness-rule)] pt-8">
+        <p className={fieldLabel}>Note actions</p>
+        {homepagePin.source === "note" && homepagePin.slug === note.slug ? (
+          <p className="text-sm italic text-[var(--thusness-ink-soft)]">
+            This published note is the live homepage at{" "}
+            <span className="not-italic">/</span>.
+          </p>
+        ) : (
+          <p className="max-w-2xl text-[13px] leading-relaxed text-[var(--thusness-muted)]">
+            <span className="font-medium text-[var(--thusness-ink)]">
+              Save to homepage
+            </span>{" "}
+            pins this note for visitors at <span className="italic">/</span>. It
+            must be published and the slug field must match what you last saved.
+          </p>
+        )}
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            disabled={isPending}
+            onClick={() => {
+              const json = noteBodyRef.current?.getJSON();
+              if (!json) {
+                onMessage(
+                  "Editor is not ready yet. Wait a moment, then try Save again."
+                );
+                return;
+              }
+              const bodySnapshot = structuredClone(json) as JSONContent;
+              startTransition(async () => {
+                const res = await saveNote({
+                  id: note.id,
+                  slug,
+                  title,
+                  excerpt: excerpt || null,
+                  content_json: bodySnapshot,
+                  published,
+                });
+                if (!res.ok) onMessage(res.message);
+                else {
+                  onNoteBodySaved?.(note.id, res.content_json, res.updated_at);
+                  onMessage("Note saved.");
+                }
               });
-              if (!res.ok) onMessage(res.message);
-              else {
-                onNoteBodySaved?.(note.id, res.content_json, res.updated_at);
-                onMessage("Note saved.");
-              }
-            });
-          }}
-          className={btnPrimary}
-        >
-          Save note
-        </button>
-        <button
-          type="button"
-          disabled={isPending}
-          onClick={() => {
-            const label = title.trim() || slug || "this note";
-            if (
-              !window.confirm(
-                `Delete “${label}” permanently? This cannot be undone.`
-              )
-            ) {
-              return;
+            }}
+            className={btnPrimary}
+          >
+            Save
+          </button>
+          <button
+            type="button"
+            disabled={
+              isPending ||
+              !note.published ||
+              slug.trim() !== note.slug ||
+              slug.trim().length === 0
             }
-            startTransition(async () => {
-              const res = await deleteNote({ id: note.id, slug: note.slug });
-              if (!res.ok) onMessage(res.message);
-              else {
-                onMessage("Note deleted.");
-                router.refresh();
+            className={btnSmall}
+            title={
+              !note.published
+                ? "Publish this note first."
+                : slug.trim() !== note.slug
+                  ? "Save the note so the slug matches before pinning."
+                  : undefined
+            }
+            onClick={() => {
+              startTransition(async () => {
+                const res = await setHomepagePinToNoteSlug(note.slug);
+                if (!res.ok) onMessage(res.message);
+                else {
+                  onMessage("Homepage now uses this note.");
+                  router.refresh();
+                }
+              });
+            }}
+          >
+            Save to homepage
+          </button>
+          <button
+            type="button"
+            disabled={isPending}
+            onClick={() => {
+              const label = title.trim() || slug || "this note";
+              if (
+                !window.confirm(
+                  `Delete “${label}” permanently? This cannot be undone.`
+                )
+              ) {
+                return;
               }
-            });
-          }}
-          className="border border-[var(--thusness-rule)] px-4 py-2 text-xs tracking-wide text-[var(--thusness-ink-soft)] italic transition-opacity hover:border-[var(--thusness-ink)] disabled:opacity-40"
-        >
-          Delete note
-        </button>
+              startTransition(async () => {
+                const res = await deleteNote({ id: note.id, slug: note.slug });
+                if (!res.ok) onMessage(res.message);
+                else {
+                  onMessage("Note deleted.");
+                  router.refresh();
+                }
+              });
+            }}
+            className="border border-[var(--thusness-rule)] px-4 py-2 text-xs tracking-wide text-[var(--thusness-ink-soft)] italic transition-opacity hover:border-[var(--thusness-ink)] disabled:opacity-40"
+          >
+            Delete
+          </button>
+        </div>
       </div>
     </>
   );
@@ -315,7 +317,14 @@ export function AdminDashboard({ weeks, notes, homepagePin }: Props) {
       <div className="space-y-20">
         <WeeksPanel weeks={weeks} onMessage={flash} />
 
-        <HomepageSourcePanel homepagePin={homepagePin} onMessage={flash} />
+        <HomepageSourcePanel
+          homepagePin={homepagePin}
+          onMessage={flash}
+          onDraftNoteCreated={(id) => {
+            setSelectedId(id);
+            router.refresh();
+          }}
+        />
 
         <section className="space-y-6 border-t border-[var(--thusness-rule)] pt-16">
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">

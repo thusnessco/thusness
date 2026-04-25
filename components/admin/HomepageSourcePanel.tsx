@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 
 import {
   clearHomepagePinToWeek,
+  createDraftNoteFromHomepageTemplate,
   saveHomepageSiteTemplate,
 } from "@/app/admin/actions";
 import type { HomepagePin } from "@/lib/homepage/homepage-pin";
@@ -24,6 +25,8 @@ const fieldInput =
   "w-full border border-[var(--thusness-rule)] bg-[var(--thusness-bg)] px-3 py-2 text-sm text-[var(--thusness-ink)] outline-none focus:border-[var(--thusness-ink)]";
 const btnSmall =
   "self-start border border-[var(--thusness-rule)] px-3 py-1.5 text-xs tracking-wide text-[var(--thusness-ink)] transition-opacity hover:border-[var(--thusness-ink)] disabled:opacity-40";
+const btnPrimary =
+  "border border-[var(--thusness-ink)] px-4 py-2 text-xs tracking-wide text-[var(--thusness-ink)] transition-opacity hover:opacity-70 disabled:opacity-40";
 
 function SessionSlotFieldsEditor({
   label,
@@ -60,9 +63,11 @@ function SessionSlotFieldsEditor({
 export function HomepageSourcePanel({
   homepagePin,
   onMessage,
+  onDraftNoteCreated,
 }: {
   homepagePin: HomepagePin;
   onMessage: (msg: string) => void;
+  onDraftNoteCreated?: (noteId: string) => void;
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -220,26 +225,6 @@ export function HomepageSourcePanel({
               }
             />
           </label>
-          <button
-            type="button"
-            disabled={isPending}
-            className={btnSmall}
-            onClick={() => {
-              startTransition(async () => {
-                const res = await saveHomepageSiteTemplate(
-                  "simple_contemplation",
-                  simple
-                );
-                if (!res.ok) onMessage(res.message);
-                else {
-                  onMessage("Simple template saved.");
-                  router.refresh();
-                }
-              });
-            }}
-          >
-            Save Simple template
-          </button>
         </div>
       ) : null}
 
@@ -407,26 +392,95 @@ export function HomepageSourcePanel({
               }
             />
           </label>
-          <button
-            type="button"
-            disabled={isPending}
-            className={btnSmall}
-            onClick={() => {
-              startTransition(async () => {
-                const res = await saveHomepageSiteTemplate(
-                  "full_description",
-                  full
-                );
-                if (!res.ok) onMessage(res.message);
-                else {
-                  onMessage("Full Description template saved.");
-                  router.refresh();
+        </div>
+      ) : null}
+
+      {homepagePin.source === "site_template" ? (
+        <div className="mt-8 space-y-3 border-t border-[var(--thusness-rule)] pt-8">
+          <p className={fieldLabel}>Template actions</p>
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              disabled={isPending}
+              className={btnPrimary}
+              onClick={() => {
+                const template = homepagePin.template;
+                const fields =
+                  template === "simple_contemplation" ? simple : full;
+                startTransition(async () => {
+                  const res = await saveHomepageSiteTemplate(template, fields);
+                  if (!res.ok) onMessage(res.message);
+                  else {
+                    onMessage("Homepage template saved.");
+                    router.refresh();
+                  }
+                });
+              }}
+            >
+              Save
+            </button>
+            <button
+              type="button"
+              disabled={isPending}
+              className={btnSmall}
+              onClick={() => {
+                const template = homepagePin.template;
+                const fields =
+                  template === "simple_contemplation" ? simple : full;
+                startTransition(async () => {
+                  const res = await createDraftNoteFromHomepageTemplate({
+                    template,
+                    fields,
+                  });
+                  if (!res.ok) onMessage(res.message);
+                  else {
+                    onMessage(
+                      `Draft note created (${res.slug}). Open it in TipTap below.`
+                    );
+                    onDraftNoteCreated?.(res.id);
+                    router.refresh();
+                  }
+                });
+              }}
+            >
+              Save to notes
+            </button>
+            <button
+              type="button"
+              disabled={isPending}
+              className="border border-[var(--thusness-rule)] px-4 py-2 text-xs tracking-wide text-[var(--thusness-ink-soft)] italic transition-opacity hover:border-[var(--thusness-ink)] disabled:opacity-40"
+              onClick={() => {
+                if (
+                  !window.confirm(
+                    "Stop using this homepage template? The public site will show the scheduled week until you choose a template or pin a note again."
+                  )
+                ) {
+                  return;
                 }
-              });
-            }}
-          >
-            Save Full Description template
-          </button>
+                startTransition(async () => {
+                  const res = await clearHomepagePinToWeek();
+                  if (!res.ok) onMessage(res.message);
+                  else {
+                    onMessage("Homepage template cleared.");
+                    router.refresh();
+                  }
+                });
+              }}
+            >
+              Delete
+            </button>
+          </div>
+          <p className="max-w-2xl text-[10px] leading-relaxed text-[var(--thusness-muted)]">
+            <span className="font-medium text-[var(--thusness-ink)]">Save</span>{" "}
+            updates the live homepage.{" "}
+            <span className="font-medium text-[var(--thusness-ink)]">
+              Save to notes
+            </span>{" "}
+            copies the layout into a new <span className="italic">draft</span>{" "}
+            note for TipTap editing.{" "}
+            <span className="font-medium text-[var(--thusness-ink)]">Delete</span>{" "}
+            removes the template from the homepage (scheduled week returns).
+          </p>
         </div>
       ) : null}
     </div>
