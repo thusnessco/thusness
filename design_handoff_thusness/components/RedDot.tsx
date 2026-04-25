@@ -1,36 +1,28 @@
-// Thusness red dot — the signature. Use ONCE per page, in the footer.
-//
-// A filled red circle with a tiny hollow center punched out,
-// so it reads as a small eye / seal rather than a flat dot.
+// Thusness mark — thin ring + center dot. Use ONCE per page, in the footer.
 
 import React from 'react';
 
+const RED = 'var(--thusness-red, #c23a2a)';
+
 export default function RedDot({ size = 12 }: { size?: number }) {
+  const vb = 24;
   return (
-    <span
+    <svg
+      width={size}
+      height={size}
+      viewBox={`0 0 ${vb} ${vb}`}
       aria-hidden="true"
-      style={{
-        display: 'inline-block',
-        width: size,
-        height: size,
-        borderRadius: '50%',
-        background: 'var(--thusness-red, #c23a2a)',
-        position: 'relative',
-        verticalAlign: 'middle',
-      }}
+      style={{ display: 'inline-block', verticalAlign: 'middle' }}
     >
-      <span
-        style={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%,-50%)',
-          width: size * 0.33,
-          height: size * 0.33,
-          borderRadius: '50%',
-          background: 'var(--thusness-bg, #efece1)',
-        }}
+      <circle
+        cx={vb / 2}
+        cy={vb / 2}
+        r={8.75}
+        fill="none"
+        stroke={RED}
+        strokeWidth={1.15}
       />
-    </span>
+      <circle cx={vb / 2} cy={vb / 2} r={2.35} fill={RED} />
+    </svg>
   );
 }

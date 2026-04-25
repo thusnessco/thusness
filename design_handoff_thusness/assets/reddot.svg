@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" role="img" aria-label="Thusness signature">
-  <circle cx="12" cy="12" r="6" fill="#c23a2a"></circle>
-  <circle cx="12" cy="12" r="1" fill="#efece1"></circle>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
+  <circle cx="12" cy="12" r="8.75" fill="none" stroke="#c23a2a" stroke-width="1.15" />
+  <circle cx="12" cy="12" r="2.35" fill="#c23a2a" />
 </svg>

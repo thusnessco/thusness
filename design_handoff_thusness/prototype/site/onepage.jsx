@@ -35,16 +35,28 @@ const Wordmark = ({ size = 20 }) => {
   );
 };
 
-const RedDot = ({ size = 12 }) => (
-  <span style={{ display: 'inline-block', width: size, height: size,
-    borderRadius: '50%', background: T.red, position: 'relative',
-    verticalAlign: 'middle' }}>
-    <span style={{ position: 'absolute', top: '50%', left: '50%',
-      transform: 'translate(-50%,-50%)',
-      width: size * 0.33, height: size * 0.33,
-      borderRadius: '50%', background: T.bg }}></span>
-  </span>
-);
+const RedDot = ({ size = 12 }) => {
+  const vb = 24;
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox={`0 0 ${vb} ${vb}`}
+      aria-hidden="true"
+      style={{ display: 'inline-block', verticalAlign: 'middle' }}
+    >
+      <circle
+        cx={vb / 2}
+        cy={vb / 2}
+        r={8.75}
+        fill="none"
+        stroke={T.red}
+        strokeWidth={1.15}
+      />
+      <circle cx={vb / 2} cy={vb / 2} r={2.35} fill={T.red} />
+    </svg>
+  );
+};
 
 // Section mark with flanking hairlines
 const SectionMark = ({ label }) => (

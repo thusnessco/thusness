@@ -1,16 +1,13 @@
 /**
  * Writes raster favicons. Run: node scripts/generate-favicons.mjs
  *
- * Tab icons (32px PNG + ICO): smaller ring than the footer dot, with a **small**
- * transparent center (not cream). Safari pinned tabs also need `safari-pinned-tab.svg`
- * (`rel="mask-icon"`) so they do not sit the PNG on a light plate.
+ * Mark: **thin red stroke ring + solid red center dot** (not a thick donut with a
+ * punched hole). Tab PNGs use a transparent field outside the ring; Apple touch
+ * uses the cream page background with the same mark.
  *
- * Apple touch (180): full RedDot (cream field, red ring, cream hole) for iOS.
- *
- * Outputs (public only — avoid `app/favicon.ico`, which makes Next inject a
- * second hashed favicon URL and duplicate `<link rel="icon">` tags):
+ * Outputs:
  *   public/favicon.ico — ICO for legacy clients
- *   public/favicon-32.png — PNG first for Safari tab icons
+ *   public/favicon-32.png — PNG for Safari tab icons
  *   public/apple-touch-icon.png — 180×180 for iOS
  */
 import fs from "node:fs";
@@ -79,55 +76,51 @@ const CREAM = [239, 236, 225, 255];
 const RED = [194, 58, 42, 255];
 const TRANSPARENT = [0, 0, 0, 0];
 
-/**
- * Tab strip: modest red ring, tiny transparent punch (not a wide donut).
- * Keep `public/safari-pinned-tab.svg` radii in sync for size 32: rOuter = 12,
- * rInner = 2.04.
- */
-const TAB_RING_PAD = 4;
-const TAB_INNER_AS_OUTER_FRAC = 0.17;
+function smoothstep(t) {
+  const x = Math.max(0, Math.min(1, t));
+  return x * x * (3 - 2 * x);
+}
 
-function tabRedDotRingRgba(x, y, size) {
+/**
+ * Thin ring (stroke centered at rRing) + filled center dot.
+ * @param {number} mode 0 = transparent outside ring (tab), 1 = cream outside (apple)
+ */
+function thinRingDotRgba(x, y, size, mode) {
   const cx = size / 2;
   const cy = size / 2;
   const px = x + 0.5;
   const py = y + 0.5;
   const d = Math.hypot(px - cx, py - cy);
-  const rOuter = size / 2 - TAB_RING_PAD;
-  const rInner = rOuter * TAB_INNER_AS_OUTER_FRAC;
-  const edge = 0.35;
 
-  let a = 0;
-  if (d < rInner - edge) {
-    a = 0;
-  } else if (d < rInner + edge) {
-    a = (d - (rInner - edge)) / (2 * edge);
-  } else if (d <= rOuter - edge) {
-    a = 1;
-  } else if (d <= rOuter + edge) {
-    a = (rOuter + edge - d) / (2 * edge);
-  } else {
-    a = 0;
+  const rRing = size / 2 - size * 0.125;
+  const halfStroke = Math.max(0.55, size * 0.022);
+  const rDot = Math.max(1.9, size * 0.072);
+
+  const ringDist = Math.abs(d - rRing);
+  let ringA = 0;
+  if (ringDist < halfStroke + 0.55) {
+    ringA = 1 - smoothstep((ringDist - (halfStroke - 0.35)) / 0.9);
   }
-  a = Math.max(0, Math.min(1, a));
-  if (a === 0) return TRANSPARENT;
-  if (a === 1) return RED;
+
+  let dotA = 0;
+  if (d < rDot + 0.45) {
+    dotA = 1 - smoothstep((d - (rDot - 0.35)) / 0.8);
+  }
+
+  const a = Math.max(ringA, dotA);
+  if (a <= 0.001) {
+    return mode === 1 ? CREAM : TRANSPARENT;
+  }
+  if (a >= 0.999) return RED;
   return [RED[0], RED[1], RED[2], Math.round(255 * a)];
 }
 
-/** RedDot: outer red disc, inner cream hole (~⅓ diameter). */
-function redDotRgba(x, y, size) {
-  const cx = size / 2;
-  const cy = size / 2;
-  const px = x + 0.5;
-  const py = y + 0.5;
-  const d = Math.hypot(px - cx, py - cy);
-  const margin = Math.max(1, size * 0.06);
-  const rOuter = size / 2 - margin;
-  const rInner = rOuter * 0.33;
-  if (d <= rInner) return CREAM;
-  if (d <= rOuter) return RED;
-  return CREAM;
+function tabIconRgba(x, y, size) {
+  return thinRingDotRgba(x, y, size, 0);
+}
+
+function appleTouchRgba(x, y, size) {
+  return thinRingDotRgba(x, y, size, 1);
 }
 
 function pngToIco(pngBuf) {
@@ -149,8 +142,8 @@ function pngToIco(pngBuf) {
   return Buffer.concat([reserved, type, count, entry, pngBuf]);
 }
 
-const fav32 = makePng(32, 32, (x, y) => tabRedDotRingRgba(x, y, 32));
-const apple = makePng(180, 180, (x, y) => redDotRgba(x, y, 180));
+const fav32 = makePng(32, 32, (x, y) => tabIconRgba(x, y, 32));
+const apple = makePng(180, 180, (x, y) => appleTouchRgba(x, y, 180));
 
 fs.mkdirSync(pub, { recursive: true });
 fs.writeFileSync(path.join(pub, "favicon.ico"), pngToIco(fav32));

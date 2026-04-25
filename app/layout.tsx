@@ -31,6 +31,7 @@ export const metadata: Metadata = {
   // before `rel="icon"`, and Safari often prefers that first `<link>`.
   icons: {
     icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
       { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
       { url: "/favicon.ico", sizes: "32x32", type: "image/x-icon" },
     ],

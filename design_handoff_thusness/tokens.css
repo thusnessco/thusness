@@ -14,7 +14,7 @@
   --thusness-ink-soft: #3d3a2f;  /* body prose */
   --thusness-muted: #8a8672;     /* secondary labels, dates, captions */
   --thusness-rule: #c7c2b0;      /* hairline rules, card borders */
-  --thusness-red: #c23a2a;       /* signature dot — once per page */
+  --thusness-red: #c23a2a;       /* signature mark (thin ring + dot) — once per page */
 
   /* ── Type ── */
   --thusness-font: Helvetica, "Helvetica Neue", Arial, sans-serif;
