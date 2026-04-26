@@ -8,9 +8,15 @@ const C2_HZ = 65.40639132514965;
 const C3_HZ = 130.8127826502993;
 
 const CHIME_SR = 44100;
-const CHIME_SEC = 5.8;
+const CHIME_SEC = 6.2;
 const PULSE_SR = 22050;
 const PULSE_SEC = 0.42;
+
+/** Peak sample scale in WAV (was higher when output was barely audible). */
+const MAIN_CHIME_LEVEL = 0.22;
+const PULSE_LEVEL = 0.095;
+/** Extra headroom on the media element so system volume stays comfortable. */
+const HTML_AUDIO_VOLUME = 0.72;
 
 function floatToWavMono16(samples: Float32Array, sampleRate: number): Blob {
   const n = samples.length;
@@ -53,24 +59,28 @@ function floatToWavMono16(samples: Float32Array, sampleRate: number): Blob {
 }
 
 /**
- * Long chime: tiny de-click rise, then a single exponential decay over the whole
- * length so level eases down gradually from almost the start through the tail.
+ * Long chime: soft rise, gradual body decay, then a cosine window to exact silence
+ * on the last sample so the file never hard-cuts mid-level (which sounds like a
+ * click / abrupt stop).
  */
 function renderMainChimeSamples(): Float32Array {
   const n = Math.floor(CHIME_SR * CHIME_SEC);
   const out = new Float32Array(n);
-  const riseSec = 0.06;
-  const tau = 2.75;
+  /** Half-cosine fade-in (zero derivative at t=0) to remove onset click. */
+  const attackSec = 0.48;
+  const tau = 3.35;
   for (let i = 0; i < n; i++) {
     const t = i / CHIME_SR;
+    const u = (i + 1) / n;
     const tone =
       0.52 * Math.sin(2 * Math.PI * C2_HZ * t) +
       0.48 * Math.sin(2 * Math.PI * C3_HZ * t);
-    const rise = Math.min(1, t / riseSec);
-    const riseSmooth = rise * rise * (3 - 2 * rise);
+    const a = Math.min(1, t / attackSec);
+    const fadeIn = 0.5 * (1 - Math.cos(Math.PI * a));
     const decay = Math.exp(-t / tau);
-    const env = riseSmooth * decay;
-    out[i] = tone * env * 0.38;
+    const endWindow = Math.cos((Math.PI / 2) * u);
+    const env = fadeIn * decay * endWindow;
+    out[i] = tone * env * MAIN_CHIME_LEVEL;
   }
   return out;
 }
@@ -78,14 +88,17 @@ function renderMainChimeSamples(): Float32Array {
 function renderPulseSamples(): Float32Array {
   const n = Math.floor(PULSE_SR * PULSE_SEC);
   const out = new Float32Array(n);
+  const attackSec = 0.06;
   for (let i = 0; i < n; i++) {
     const t = i / PULSE_SR;
     const tone =
       0.55 * Math.sin(2 * Math.PI * C2_HZ * t) +
       0.45 * Math.sin(2 * Math.PI * C3_HZ * t);
-    const u = t / PULSE_SEC;
-    const env = Math.sin(Math.PI * u) * Math.exp(-2.2 * u);
-    out[i] = tone * env * 0.22;
+    const u = (i + 1) / n;
+    const a = Math.min(1, t / attackSec);
+    const fadeIn = 0.5 * (1 - Math.cos(Math.PI * a));
+    const env = fadeIn * Math.sin(Math.PI * u) * Math.exp(-2.2 * (t / PULSE_SEC));
+    out[i] = tone * env * PULSE_LEVEL;
   }
   return out;
 }
@@ -113,7 +126,7 @@ function pulseObjectUrl(): string {
 export function playSinkInMainChimeFromGesture(): void {
   try {
     const a = new Audio(mainChimeObjectUrl());
-    a.volume = 1;
+    a.volume = HTML_AUDIO_VOLUME;
     void a.play().catch(() => {});
   } catch {
     /* ignore */
@@ -122,12 +135,12 @@ export function playSinkInMainChimeFromGesture(): void {
 
 export async function playSinkInMainChimeHtml(): Promise<void> {
   const a = new Audio(mainChimeObjectUrl());
-  a.volume = 1;
+  a.volume = HTML_AUDIO_VOLUME;
   await a.play();
 }
 
 export async function playSinkInPulseHtml(): Promise<void> {
   const a = new Audio(pulseObjectUrl());
-  a.volume = 1;
+  a.volume = HTML_AUDIO_VOLUME;
   await a.play();
 }
