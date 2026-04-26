@@ -1,17 +1,67 @@
 /**
- * G3 + D4 perfect fifth (Web Audio sines). HTMLAudio path is primary; this is
- * the fallback — matches sinkin-chime-html timbre.
+ * Tuning-fork timbre via Web Audio (fundamental + decaying harmonics). Matches
+ * sinkin-chime-html; HTMLAudio path remains primary where oscillators fail.
  */
 
-const G3_HZ = 195.99771799087497;
-const D4_HZ = 293.6647679174076;
-const FIFTH_LOW = 0.5;
-const FIFTH_HIGH = 0.42;
+const FORK_F0_HZ = 440;
 
 const TOTAL_SEC = 6.2;
 const PEAK_GAIN = 0.1;
 const RISE_SEC = 0.5;
 const TAIL_SILENCE_SEC = 0.22;
+
+function connectFork(
+  ctx: AudioContext,
+  t0: number,
+  stopAt: number,
+  target: AudioNode,
+  opts: {
+    h2Peak: number;
+    h2DecaySec: number;
+    h3Peak: number;
+    h3DecaySec: number;
+  }
+): void {
+  const merge = ctx.createGain();
+  merge.gain.value = 1;
+
+  const o1 = ctx.createOscillator();
+  o1.type = "sine";
+  o1.frequency.setValueAtTime(FORK_F0_HZ, t0);
+  const g1 = ctx.createGain();
+  g1.gain.value = 1;
+  o1.connect(g1);
+  g1.connect(merge);
+
+  const o2 = ctx.createOscillator();
+  o2.type = "sine";
+  o2.frequency.setValueAtTime(FORK_F0_HZ * 2, t0);
+  const g2 = ctx.createGain();
+  g2.gain.setValueAtTime(0.0001, t0);
+  g2.gain.setValueAtTime(opts.h2Peak, t0 + 0.005);
+  g2.gain.exponentialRampToValueAtTime(0.0001, t0 + opts.h2DecaySec);
+  o2.connect(g2);
+  g2.connect(merge);
+
+  const o3 = ctx.createOscillator();
+  o3.type = "sine";
+  o3.frequency.setValueAtTime(FORK_F0_HZ * 3, t0);
+  const g3 = ctx.createGain();
+  g3.gain.setValueAtTime(0.0001, t0);
+  g3.gain.setValueAtTime(opts.h3Peak, t0 + 0.005);
+  g3.gain.exponentialRampToValueAtTime(0.0001, t0 + opts.h3DecaySec);
+  o3.connect(g3);
+  g3.connect(merge);
+
+  merge.connect(target);
+
+  o1.start(t0);
+  o2.start(t0);
+  o3.start(t0);
+  o1.stop(stopAt);
+  o2.stop(stopAt);
+  o3.stop(stopAt);
+}
 
 function scheduleSoftChimeGraph(ctx: AudioContext): void {
   const t0 = ctx.currentTime + 0.002;
@@ -25,26 +75,13 @@ function scheduleSoftChimeGraph(ctx: AudioContext): void {
   master.gain.linearRampToValueAtTime(0.000001, tEnd);
   master.connect(ctx.destination);
 
-  const g = ctx.createOscillator();
-  g.type = "sine";
-  g.frequency.setValueAtTime(G3_HZ, t0);
-  const d = ctx.createOscillator();
-  d.type = "sine";
-  d.frequency.setValueAtTime(D4_HZ, t0);
-  const gGain = ctx.createGain();
-  gGain.gain.value = FIFTH_LOW;
-  const dGain = ctx.createGain();
-  dGain.gain.value = FIFTH_HIGH;
-  g.connect(gGain);
-  d.connect(dGain);
-  gGain.connect(master);
-  dGain.connect(master);
-
   const stopAt = tEnd + TAIL_SILENCE_SEC + 0.04;
-  g.start(t0);
-  d.start(t0);
-  g.stop(stopAt);
-  d.stop(stopAt);
+  connectFork(ctx, t0, stopAt, master, {
+    h2Peak: 0.12,
+    h2DecaySec: 0.45,
+    h3Peak: 0.038,
+    h3DecaySec: 0.36,
+  });
 }
 
 export async function playSoftChime(ctx: AudioContext): Promise<void> {
@@ -79,24 +116,11 @@ export async function playSinkInPulse(ctx: AudioContext): Promise<void> {
   master.gain.linearRampToValueAtTime(0.0001, t0 + dur);
   master.connect(ctx.destination);
 
-  const g = ctx.createOscillator();
-  g.type = "sine";
-  g.frequency.setValueAtTime(G3_HZ, t0);
-  const d = ctx.createOscillator();
-  d.type = "sine";
-  d.frequency.setValueAtTime(D4_HZ, t0);
-  const gGain = ctx.createGain();
-  gGain.gain.value = FIFTH_LOW;
-  const dGain = ctx.createGain();
-  dGain.gain.value = FIFTH_HIGH;
-  g.connect(gGain);
-  d.connect(dGain);
-  gGain.connect(master);
-  dGain.connect(master);
-
   const stopAt = t0 + dur + 0.05;
-  g.start(t0);
-  d.start(t0);
-  g.stop(stopAt);
-  d.stop(stopAt);
+  connectFork(ctx, t0, stopAt, master, {
+    h2Peak: 0.09,
+    h2DecaySec: 0.12,
+    h3Peak: 0.018,
+    h3DecaySec: 0.08,
+  });
 }
