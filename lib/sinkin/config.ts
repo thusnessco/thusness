@@ -19,6 +19,8 @@ export type SinkInUiV1 = {
 
 export type SinkInConfigV1 = {
   v: 1;
+  /** Line under the wordmark when “Program title” is visible (editable). */
+  programTitle: string;
   /** Seconds between tones (next passage). */
   intervalSec: number;
   /** Seconds to show full text before fading to the keyword (last step skips fade). */
@@ -30,6 +32,12 @@ export type SinkInConfigV1 = {
 };
 
 export const SINKIN_SITE_KEY = "sinkin";
+
+/** Shown when “Program title” is on; sentence case reads more softly than all-caps. */
+export const DEFAULT_PROGRAM_TITLE =
+  "Sinking in, deepening — one continuous read";
+
+export const SINKIN_PROGRAM_TITLE_MAX = 200;
 
 const INTERVAL_MIN = 30;
 const INTERVAL_MAX = 720;
@@ -75,6 +83,7 @@ const DEFAULT_STEP_KEYWORDS = [
 export function defaultSinkInConfig(): SinkInConfigV1 {
   return {
     v: 1,
+    programTitle: DEFAULT_PROGRAM_TITLE,
     intervalSec: 60,
     focusAfterSec: 12,
     focusPhaseEnabled: true,
@@ -94,6 +103,13 @@ function clampInterval(n: number): number {
 function clampFocus(n: number): number {
   if (!Number.isFinite(n)) return 12;
   return Math.min(FOCUS_MAX, Math.max(FOCUS_MIN, Math.round(n)));
+}
+
+function parseProgramTitle(raw: unknown): string {
+  if (typeof raw === "string" && raw.trim()) {
+    return raw.trim().slice(0, SINKIN_PROGRAM_TITLE_MAX);
+  }
+  return DEFAULT_PROGRAM_TITLE;
 }
 
 function mergeUi(raw: unknown): SinkInUiV1 {
@@ -155,6 +171,7 @@ export function parseSinkInConfig(raw: unknown): SinkInConfigV1 | null {
   );
   return {
     v: 1,
+    programTitle: parseProgramTitle(o.programTitle),
     intervalSec: clampInterval(
       typeof o.intervalSec === "number" ? o.intervalSec : 60
     ),
@@ -176,8 +193,13 @@ export function normalizeSinkInConfig(input: SinkInConfigV1): SinkInConfigV1 {
     }))
     .filter((s) => s.body.length > 0);
   const safe = steps.length > 0 ? steps : defaultSinkInConfig().steps;
+  const title =
+    typeof input.programTitle === "string"
+      ? input.programTitle.trim().slice(0, SINKIN_PROGRAM_TITLE_MAX)
+      : "";
   return {
     v: 1,
+    programTitle: title || DEFAULT_PROGRAM_TITLE,
     intervalSec: clampInterval(input.intervalSec),
     focusAfterSec: clampFocus(input.focusAfterSec),
     focusPhaseEnabled: Boolean(input.focusPhaseEnabled),

@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { saveSinkInConfig } from "@/app/admin/actions";
 import {
   defaultSinkInConfig,
+  SINKIN_PROGRAM_TITLE_MAX,
   type SinkInConfigV1,
   type SinkInStep,
   type SinkInUiV1,
@@ -83,6 +84,27 @@ export function SinkInEditorPanel({
           . Set the pause between tones and edit each passage below, then save.
         </p>
       </header>
+
+      <label className="block max-w-2xl space-y-1.5">
+        <span className={adminFieldLabel}>Program title</span>
+        <input
+          type="text"
+          disabled={isPending}
+          value={config.programTitle}
+          maxLength={SINKIN_PROGRAM_TITLE_MAX}
+          onChange={(e) =>
+            setConfig((c) => ({
+              ...c,
+              programTitle: e.target.value.slice(0, SINKIN_PROGRAM_TITLE_MAX),
+            }))
+          }
+          className={adminFieldInput}
+        />
+        <span className="text-[10px] leading-snug text-[var(--thusness-muted)]">
+          Shown on /sinkin only when “Program title” is on under During a step.
+          Replace a pasted file name with whatever you want participants to see.
+        </span>
+      </label>
 
       <div className="grid gap-8 sm:grid-cols-2">
         <label className="block space-y-1.5">
@@ -164,7 +186,7 @@ export function SinkInEditorPanel({
             {
               key: "showProgramTitle" as const,
               title: "Program title",
-              hint: "Upper line: “Sinking in + deepening…”.",
+              hint: "Uses the Program title field above the timing controls.",
             },
             {
               key: "showProgress" as const,

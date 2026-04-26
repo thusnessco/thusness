@@ -206,7 +206,7 @@ export function SinkInExperience({ config }: { config: SinkInConfigV1 }) {
                 color: "var(--thusness-muted, #8a8672)",
               }}
             >
-              Sinking in + deepening (full, cleaned, continuous)
+              {config.programTitle}
             </h1>
           )}
 
@@ -299,21 +299,23 @@ export function SinkInExperience({ config }: { config: SinkInConfigV1 }) {
 
           {running && current && useFocusBeat ? (
             <div key={current.id} className="sinkin-phase-slot sinkin-step-animate">
-              <div
-                className={`sinkin-phase-layer sinkin-phase-layer--full ${
-                  phase === "full" ? "sinkin-phase-layer--visible" : ""
-                }`}
-              >
-                {renderFullStepBody()}
+              <div className="sinkin-phase-stage">
+                <div
+                  className={`sinkin-phase-layer sinkin-phase-layer--full ${
+                    phase === "full" ? "sinkin-phase-layer--visible" : ""
+                  }`}
+                >
+                  {renderFullStepBody()}
+                </div>
+                <div
+                  className={`sinkin-phase-layer sinkin-phase-layer--focus ${
+                    phase === "focus" ? "sinkin-phase-layer--visible" : ""
+                  }`}
+                >
+                  <p className="sinkin-keyword">{current.keyword}</p>
+                </div>
               </div>
-              <div
-                className={`sinkin-phase-layer sinkin-phase-layer--focus ${
-                  phase === "focus" ? "sinkin-phase-layer--visible" : ""
-                }`}
-              >
-                <p className="sinkin-keyword">{current.keyword}</p>
-              </div>
-              <div style={{ marginTop: 40, paddingTop: 8 }}>
+              <div className="sinkin-phase-actions">
                 <button
                   type="button"
                   onClick={handleStop}
