@@ -33,6 +33,10 @@ export function HomePageFromTipTap({
         </header>
 
         <div style={{ position: "relative", margin: "0 auto", maxWidth: 620 }}>
+          <TiptapHtml
+            html={html}
+            className="tiptap-html relative z-[0] mx-auto max-w-[620px] text-[17px] leading-[1.7] text-[var(--thusness-ink-soft)]"
+          />
           {showBackgroundCircle ? (
             <div
               aria-hidden
@@ -41,21 +45,18 @@ export function HomePageFromTipTap({
                 left: "50%",
                 transform: "translateX(-50%)",
                 top: "-12px",
-                width: "min(88vw, 500px)",
-                height: "min(88vw, 500px)",
+                width: "min(88vw, 520px)",
+                height: "min(88vw, 520px)",
                 maxWidth: "100%",
                 borderRadius: "50%",
                 boxSizing: "border-box",
-                border: "1px solid rgba(199, 194, 176, 0.55)",
+                border: "1px solid rgba(74, 68, 52, 0.22)",
+                background: "transparent",
                 pointerEvents: "none",
-                zIndex: 0,
+                zIndex: 2,
               }}
             />
           ) : null}
-          <TiptapHtml
-            html={html}
-            className="tiptap-html relative z-[1] mx-auto max-w-[620px] text-[17px] leading-[1.7] text-[var(--thusness-ink-soft)]"
-          />
         </div>
 
         <footer

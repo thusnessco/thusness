@@ -13,7 +13,7 @@ export default async function Home() {
     return (
       <HomePageFromTipTap
         html={html}
-        showBackgroundCircle={Boolean(body.showBackgroundCircle)}
+        showBackgroundCircle={body.showBackgroundCircle === true}
       />
     );
   }
