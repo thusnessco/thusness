@@ -7,9 +7,22 @@ const TOTAL_SEC = 5;
 const ATTACK_SEC = 1.25;
 const RELEASE_SEC = 1.75;
 /** Peak master gain (quiet; sustained tone). */
-const PEAK_GAIN = 0.13;
+const PEAK_GAIN = 0.18;
 
-export function playSoftChime(ctx: AudioContext): void {
+/**
+ * Plays the sink-in tone. Must be called after `AudioContext` is running —
+ * awaits `resume()` when still suspended (needed for tones fired from timers).
+ */
+export async function playSoftChime(ctx: AudioContext): Promise<void> {
+  try {
+    if (ctx.state !== "running") {
+      await ctx.resume();
+    }
+  } catch {
+    return;
+  }
+  if (ctx.state !== "running") return;
+
   const t0 = ctx.currentTime;
   const tEnd = t0 + TOTAL_SEC;
   const tReleaseStart = tEnd - RELEASE_SEC;

@@ -126,9 +126,7 @@ export function SinkInExperience({ config }: { config: SinkInConfigV1 }) {
     if (!audioCtxRef.current) {
       audioCtxRef.current = new Ctx();
     }
-    const ctx = audioCtxRef.current;
-    if (ctx.state === "suspended") void ctx.resume();
-    return ctx;
+    return audioCtxRef.current;
   }, []);
 
   const resetStepClocks = useCallback(() => {
@@ -144,7 +142,7 @@ export function SinkInExperience({ config }: { config: SinkInConfigV1 }) {
 
   const handleBegin = () => {
     const ctx = ensureAudio();
-    if (ctx) playSoftChime(ctx);
+    if (ctx) void playSoftChime(ctx);
     setIsPaused(false);
     setStepIndex(0);
     setRunning(true);
@@ -187,7 +185,7 @@ export function SinkInExperience({ config }: { config: SinkInConfigV1 }) {
     const rem = Math.max(0, advanceAtRef.current - Date.now());
     const id = window.setTimeout(() => {
       const ctx = ensureAudio();
-      if (ctx) playSoftChime(ctx);
+      if (ctx) void playSoftChime(ctx);
       setStepIndex((s) => s + 1);
     }, rem);
     return () => window.clearTimeout(id);
