@@ -276,7 +276,11 @@ export function SinkInExperience({ config }: { config: SinkInConfigV1 }) {
 
   return (
     <div
+      className="sinkin-root"
       style={{
+        position: "relative",
+        width: "100%",
+        alignSelf: "stretch",
         minHeight: "100vh",
         background: "var(--thusness-bg, #efece1)",
         color: "var(--thusness-ink, #1a1915)",

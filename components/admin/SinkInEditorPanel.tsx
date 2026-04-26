@@ -43,20 +43,48 @@ export function SinkInEditorPanel({
     }));
   }
 
+  function newBlankStep(intervalSec: number): SinkInStep {
+    return {
+      id: `step-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+      label: "New section",
+      body: "",
+      keyword: "notice",
+      holdSec: intervalSec,
+    };
+  }
+
   function addStep() {
     setConfig((c) => ({
       ...c,
-      steps: [
-        ...c.steps,
-        {
-          id: `step-${c.steps.length + 1}`,
-          label: "New section",
-          body: "",
-          keyword: "notice",
-          holdSec: c.intervalSec,
-        },
-      ],
+      steps: [...c.steps, newBlankStep(c.intervalSec)],
     }));
+  }
+
+  /** Insert a new step so it becomes index `at` (0 = before the first). */
+  function insertStepAt(at: number) {
+    setConfig((c) => {
+      const next = [...c.steps];
+      const clamped = Math.max(0, Math.min(at, next.length));
+      next.splice(clamped, 0, newBlankStep(c.intervalSec));
+      return { ...c, steps: next };
+    });
+  }
+
+  function insertStepAfter(i: number) {
+    insertStepAt(i + 1);
+  }
+
+  function moveStep(from: number, to: number) {
+    setConfig((c) => {
+      const n = c.steps.length;
+      if (n <= 1 || from < 0 || from >= n) return c;
+      const bounded = Math.max(0, Math.min(to, n - 1));
+      if (bounded === from) return c;
+      const next = [...c.steps];
+      const [row] = next.splice(from, 1);
+      next.splice(bounded, 0, row);
+      return { ...c, steps: next };
+    });
   }
 
   function setUi(patch: Partial<SinkInUiV1>) {
@@ -273,24 +301,60 @@ export function SinkInEditorPanel({
       </fieldset>
 
       <div className="max-h-[min(70vh,720px)] space-y-4 overflow-y-auto border border-[var(--thusness-rule)] px-4 py-4">
-        <p className={adminFieldLabel}>Steps (in order)</p>
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <p className={adminFieldLabel}>Steps (in order)</p>
+          <button
+            type="button"
+            disabled={isPending}
+            onClick={() => insertStepAt(0)}
+            className="text-[10px] uppercase tracking-wider text-[var(--thusness-muted)] underline decoration-[var(--thusness-rule)] underline-offset-2 disabled:opacity-40"
+          >
+            Insert step at start
+          </button>
+        </div>
         {config.steps.map((step, i) => (
           <div
-            key={`${i}-${step.id}`}
+            key={`${step.id}-${i}`}
             className="border-b border-[var(--thusness-rule)] pb-5 last:border-b-0"
           >
             <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
               <span className="text-[11px] font-medium text-[var(--thusness-ink-soft)]">
                 Step {i + 1}
               </span>
-              <button
-                type="button"
-                disabled={isPending || config.steps.length <= 1}
-                className="text-[10px] uppercase tracking-wider text-[var(--thusness-muted)] underline decoration-[var(--thusness-rule)] underline-offset-2 disabled:opacity-40"
-                onClick={() => removeStep(i)}
-              >
-                Remove
-              </button>
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                <button
+                  type="button"
+                  disabled={isPending || i === 0}
+                  className="text-[10px] uppercase tracking-wider text-[var(--thusness-muted)] underline decoration-[var(--thusness-rule)] underline-offset-2 disabled:opacity-40"
+                  onClick={() => moveStep(i, i - 1)}
+                >
+                  Move up
+                </button>
+                <button
+                  type="button"
+                  disabled={isPending || i >= config.steps.length - 1}
+                  className="text-[10px] uppercase tracking-wider text-[var(--thusness-muted)] underline decoration-[var(--thusness-rule)] underline-offset-2 disabled:opacity-40"
+                  onClick={() => moveStep(i, i + 1)}
+                >
+                  Move down
+                </button>
+                <button
+                  type="button"
+                  disabled={isPending}
+                  className="text-[10px] uppercase tracking-wider text-[var(--thusness-ink-soft)] underline decoration-[var(--thusness-rule)] underline-offset-2 disabled:opacity-40"
+                  onClick={() => insertStepAfter(i)}
+                >
+                  Insert below
+                </button>
+                <button
+                  type="button"
+                  disabled={isPending || config.steps.length <= 1}
+                  className="text-[10px] uppercase tracking-wider text-[var(--thusness-muted)] underline decoration-[var(--thusness-rule)] underline-offset-2 disabled:opacity-40"
+                  onClick={() => removeStep(i)}
+                >
+                  Remove
+                </button>
+              </div>
             </div>
             <label className="mb-3 block space-y-1.5">
               <span className={adminFieldLabel}>Section title</span>
@@ -339,7 +403,7 @@ export function SinkInEditorPanel({
           onClick={addStep}
           className={adminBtnGhost}
         >
-          Add step
+          Add step at end
         </button>
       </div>
 

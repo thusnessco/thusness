@@ -648,11 +648,17 @@ body.thusness ::selection {
   bottom: 0;
   left: 0;
   right: 0;
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
   z-index: 50;
   padding: 14px 20px calc(14px + env(safe-area-inset-bottom, 0px));
   background: rgba(239, 236, 225, 0.92);
   border-top: 1px solid var(--thusness-rule, #c7c2b0);
   backdrop-filter: blur(10px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .sinkin-dock-inner {
@@ -661,6 +667,9 @@ body.thusness ::selection {
   justify-content: center;
   gap: 14px;
   flex-wrap: wrap;
+  width: 100%;
+  max-width: 880px;
+  margin-inline: auto;
 }
 
 .sinkin-dock-btn {

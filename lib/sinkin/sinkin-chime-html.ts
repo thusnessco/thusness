@@ -3,20 +3,19 @@
  * silent with Web Audio oscillators; decoded WAV + play() is the reliable path.
  * Web Audio in soft-chime.ts remains optional fallback from the experience layer.
  *
- * Timbral reset: only C2 + C3 (octave) sines — no stacked triads (avoids low
- * “grumble” / beating). Fades unchanged from the last stable version.
+ * Single sine at C3 — one partial, no beating. (C2 alone tends to rumble on
+ * small laptop speakers.) Fades unchanged.
  */
 
-const C2_HZ = 65.40639132514965;
-const C3_HZ = 130.8127826502993;
+const C_HZ = 130.8127826502993;
 
 const CHIME_SR = 44100;
 const CHIME_SEC = 6.2;
 const PULSE_SR = 22050;
 const PULSE_SEC = 0.42;
 
-const MAIN_CHIME_LEVEL = 0.28;
-const PULSE_LEVEL = 0.11;
+const MAIN_CHIME_LEVEL = 0.32;
+const PULSE_LEVEL = 0.12;
 const HTML_AUDIO_VOLUME = 0.88;
 
 function floatToWavMono16(samples: Float32Array, sampleRate: number): Blob {
@@ -59,11 +58,8 @@ function floatToWavMono16(samples: Float32Array, sampleRate: number): Blob {
   return new Blob([buf], { type: "audio/wav" });
 }
 
-function octaveTone(t: number): number {
-  const twoPi = 2 * Math.PI;
-  return (
-    0.52 * Math.sin(twoPi * C2_HZ * t) + 0.48 * Math.sin(twoPi * C3_HZ * t)
-  );
+function pureCTone(t: number): number {
+  return Math.sin(2 * Math.PI * C_HZ * t);
 }
 
 function renderMainChimeSamples(): Float32Array {
@@ -74,7 +70,7 @@ function renderMainChimeSamples(): Float32Array {
   for (let i = 0; i < n; i++) {
     const t = i / CHIME_SR;
     const u = (i + 1) / n;
-    const tone = octaveTone(t);
+    const tone = pureCTone(t);
     const a = Math.min(1, t / attackSec);
     const fadeIn = 0.5 * (1 - Math.cos(Math.PI * a));
     const decay = Math.exp(-t / tau);
@@ -91,7 +87,7 @@ function renderPulseSamples(): Float32Array {
   const attackSec = 0.06;
   for (let i = 0; i < n; i++) {
     const t = i / PULSE_SR;
-    const tone = octaveTone(t);
+    const tone = pureCTone(t);
     const u = (i + 1) / n;
     const a = Math.min(1, t / attackSec);
     const fadeIn = 0.5 * (1 - Math.cos(Math.PI * a));

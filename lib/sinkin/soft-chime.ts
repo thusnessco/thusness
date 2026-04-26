@@ -1,7 +1,6 @@
-/** C2 + C3 octave (Web Audio). HTMLAudio path is primary; this is the fallback. */
+/** Single C3 sine (Web Audio). HTMLAudio path is primary; this is the fallback. */
 
-const C2_HZ = 65.40639132514965;
-const C3_HZ = 130.8127826502993;
+const C_HZ = 130.8127826502993;
 
 const TOTAL_SEC = 6.2;
 const PEAK_GAIN = 0.1;
@@ -20,26 +19,14 @@ function scheduleSoftChimeGraph(ctx: AudioContext): void {
   master.gain.linearRampToValueAtTime(0.000001, tEnd);
   master.connect(ctx.destination);
 
-  const oscLow = ctx.createOscillator();
-  oscLow.type = "sine";
-  oscLow.frequency.setValueAtTime(C2_HZ, t0);
-  const oscHigh = ctx.createOscillator();
-  oscHigh.type = "sine";
-  oscHigh.frequency.setValueAtTime(C3_HZ, t0);
-  const gLow = ctx.createGain();
-  gLow.gain.value = 0.52;
-  const gHigh = ctx.createGain();
-  gHigh.gain.value = 0.48;
-  oscLow.connect(gLow);
-  gLow.connect(master);
-  oscHigh.connect(gHigh);
-  gHigh.connect(master);
+  const osc = ctx.createOscillator();
+  osc.type = "sine";
+  osc.frequency.setValueAtTime(C_HZ, t0);
+  osc.connect(master);
 
   const stopAt = tEnd + TAIL_SILENCE_SEC + 0.04;
-  oscLow.start(t0);
-  oscHigh.start(t0);
-  oscLow.stop(stopAt);
-  oscHigh.stop(stopAt);
+  osc.start(t0);
+  osc.stop(stopAt);
 }
 
 export async function playSoftChime(ctx: AudioContext): Promise<void> {
@@ -74,24 +61,12 @@ export async function playSinkInPulse(ctx: AudioContext): Promise<void> {
   master.gain.linearRampToValueAtTime(0.0001, t0 + dur);
   master.connect(ctx.destination);
 
-  const oscLow = ctx.createOscillator();
-  oscLow.type = "sine";
-  oscLow.frequency.setValueAtTime(C2_HZ, t0);
-  const oscHigh = ctx.createOscillator();
-  oscHigh.type = "sine";
-  oscHigh.frequency.setValueAtTime(C3_HZ, t0);
-  const gLow = ctx.createGain();
-  gLow.gain.value = 0.52;
-  const gHigh = ctx.createGain();
-  gHigh.gain.value = 0.48;
-  oscLow.connect(gLow);
-  gLow.connect(master);
-  oscHigh.connect(gHigh);
-  gHigh.connect(master);
+  const osc = ctx.createOscillator();
+  osc.type = "sine";
+  osc.frequency.setValueAtTime(C_HZ, t0);
+  osc.connect(master);
 
   const stopAt = t0 + dur + 0.05;
-  oscLow.start(t0);
-  oscHigh.start(t0);
-  oscLow.stop(stopAt);
-  oscHigh.stop(stopAt);
+  osc.start(t0);
+  osc.stop(stopAt);
 }
