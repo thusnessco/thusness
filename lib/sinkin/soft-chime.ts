@@ -1,6 +1,12 @@
-/** Single C3 sine (Web Audio). HTMLAudio path is primary; this is the fallback. */
+/**
+ * G3 + D4 perfect fifth (Web Audio sines). HTMLAudio path is primary; this is
+ * the fallback — matches sinkin-chime-html timbre.
+ */
 
-const C_HZ = 130.8127826502993;
+const G3_HZ = 195.99771799087497;
+const D4_HZ = 293.6647679174076;
+const FIFTH_LOW = 0.5;
+const FIFTH_HIGH = 0.42;
 
 const TOTAL_SEC = 6.2;
 const PEAK_GAIN = 0.1;
@@ -19,14 +25,26 @@ function scheduleSoftChimeGraph(ctx: AudioContext): void {
   master.gain.linearRampToValueAtTime(0.000001, tEnd);
   master.connect(ctx.destination);
 
-  const osc = ctx.createOscillator();
-  osc.type = "sine";
-  osc.frequency.setValueAtTime(C_HZ, t0);
-  osc.connect(master);
+  const g = ctx.createOscillator();
+  g.type = "sine";
+  g.frequency.setValueAtTime(G3_HZ, t0);
+  const d = ctx.createOscillator();
+  d.type = "sine";
+  d.frequency.setValueAtTime(D4_HZ, t0);
+  const gGain = ctx.createGain();
+  gGain.gain.value = FIFTH_LOW;
+  const dGain = ctx.createGain();
+  dGain.gain.value = FIFTH_HIGH;
+  g.connect(gGain);
+  d.connect(dGain);
+  gGain.connect(master);
+  dGain.connect(master);
 
   const stopAt = tEnd + TAIL_SILENCE_SEC + 0.04;
-  osc.start(t0);
-  osc.stop(stopAt);
+  g.start(t0);
+  d.start(t0);
+  g.stop(stopAt);
+  d.stop(stopAt);
 }
 
 export async function playSoftChime(ctx: AudioContext): Promise<void> {
@@ -61,12 +79,24 @@ export async function playSinkInPulse(ctx: AudioContext): Promise<void> {
   master.gain.linearRampToValueAtTime(0.0001, t0 + dur);
   master.connect(ctx.destination);
 
-  const osc = ctx.createOscillator();
-  osc.type = "sine";
-  osc.frequency.setValueAtTime(C_HZ, t0);
-  osc.connect(master);
+  const g = ctx.createOscillator();
+  g.type = "sine";
+  g.frequency.setValueAtTime(G3_HZ, t0);
+  const d = ctx.createOscillator();
+  d.type = "sine";
+  d.frequency.setValueAtTime(D4_HZ, t0);
+  const gGain = ctx.createGain();
+  gGain.gain.value = FIFTH_LOW;
+  const dGain = ctx.createGain();
+  dGain.gain.value = FIFTH_HIGH;
+  g.connect(gGain);
+  d.connect(dGain);
+  gGain.connect(master);
+  dGain.connect(master);
 
   const stopAt = t0 + dur + 0.05;
-  osc.start(t0);
-  osc.stop(stopAt);
+  g.start(t0);
+  d.start(t0);
+  g.stop(stopAt);
+  d.stop(stopAt);
 }

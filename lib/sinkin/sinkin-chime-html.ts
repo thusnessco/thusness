@@ -3,11 +3,15 @@
  * silent with Web Audio oscillators; decoded WAV + play() is the reliable path.
  * Web Audio in soft-chime.ts remains optional fallback from the experience layer.
  *
- * Single sine at C3 — one partial, no beating. (C2 alone tends to rumble on
- * small laptop speakers.) Fades unchanged.
+ * G3 + D4 (perfect fifth) — two soft sines, no beating. Brighter and more open
+ * than solo low C, which can read as heavy on small speakers. Fades unchanged.
  */
 
-const C_HZ = 130.8127826502993;
+const G3_HZ = 195.99771799087497;
+const D4_HZ = 293.6647679174076;
+/** Blend toward the upper partial so the fifth feels airy, not dark. */
+const FIFTH_LOW = 0.5;
+const FIFTH_HIGH = 0.42;
 
 const CHIME_SR = 44100;
 const CHIME_SEC = 6.2;
@@ -58,8 +62,10 @@ function floatToWavMono16(samples: Float32Array, sampleRate: number): Blob {
   return new Blob([buf], { type: "audio/wav" });
 }
 
-function pureCTone(t: number): number {
-  return Math.sin(2 * Math.PI * C_HZ * t);
+function peaceFifthTone(t: number): number {
+  const g = Math.sin(2 * Math.PI * G3_HZ * t);
+  const d = Math.sin(2 * Math.PI * D4_HZ * t);
+  return FIFTH_LOW * g + FIFTH_HIGH * d;
 }
 
 function renderMainChimeSamples(): Float32Array {
@@ -70,7 +76,7 @@ function renderMainChimeSamples(): Float32Array {
   for (let i = 0; i < n; i++) {
     const t = i / CHIME_SR;
     const u = (i + 1) / n;
-    const tone = pureCTone(t);
+    const tone = peaceFifthTone(t);
     const a = Math.min(1, t / attackSec);
     const fadeIn = 0.5 * (1 - Math.cos(Math.PI * a));
     const decay = Math.exp(-t / tau);
@@ -87,7 +93,7 @@ function renderPulseSamples(): Float32Array {
   const attackSec = 0.06;
   for (let i = 0; i < n; i++) {
     const t = i / PULSE_SR;
-    const tone = pureCTone(t);
+    const tone = peaceFifthTone(t);
     const u = (i + 1) / n;
     const a = Math.min(1, t / attackSec);
     const fadeIn = 0.5 * (1 - Math.cos(Math.PI * a));
