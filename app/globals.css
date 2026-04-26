@@ -567,30 +567,46 @@ body.thusness ::selection {
   }
 }
 
-/* —— /sinkin timed meditation steps */
+/* —— /sinkin timed meditation steps (blur + opacity = dissolve in) */
 
 @keyframes sinkin-step-in {
   from {
     opacity: 0;
-    transform: translateY(6px);
+    filter: blur(12px);
+    transform: translateY(12px);
+  }
+  55% {
+    opacity: 0.85;
+    filter: blur(4px);
+    transform: translateY(3px);
   }
   to {
     opacity: 1;
+    filter: blur(0);
     transform: translateY(0);
   }
 }
 
 .sinkin-step-animate {
-  animation: sinkin-step-in 0.9s ease-out both;
+  animation: sinkin-step-in 1.65s cubic-bezier(0.33, 0, 0.2, 1) both;
+}
+
+@keyframes sinkin-step-in-reduced {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .sinkin-step-animate {
-    animation: none;
+    animation: sinkin-step-in-reduced 0.45s ease-out both;
   }
 }
 
-/* —— /sinkin full text → keyword crossfade */
+/* —— /sinkin full text ↔ keyword dissolve (blur + slow opacity) */
 
 .sinkin-phase-slot {
   position: relative;
@@ -599,7 +615,12 @@ body.thusness ::selection {
 }
 
 .sinkin-phase-layer {
-  transition: opacity 0.85s ease;
+  --sinkin-dissolve-ms: 1.85s;
+  --sinkin-dissolve-ease: cubic-bezier(0.38, 0, 0.22, 1);
+  transition:
+    opacity var(--sinkin-dissolve-ms) var(--sinkin-dissolve-ease),
+    filter var(--sinkin-dissolve-ms) var(--sinkin-dissolve-ease),
+    transform var(--sinkin-dissolve-ms) var(--sinkin-dissolve-ease);
   max-width: 620px;
   margin-left: auto;
   margin-right: auto;
@@ -612,6 +633,8 @@ body.thusness ::selection {
 
 .sinkin-phase-layer--full:not(.sinkin-phase-layer--visible) {
   opacity: 0;
+  filter: blur(10px);
+  transform: translateY(8px);
   pointer-events: none;
   position: absolute;
   left: 0;
@@ -621,6 +644,8 @@ body.thusness ::selection {
 
 .sinkin-phase-layer--full.sinkin-phase-layer--visible {
   opacity: 1;
+  filter: blur(0);
+  transform: translateY(0);
 }
 
 .sinkin-phase-layer--focus {
@@ -628,7 +653,8 @@ body.thusness ::selection {
   left: 0;
   right: 0;
   top: 50%;
-  transform: translateY(-50%);
+  transform: translateY(calc(-50% + 10px));
+  filter: blur(10px);
   z-index: 2;
   text-align: center;
   opacity: 0;
@@ -637,6 +663,8 @@ body.thusness ::selection {
 
 .sinkin-phase-layer--focus.sinkin-phase-layer--visible {
   opacity: 1;
+  filter: blur(0);
+  transform: translateY(-50%);
   pointer-events: auto;
 }
 
@@ -652,6 +680,27 @@ body.thusness ::selection {
 
 @media (prefers-reduced-motion: reduce) {
   .sinkin-phase-layer {
-    transition: none;
+    --sinkin-dissolve-ms: 0.35s;
+    --sinkin-dissolve-ease: ease-out;
+    transition: opacity var(--sinkin-dissolve-ms) var(--sinkin-dissolve-ease);
+  }
+
+  .sinkin-phase-layer--full:not(.sinkin-phase-layer--visible),
+  .sinkin-phase-layer--full.sinkin-phase-layer--visible {
+    filter: none;
+    transform: none;
+  }
+
+  .sinkin-phase-layer--focus {
+    filter: none;
+    transform: translateY(-50%);
+  }
+
+  .sinkin-phase-layer--focus.sinkin-phase-layer--visible {
+    transform: translateY(-50%);
+  }
+
+  .sinkin-phase-layer--focus:not(.sinkin-phase-layer--visible) {
+    transform: translateY(-50%);
   }
 }
