@@ -4,8 +4,10 @@ export type SinkInStep = {
   id: string;
   label: string;
   body: string;
-  /** Single word or very short anchor shown after full text fades (low-distraction). */
+  /** Legacy / unused on public hero UI; kept for stored JSON. */
   keyword: string;
+  /** Seconds until the next tone for this step (30–720). */
+  holdSec: number;
 };
 
 /** What to show during a step (keep most off for a calmer screen). */
@@ -23,12 +25,13 @@ export type SinkInConfigV1 = {
   programTitle: string;
   /** Intro copy above “Begin” on /sinkin (editable). */
   introBlurb: string;
-  /** Seconds between tones (next passage). */
+  /** Default seconds for new steps & fallback when a step omits holdSec. */
   intervalSec: number;
-  /** Seconds to show full text before fading to the keyword (last step skips fade). */
+  /** Legacy fields; ignored by simplified /sinkin UI. */
   focusAfterSec: number;
-  /** When false, full text stays until the next tone (no keyword beat). */
   focusPhaseEnabled: boolean;
+  /** Dissolve out / in between steps (ms), e.g. 600–2000. */
+  crossfadeMs: number;
   ui: SinkInUiV1;
   steps: SinkInStep[];
 };
@@ -51,6 +54,8 @@ const INTERVAL_MIN = 30;
 const INTERVAL_MAX = 720;
 const FOCUS_MIN = 3;
 const FOCUS_MAX = 90;
+const CROSSFADE_MIN = 200;
+const CROSSFADE_MAX = 5000;
 
 /** Default: almost everything off so the session stays visually quiet. */
 export const defaultSinkInUi: SinkInUiV1 = {
@@ -95,11 +100,13 @@ export function defaultSinkInConfig(): SinkInConfigV1 {
     introBlurb: DEFAULT_INTRO_BLURB,
     intervalSec: 60,
     focusAfterSec: 12,
-    focusPhaseEnabled: true,
+    focusPhaseEnabled: false,
+    crossfadeMs: 900,
     ui: { ...defaultSinkInUi },
     steps: SINK_IN_STEPS.map((s, i) => ({
       ...s,
       keyword: DEFAULT_STEP_KEYWORDS[i] ?? "notice",
+      holdSec: 60,
     })),
   };
 }
@@ -112,6 +119,11 @@ function clampInterval(n: number): number {
 function clampFocus(n: number): number {
   if (!Number.isFinite(n)) return 12;
   return Math.min(FOCUS_MAX, Math.max(FOCUS_MIN, Math.round(n)));
+}
+
+function clampCrossfadeMs(n: number): number {
+  if (!Number.isFinite(n)) return 900;
+  return Math.min(CROSSFADE_MAX, Math.max(CROSSFADE_MIN, Math.round(n)));
 }
 
 function parseProgramTitle(raw: unknown): string {
@@ -143,7 +155,9 @@ function mergeUi(raw: unknown): SinkInUiV1 {
   };
 }
 
-function isPlainStep(o: unknown): o is { id: string; label: string; body: string; keyword?: string } {
+function isPlainStep(
+  o: unknown
+): o is { id: string; label: string; body: string; keyword?: string; holdSec?: number } {
   if (!o || typeof o !== "object") return false;
   const r = o as Record<string, unknown>;
   return (
@@ -161,6 +175,9 @@ export function parseSinkInConfig(raw: unknown): SinkInConfigV1 | null {
   if (o.v !== 1) return null;
   if (!Array.isArray(o.steps)) return null;
   const steps: SinkInStep[] = [];
+  const intervalDefault = clampInterval(
+    typeof o.intervalSec === "number" ? o.intervalSec : 60
+  );
   for (let i = 0; i < o.steps.length; i++) {
     const row = o.steps[i];
     if (!isPlainStep(row)) continue;
@@ -172,18 +189,25 @@ export function parseSinkInConfig(raw: unknown): SinkInConfigV1 | null {
       typeof row.keyword === "string" && row.keyword.trim()
         ? row.keyword.trim().slice(0, 80)
         : DEFAULT_STEP_KEYWORDS[i] ?? "notice";
+    const holdSec = clampInterval(
+      typeof row.holdSec === "number" ? row.holdSec : intervalDefault
+    );
     steps.push({
       id: id || `step-${steps.length + 1}`,
       label: label || `Step ${steps.length + 1}`,
       body,
       keyword: kw,
+      holdSec,
     });
   }
   if (steps.length === 0) return null;
   const focusPhaseEnabled =
-    typeof o.focusPhaseEnabled === "boolean" ? o.focusPhaseEnabled : true;
+    typeof o.focusPhaseEnabled === "boolean" ? o.focusPhaseEnabled : false;
   const focusAfterSec = clampFocus(
     typeof o.focusAfterSec === "number" ? o.focusAfterSec : 12
+  );
+  const crossfadeMs = clampCrossfadeMs(
+    typeof o.crossfadeMs === "number" ? o.crossfadeMs : 900
   );
   return {
     v: 1,
@@ -194,6 +218,7 @@ export function parseSinkInConfig(raw: unknown): SinkInConfigV1 | null {
     ),
     focusAfterSec,
     focusPhaseEnabled,
+    crossfadeMs,
     ui: mergeUi(o.ui),
     steps,
   };
@@ -207,6 +232,9 @@ export function normalizeSinkInConfig(input: SinkInConfigV1): SinkInConfigV1 {
       label: (s.label || `Step ${i + 1}`).trim(),
       body: s.body.trim(),
       keyword: (s.keyword || "notice").trim().slice(0, 80) || "notice",
+      holdSec: clampInterval(
+        typeof s.holdSec === "number" ? s.holdSec : input.intervalSec
+      ),
     }))
     .filter((s) => s.body.length > 0);
   const safe = steps.length > 0 ? steps : defaultSinkInConfig().steps;
@@ -225,6 +253,9 @@ export function normalizeSinkInConfig(input: SinkInConfigV1): SinkInConfigV1 {
     intervalSec: clampInterval(input.intervalSec),
     focusAfterSec: clampFocus(input.focusAfterSec),
     focusPhaseEnabled: Boolean(input.focusPhaseEnabled),
+    crossfadeMs: clampCrossfadeMs(
+      typeof input.crossfadeMs === "number" ? input.crossfadeMs : 900
+    ),
     ui: mergeUi(input.ui),
     steps: safe,
   };

@@ -52,6 +52,7 @@ export function SinkInEditorPanel({
           label: "New section",
           body: "",
           keyword: "notice",
+          holdSec: c.intervalSec,
         },
       ],
     }));
@@ -82,7 +83,8 @@ export function SinkInEditorPanel({
           >
             /sinkin
           </Link>
-          . Set the pause between tones and edit each passage below, then save.
+          . Set how long each step stays on screen, dissolve timing, and copy below,
+          then save.
         </p>
       </header>
 
@@ -123,14 +125,13 @@ export function SinkInEditorPanel({
           className={`${adminFieldInput} resize-y min-h-[120px]`}
         />
         <span className="text-[10px] leading-snug text-[var(--thusness-muted)]">
-          Plain text on the public /sinkin page above the interval control. Line
-          breaks are kept.
+          Plain text on /sinkin before Begin. Line breaks are kept.
         </span>
       </label>
 
       <div className="grid gap-8 sm:grid-cols-2">
         <label className="block space-y-1.5">
-          <span className={adminFieldLabel}>Seconds between tones</span>
+          <span className={adminFieldLabel}>Default step length (seconds)</span>
           <input
             type="number"
             min={30}
@@ -147,61 +148,40 @@ export function SinkInEditorPanel({
             className={adminFieldInput}
           />
           <span className="text-[10px] leading-snug text-[var(--thusness-muted)]">
-            30–720. About <span className="italic">60</span> is one minute between
-            dings.
+            Used when you add a new step and as a fallback if a step has no length.
+            Each step can override below (30–720s).
           </span>
         </label>
         <label className="block space-y-1.5">
-          <span className={adminFieldLabel}>Seconds of full text before fade</span>
+          <span className={adminFieldLabel}>Dissolve between steps (ms)</span>
           <input
             type="number"
-            min={3}
-            max={90}
-            step={1}
+            min={200}
+            max={5000}
+            step={50}
             disabled={isPending}
-            value={config.focusAfterSec}
+            value={config.crossfadeMs}
             onChange={(e) =>
               setConfig((c) => ({
                 ...c,
-                focusAfterSec: Number(e.target.value) || 12,
+                crossfadeMs: Number(e.target.value) || 900,
               }))
             }
             className={adminFieldInput}
           />
           <span className="text-[10px] leading-snug text-[var(--thusness-muted)]">
-            Then the passage fades to the keyword only (last step never fades).
+            Fade out / fade in when the tone moves to the next passage (200–5000).
           </span>
         </label>
       </div>
 
-      <label className="flex items-start gap-2 text-sm text-[var(--thusness-ink-soft)]">
-        <input
-          type="checkbox"
-          className="mt-1 border-[var(--thusness-rule)] accent-[var(--thusness-ink)]"
-          checked={config.focusPhaseEnabled}
-          disabled={isPending}
-          onChange={(e) =>
-            setConfig((c) => ({ ...c, focusPhaseEnabled: e.target.checked }))
-          }
-        />
-        <span>
-          <span className={adminFieldLabel}>Keyword beat</span>
-          <span className="mt-1 block text-[11px] leading-relaxed text-[var(--thusness-muted)]">
-            After the timer above, fade all copy to the single keyword for the rest
-            of the interval. Turn off to keep full text on screen until the next
-            tone.
-          </span>
-        </span>
-      </label>
-
       <fieldset className="space-y-3 border border-[var(--thusness-rule)] px-4 py-4">
         <legend className={`px-1 ${adminFieldLabel}`}>
-          During a step (keep off for a calmer screen)
+          Optional on screen during a step
         </legend>
         <p className="text-[11px] leading-relaxed text-[var(--thusness-muted)]">
-          Defaults are all off: only the Thusness wordmark, passage body, End
-          session, and (during the keyword beat) the keyword. Turn items on if you
-          want more orientation on screen.
+          Defaults are off for a minimal read: wordmark, hero text, and fixed
+          controls. Turn on a program title or section labels if you want them.
         </p>
         {(
           [
@@ -211,19 +191,9 @@ export function SinkInEditorPanel({
               hint: "Uses the Program title field above the timing controls.",
             },
             {
-              key: "showProgress" as const,
-              title: "Step progress",
-              hint: "e.g. “3 / 23 · when you hear the tone, read”.",
-            },
-            {
               key: "showSectionLabel" as const,
               title: "Section title",
               hint: "Roman heading above the passage.",
-            },
-            {
-              key: "showRestHint" as const,
-              title: "Rest hint",
-              hint: "Italic reminder to close eyes until the next tone.",
             },
             {
               key: "showFooter" as const,
@@ -293,16 +263,23 @@ export function SinkInEditorPanel({
               />
             </label>
             <label className="block space-y-1.5">
-              <span className={adminFieldLabel}>Keyword (after fade)</span>
+              <span className={adminFieldLabel}>Seconds on this step</span>
               <input
-                value={step.keyword}
+                type="number"
+                min={30}
+                max={720}
+                step={5}
                 disabled={isPending}
-                onChange={(e) => updateStep(i, { keyword: e.target.value })}
+                value={step.holdSec}
+                onChange={(e) =>
+                  updateStep(i, {
+                    holdSec: Number(e.target.value) || config.intervalSec,
+                  })
+                }
                 className={adminFieldInput}
-                placeholder="notice"
               />
               <span className="text-[10px] text-[var(--thusness-muted)]">
-                One word or very short phrase; shown alone after full text fades.
+                Time until the next tone for this passage (30–720).
               </span>
             </label>
           </div>
@@ -342,7 +319,7 @@ export function SinkInEditorPanel({
           onClick={() => {
             if (
               !window.confirm(
-                "Replace the editor with the built-in default script and 60s timing? Your current text will be lost unless you save a copy elsewhere."
+                "Replace the editor with the built-in default script? Your current text will be lost unless you save a copy elsewhere."
               )
             ) {
               return;
