@@ -27,4 +27,6 @@ export type NoteRow = {
   updated_at: string;
   /** Thin decorative circle behind the body on public note pages (and / when pinned). */
   show_background_circle?: boolean;
+  /** Reusable layout: spawn drafts from Admin; hidden from public /notes index. */
+  is_template?: boolean;
 };

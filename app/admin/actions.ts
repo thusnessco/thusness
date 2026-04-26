@@ -153,6 +153,7 @@ export async function saveNote(input: {
   content_json: JSONContent;
   published: boolean;
   show_background_circle: boolean;
+  is_template: boolean;
 }) {
   const supabase = await createServerSupabase();
 
@@ -173,33 +174,42 @@ export async function saveNote(input: {
     content_json: contentNormalized,
     published: input.published,
     show_background_circle: input.show_background_circle,
+    is_template: input.is_template,
   };
 
   if (input.published) {
     patch.published_at = new Date().toISOString();
   }
 
-  let { data, error } = await supabase
-    .from("notes")
-    .update(patch)
-    .eq("id", input.id)
-    .select("*")
-    .maybeSingle();
+  type NoteUpdateRow = {
+    content_json: JSONContent;
+    updated_at: string;
+    show_background_circle?: boolean;
+    is_template?: boolean;
+  };
+  let data: NoteUpdateRow | null = null;
+  let error: { message: string } | null = null;
 
-  if (
-    error &&
-    noteUpdateMissingOptionalColumn(error, "show_background_circle")
-  ) {
-    const legacy = { ...patch };
-    delete legacy.show_background_circle;
-    const retry = await supabase
+  const attemptPatch: Record<string, unknown> = { ...patch };
+  for (let i = 0; i < 6; i++) {
+    const res = await supabase
       .from("notes")
-      .update(legacy)
+      .update(attemptPatch)
       .eq("id", input.id)
-      .select("id, content_json, updated_at")
+      .select("*")
       .maybeSingle();
-    data = retry.data;
-    error = retry.error;
+    data = (res.data as NoteUpdateRow | null) ?? null;
+    error = res.error;
+    if (!error) break;
+    if (noteUpdateMissingOptionalColumn(error, "show_background_circle")) {
+      delete attemptPatch.show_background_circle;
+      continue;
+    }
+    if (noteUpdateMissingOptionalColumn(error, "is_template")) {
+      delete attemptPatch.is_template;
+      continue;
+    }
+    break;
   }
 
   if (error) return { ok: false as const, message: error.message };
@@ -261,6 +271,7 @@ export async function saveNote(input: {
     show_background_circle: Boolean(
       (data as { show_background_circle?: boolean }).show_background_circle
     ),
+    is_template: Boolean((data as { is_template?: boolean }).is_template),
   };
 }
 
@@ -465,6 +476,61 @@ export async function createNote(): Promise<
   revalidatePath("/admin");
   revalidatePath("/notes");
   return { ok: true, note: data as NoteRow };
+}
+
+/** New draft whose body is a copy of a note marked `is_template`. */
+export async function createNoteFromTemplate(input: {
+  sourceId: string;
+}): Promise<{ ok: true; note: NoteRow } | { ok: false; message: string }> {
+  const supabase = await createServerSupabase();
+  const id = input.sourceId.trim();
+  if (!id) {
+    return { ok: false as const, message: "Choose a template note." };
+  }
+
+  const { data: src, error: srcErr } = await supabase
+    .from("notes")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (srcErr) return { ok: false as const, message: srcErr.message };
+  if (!src) {
+    return { ok: false as const, message: "That note was not found." };
+  }
+  const row = src as NoteRow & { is_template?: boolean };
+  if (row.is_template !== true) {
+    return {
+      ok: false as const,
+      message:
+        "That note is not marked as a reusable template. Turn on “Reusable template” and save first.",
+    };
+  }
+
+  const slug = `draft-${randomUUID().slice(0, 8)}`;
+  const payload = JSON.parse(
+    JSON.stringify(row.content_json)
+  ) as JSONContent;
+
+  const { data, error } = await supabase
+    .from("notes")
+    .insert({
+      slug,
+      title: "Untitled",
+      excerpt: null,
+      content_json: payload,
+      published: false,
+    })
+    .select("*")
+    .single();
+
+  if (error) return { ok: false as const, message: error.message };
+  if (!data?.id) {
+    return { ok: false as const, message: "Insert did not return the new note." };
+  }
+  revalidatePath("/admin");
+  revalidatePath("/notes");
+  return { ok: true as const, note: data as NoteRow };
 }
 
 export async function signOut() {

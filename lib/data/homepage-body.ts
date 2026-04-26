@@ -15,7 +15,7 @@ export async function getHomepageTipTapDoc(): Promise<HomepageBodyResult> {
   const pin = await getHomepagePin();
 
   if (pin.source === "note") {
-    const note = await getPublishedNoteBySlug(pin.slug);
+    const note = await getPublishedNoteBySlug(pin.slug, { allowTemplate: true });
     if (note)
       return {
         ok: true,

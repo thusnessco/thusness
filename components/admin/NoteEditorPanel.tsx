@@ -59,6 +59,7 @@ export function NoteEditorPanel({
   const [showBackgroundCircle, setShowBackgroundCircle] = useState(
     () => note.show_background_circle ?? false
   );
+  const [isTemplate, setIsTemplate] = useState(() => note.is_template ?? false);
 
   useEffect(() => {
     setPublished(note.published);
@@ -67,6 +68,10 @@ export function NoteEditorPanel({
   useEffect(() => {
     setShowBackgroundCircle(note.show_background_circle ?? false);
   }, [note.id, note.updated_at, note.show_background_circle]);
+
+  useEffect(() => {
+    setIsTemplate(note.is_template ?? false);
+  }, [note.id, note.updated_at, note.is_template]);
 
   const slugDirty = slug.trim() !== note.slug;
   const liveOnRoot = noteDrivesRoot(homepagePin, note);
@@ -166,6 +171,34 @@ export function NoteEditorPanel({
         </label>
       </fieldset>
 
+      <fieldset className="space-y-4 border border-[var(--thusness-rule)] px-4 py-4">
+        <legend className={`px-1 ${adminFieldLabel}`}>Templates</legend>
+        <label className={checkRow}>
+          <input
+            type="checkbox"
+            className="mt-1 border-[var(--thusness-rule)] accent-[var(--thusness-ink)]"
+            checked={isTemplate}
+            disabled={isPending}
+            onChange={(e) => setIsTemplate(e.target.checked)}
+          />
+          <span>
+            <span className="font-medium text-[var(--thusness-ink)]">
+              Reusable template
+            </span>
+            <span className={`mt-1 block ${checkHint}`}>
+              This note appears in Admin under “New from template” so you can spawn
+              drafts with the same TipTap layout. Template notes are{" "}
+              <span className="font-medium text-[var(--thusness-ink-soft)]">
+                not
+              </span>{" "}
+              listed on the public <span className="italic">/notes</span> index
+              (you can still pin one to <span className="italic">/</span>). Save to
+              apply.
+            </span>
+          </span>
+        </label>
+      </fieldset>
+
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="block space-y-1.5">
           <span className={adminFieldLabel}>Title</span>
@@ -230,6 +263,7 @@ export function NoteEditorPanel({
                   content_json: bodySnapshot,
                   published,
                   show_background_circle: showBackgroundCircle,
+                  is_template: isTemplate,
                 });
                 if (!res.ok) onMessage(res.message);
                 else {

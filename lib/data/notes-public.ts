@@ -1,5 +1,10 @@
 import { createPublicSupabase, type NoteRow } from "@/lib/supabase/public-server";
 
+export type GetPublishedNoteOptions = {
+  /** When true, a note marked `is_template` may be returned (e.g. homepage pin). */
+  allowTemplate?: boolean;
+};
+
 /** Decode path segment, trim, reject traversal / extra path segments. */
 export function normalizePublishedNoteSlugParam(slug: string): string {
   let s = String(slug ?? "");
@@ -30,11 +35,12 @@ export async function getPublishedNotes(): Promise<NoteRow[]> {
     .order("published_at", { ascending: false });
 
   if (error || !data) return [];
-  return data as NoteRow[];
+  return (data as NoteRow[]).filter((n) => n.is_template !== true);
 }
 
 export async function getPublishedNoteBySlug(
-  slug: string
+  slug: string,
+  options?: GetPublishedNoteOptions
 ): Promise<NoteRow | null> {
   const supabase = createPublicSupabase();
   if (!supabase) return null;
@@ -56,14 +62,12 @@ export async function getPublishedNoteBySlug(
   }
 
   let row = await fetchOne(normalized);
-  if (row) return row;
-
-  if (normalized !== normalized.toLowerCase()) {
+  if (!row && normalized !== normalized.toLowerCase()) {
     row = await fetchOne(normalized.toLowerCase());
-    if (row) return row;
   }
-
-  return null;
+  if (!row) return null;
+  if (!options?.allowTemplate && row.is_template === true) return null;
+  return row;
 }
 
 export function formatPublishedDate(iso: string): string {

@@ -5,7 +5,10 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { JSONContent } from "@tiptap/core";
 
-import { createDraftNoteFromHomepageTemplate } from "@/app/admin/actions";
+import {
+  createDraftNoteFromHomepageTemplate,
+  createNoteFromTemplate,
+} from "@/app/admin/actions";
 import type { HomepagePin } from "@/lib/homepage/homepage-pin";
 import type { NoteRow } from "@/lib/supabase/public-server";
 import type {
@@ -17,7 +20,7 @@ import {
   DEFAULT_SIMPLE_FIELDS,
 } from "@/lib/homepage/site-templates";
 
-import { adminBtnSmall, adminNavBtn } from "./admin-ui";
+import { adminBtnSmall, adminFieldLabel, adminNavBtn } from "./admin-ui";
 import { FullLayoutForm } from "./FullLayoutForm";
 import {
   isLiveAtRoot,
@@ -69,6 +72,12 @@ export function AdminEditorHub({
     DEFAULT_SIMPLE_FIELDS
   );
   const [full, setFull] = useState<FullDescriptionFields>(DEFAULT_FULL_FIELDS);
+  const [templateSourceId, setTemplateSourceId] = useState("");
+
+  const templateNotes = useMemo(
+    () => notes.filter((n) => n.is_template === true),
+    [notes]
+  );
 
   const pinSyncKey = useMemo(() => JSON.stringify(homepagePin), [homepagePin]);
 
@@ -172,6 +181,47 @@ export function AdminEditorHub({
             or <span className="text-[var(--thusness-ink-soft)]">Sample page layout</span>{" "}
             in the body toolbar.
           </p>
+          {templateNotes.length > 0 ? (
+            <div className="mb-3 space-y-2">
+              <label className="block space-y-1">
+                <span className={adminFieldLabel}>New from your template</span>
+                <select
+                  className="w-full border border-[var(--thusness-rule)] bg-[var(--thusness-bg)] px-2 py-1.5 text-xs text-[var(--thusness-ink-soft)]"
+                  value={templateSourceId}
+                  disabled={isPending}
+                  onChange={(e) => setTemplateSourceId(e.target.value)}
+                >
+                  <option value="">Choose template…</option>
+                  {templateNotes.map((t) => (
+                    <option key={t.id} value={t.id}>
+                      {t.title?.trim() || t.slug || "Untitled"}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <button
+                type="button"
+                disabled={isPending || !templateSourceId}
+                className={adminBtnSmall}
+                onClick={() => {
+                  const id = templateSourceId;
+                  if (!id) return;
+                  startTransition(async () => {
+                    const res = await createNoteFromTemplate({ sourceId: id });
+                    if (!res.ok) onMessage(res.message);
+                    else {
+                      onMessage("Draft created from your template.");
+                      setTemplateSourceId("");
+                      onCreatedNoteAwaitingRefresh(res.note);
+                      router.refresh();
+                    }
+                  });
+                }}
+              >
+                Create draft from template
+              </button>
+            </div>
+          ) : null}
           {notes.map((n) => (
             <button
               key={n.id}
@@ -183,6 +233,7 @@ export function AdminEditorHub({
               <span className="mt-0.5 flex flex-wrap gap-x-2 text-[10px] uppercase tracking-wider text-[var(--thusness-muted)]">
                 {!n.published ? <span>Draft</span> : null}
                 {n.published ? <span>/notes</span> : null}
+                {n.is_template ? <span>Template</span> : null}
                 {isLiveAtRoot(homepagePin, `n:${n.id}`, notes) ? (
                   <span className="text-[var(--thusness-red,#c23a2a)]">/</span>
                 ) : null}
