@@ -1,20 +1,14 @@
-/** C2-root chimes (Web Audio). HTMLAudio path is primary; this is the fallback. */
+/** C2 + C3 octave (Web Audio). HTMLAudio path is primary; this is the fallback. */
 
-import type { SinkInChimeHarmonyV1 } from "./config";
-import { sinkInChimePartials } from "./chime-harmony";
+const C2_HZ = 65.40639132514965;
+const C3_HZ = 130.8127826502993;
 
 const TOTAL_SEC = 6.2;
-/** Peak after short rise; long decay, then linear tail to silence before osc stop. */
-const PEAK_GAIN = 0.15;
-/** Longer linear gain rise from near-silence removes the little click on onset. */
+const PEAK_GAIN = 0.1;
 const RISE_SEC = 0.5;
-/** Seconds after gain hits silence before stopping sources (avoids click). */
 const TAIL_SILENCE_SEC = 0.22;
 
-function scheduleSoftChimeGraph(
-  ctx: AudioContext,
-  harmony: SinkInChimeHarmonyV1
-): void {
+function scheduleSoftChimeGraph(ctx: AudioContext): void {
   const t0 = ctx.currentTime + 0.002;
   const tEnd = t0 + TOTAL_SEC;
   const tExpoEnd = tEnd - 0.28;
@@ -26,29 +20,29 @@ function scheduleSoftChimeGraph(
   master.gain.linearRampToValueAtTime(0.000001, tEnd);
   master.connect(ctx.destination);
 
-  const partials = sinkInChimePartials(harmony);
+  const oscLow = ctx.createOscillator();
+  oscLow.type = "sine";
+  oscLow.frequency.setValueAtTime(C2_HZ, t0);
+  const oscHigh = ctx.createOscillator();
+  oscHigh.type = "sine";
+  oscHigh.frequency.setValueAtTime(C3_HZ, t0);
+  const gLow = ctx.createGain();
+  gLow.gain.value = 0.52;
+  const gHigh = ctx.createGain();
+  gHigh.gain.value = 0.48;
+  oscLow.connect(gLow);
+  gLow.connect(master);
+  oscHigh.connect(gHigh);
+  gHigh.connect(master);
+
   const stopAt = tEnd + TAIL_SILENCE_SEC + 0.04;
-  for (const p of partials) {
-    const osc = ctx.createOscillator();
-    osc.type = "sine";
-    osc.frequency.setValueAtTime(p.hz, t0);
-    const g = ctx.createGain();
-    g.gain.value = p.weight;
-    osc.connect(g);
-    g.connect(master);
-    osc.start(t0);
-    osc.stop(stopAt);
-  }
+  oscLow.start(t0);
+  oscHigh.start(t0);
+  oscLow.stop(stopAt);
+  oscHigh.stop(stopAt);
 }
 
-/**
- * Plays the sink-in tone. Awaits `resume()` when still suspended (timers / step
- * advance). The app uses HTMLAudio first; this is the Web Audio fallback.
- */
-export async function playSoftChime(
-  ctx: AudioContext,
-  harmony: SinkInChimeHarmonyV1
-): Promise<void> {
+export async function playSoftChime(ctx: AudioContext): Promise<void> {
   try {
     if (ctx.state !== "running") {
       await ctx.resume();
@@ -57,14 +51,10 @@ export async function playSoftChime(
     return;
   }
   if (ctx.state !== "running") return;
-  scheduleSoftChimeGraph(ctx, harmony);
+  scheduleSoftChimeGraph(ctx);
 }
 
-/** Short gentle pulse during long holds (~0.35s). */
-export async function playSinkInPulse(
-  ctx: AudioContext,
-  harmony: SinkInChimeHarmonyV1
-): Promise<void> {
+export async function playSinkInPulse(ctx: AudioContext): Promise<void> {
   try {
     if (ctx.state !== "running") {
       await ctx.resume();
@@ -76,7 +66,7 @@ export async function playSinkInPulse(
 
   const t0 = ctx.currentTime + 0.002;
   const dur = 0.35;
-  const peak = 0.085;
+  const peak = 0.055;
 
   const master = ctx.createGain();
   master.gain.setValueAtTime(0.0001, t0);
@@ -84,17 +74,24 @@ export async function playSinkInPulse(
   master.gain.linearRampToValueAtTime(0.0001, t0 + dur);
   master.connect(ctx.destination);
 
-  const partials = sinkInChimePartials(harmony);
+  const oscLow = ctx.createOscillator();
+  oscLow.type = "sine";
+  oscLow.frequency.setValueAtTime(C2_HZ, t0);
+  const oscHigh = ctx.createOscillator();
+  oscHigh.type = "sine";
+  oscHigh.frequency.setValueAtTime(C3_HZ, t0);
+  const gLow = ctx.createGain();
+  gLow.gain.value = 0.52;
+  const gHigh = ctx.createGain();
+  gHigh.gain.value = 0.48;
+  oscLow.connect(gLow);
+  gLow.connect(master);
+  oscHigh.connect(gHigh);
+  gHigh.connect(master);
+
   const stopAt = t0 + dur + 0.05;
-  for (const p of partials) {
-    const osc = ctx.createOscillator();
-    osc.type = "sine";
-    osc.frequency.setValueAtTime(p.hz, t0);
-    const g = ctx.createGain();
-    g.gain.value = p.weight;
-    osc.connect(g);
-    g.connect(master);
-    osc.start(t0);
-    osc.stop(stopAt);
-  }
+  oscLow.start(t0);
+  oscHigh.start(t0);
+  oscLow.stop(stopAt);
+  oscHigh.stop(stopAt);
 }

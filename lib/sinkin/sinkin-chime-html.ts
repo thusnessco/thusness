@@ -2,21 +2,22 @@
  * Sink-in tones via HTMLAudioElement + in-memory WAV. Safari (macOS) often stays
  * silent with Web Audio oscillators; decoded WAV + play() is the reliable path.
  * Web Audio in soft-chime.ts remains optional fallback from the experience layer.
+ *
+ * Timbral reset: only C2 + C3 (octave) sines — no stacked triads (avoids low
+ * “grumble” / beating). Fades unchanged from the last stable version.
  */
 
-import type { SinkInChimeHarmonyV1 } from "./config";
-import { sinkInChimeSampleAt } from "./chime-harmony";
+const C2_HZ = 65.40639132514965;
+const C3_HZ = 130.8127826502993;
 
 const CHIME_SR = 44100;
 const CHIME_SEC = 6.2;
 const PULSE_SR = 22050;
 const PULSE_SEC = 0.42;
 
-/** Peak sample scale in WAV (output level; fades unchanged). */
-const MAIN_CHIME_LEVEL = 0.4;
-const PULSE_LEVEL = 0.16;
-/** Media element gain (1 = full browser output). */
-const HTML_AUDIO_VOLUME = 1;
+const MAIN_CHIME_LEVEL = 0.28;
+const PULSE_LEVEL = 0.11;
+const HTML_AUDIO_VOLUME = 0.88;
 
 function floatToWavMono16(samples: Float32Array, sampleRate: number): Blob {
   const n = samples.length;
@@ -58,21 +59,22 @@ function floatToWavMono16(samples: Float32Array, sampleRate: number): Blob {
   return new Blob([buf], { type: "audio/wav" });
 }
 
-/**
- * Long chime: soft rise, gradual body decay, then a cosine window to exact silence
- * on the last sample so the file never hard-cuts mid-level (which sounds like a
- * click / abrupt stop).
- */
-function renderMainChimeSamples(harmony: SinkInChimeHarmonyV1): Float32Array {
+function octaveTone(t: number): number {
+  const twoPi = 2 * Math.PI;
+  return (
+    0.52 * Math.sin(twoPi * C2_HZ * t) + 0.48 * Math.sin(twoPi * C3_HZ * t)
+  );
+}
+
+function renderMainChimeSamples(): Float32Array {
   const n = Math.floor(CHIME_SR * CHIME_SEC);
   const out = new Float32Array(n);
-  /** Half-cosine fade-in (zero derivative at t=0) to remove onset click. */
   const attackSec = 0.48;
   const tau = 3.35;
   for (let i = 0; i < n; i++) {
     const t = i / CHIME_SR;
     const u = (i + 1) / n;
-    const tone = sinkInChimeSampleAt(t, harmony);
+    const tone = octaveTone(t);
     const a = Math.min(1, t / attackSec);
     const fadeIn = 0.5 * (1 - Math.cos(Math.PI * a));
     const decay = Math.exp(-t / tau);
@@ -83,13 +85,13 @@ function renderMainChimeSamples(harmony: SinkInChimeHarmonyV1): Float32Array {
   return out;
 }
 
-function renderPulseSamples(harmony: SinkInChimeHarmonyV1): Float32Array {
+function renderPulseSamples(): Float32Array {
   const n = Math.floor(PULSE_SR * PULSE_SEC);
   const out = new Float32Array(n);
   const attackSec = 0.06;
   for (let i = 0; i < n; i++) {
     const t = i / PULSE_SR;
-    const tone = sinkInChimeSampleAt(t, harmony);
+    const tone = octaveTone(t);
     const u = (i + 1) / n;
     const a = Math.min(1, t / attackSec);
     const fadeIn = 0.5 * (1 - Math.cos(Math.PI * a));
@@ -99,33 +101,30 @@ function renderPulseSamples(harmony: SinkInChimeHarmonyV1): Float32Array {
   return out;
 }
 
-const mainChimeUrls: Partial<Record<SinkInChimeHarmonyV1, string>> = {};
-const pulseUrls: Partial<Record<SinkInChimeHarmonyV1, string>> = {};
+let mainChimeUrl: string | null = null;
+let pulseUrl: string | null = null;
 
-function mainChimeObjectUrl(harmony: SinkInChimeHarmonyV1): string {
-  if (!mainChimeUrls[harmony]) {
-    mainChimeUrls[harmony] = URL.createObjectURL(
-      floatToWavMono16(renderMainChimeSamples(harmony), CHIME_SR)
+function mainChimeObjectUrl(): string {
+  if (!mainChimeUrl) {
+    mainChimeUrl = URL.createObjectURL(
+      floatToWavMono16(renderMainChimeSamples(), CHIME_SR)
     );
   }
-  return mainChimeUrls[harmony]!;
+  return mainChimeUrl;
 }
 
-function pulseObjectUrl(harmony: SinkInChimeHarmonyV1): string {
-  if (!pulseUrls[harmony]) {
-    pulseUrls[harmony] = URL.createObjectURL(
-      floatToWavMono16(renderPulseSamples(harmony), PULSE_SR)
+function pulseObjectUrl(): string {
+  if (!pulseUrl) {
+    pulseUrl = URL.createObjectURL(
+      floatToWavMono16(renderPulseSamples(), PULSE_SR)
     );
   }
-  return pulseUrls[harmony]!;
+  return pulseUrl;
 }
 
-/** Call from pointer/click — starts play() synchronously inside the gesture. */
-export function playSinkInMainChimeFromGesture(
-  harmony: SinkInChimeHarmonyV1
-): void {
+export function playSinkInMainChimeFromGesture(): void {
   try {
-    const a = new Audio(mainChimeObjectUrl(harmony));
+    const a = new Audio(mainChimeObjectUrl());
     a.volume = HTML_AUDIO_VOLUME;
     void a.play().catch(() => {});
   } catch {
@@ -133,18 +132,14 @@ export function playSinkInMainChimeFromGesture(
   }
 }
 
-export async function playSinkInMainChimeHtml(
-  harmony: SinkInChimeHarmonyV1
-): Promise<void> {
-  const a = new Audio(mainChimeObjectUrl(harmony));
+export async function playSinkInMainChimeHtml(): Promise<void> {
+  const a = new Audio(mainChimeObjectUrl());
   a.volume = HTML_AUDIO_VOLUME;
   await a.play();
 }
 
-export async function playSinkInPulseHtml(
-  harmony: SinkInChimeHarmonyV1
-): Promise<void> {
-  const a = new Audio(pulseObjectUrl(harmony));
+export async function playSinkInPulseHtml(): Promise<void> {
+  const a = new Audio(pulseObjectUrl());
   a.volume = HTML_AUDIO_VOLUME;
   await a.play();
 }

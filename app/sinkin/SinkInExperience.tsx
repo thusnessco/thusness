@@ -37,7 +37,6 @@ export function SinkInExperience({ config }: { config: SinkInConfigV1 }) {
   const ui = { ...defaultSinkInUi, ...config.ui };
   const crossfadeMs = config.crossfadeMs;
   const midToneIntervalSec = config.midToneIntervalSec;
-  const chimeHarmony = config.chimeHarmony;
 
   const [running, setRunning] = useState(false);
   const [stepIndex, setStepIndex] = useState(-1);
@@ -121,9 +120,9 @@ export function SinkInExperience({ config }: { config: SinkInConfigV1 }) {
         if (idx < 0 || idx >= stepsLen - 1) return;
         const ctx = ensureAudio();
         try {
-          await playSinkInMainChimeHtml(chimeHarmony);
+          await playSinkInMainChimeHtml();
         } catch {
-          if (ctx) await playSoftChime(ctx, chimeHarmony);
+          if (ctx) await playSoftChime(ctx);
         }
         if (!mountedRef.current) return;
         setHeroLeaving(true);
@@ -138,7 +137,7 @@ export function SinkInExperience({ config }: { config: SinkInConfigV1 }) {
         }, crossfadeMs);
       })();
     }, rem);
-  }, [running, stepIndex, isPaused, stepsLen, ensureAudio, crossfadeMs, chimeHarmony]);
+  }, [running, stepIndex, isPaused, stepsLen, ensureAudio, crossfadeMs]);
 
   const clearMidPing = useCallback(() => {
     if (midPingTimerRef.current != null) {
@@ -186,9 +185,9 @@ export function SinkInExperience({ config }: { config: SinkInConfigV1 }) {
       if (Date.now() >= advanceAtRef.current - bufferMs) return;
       const ctx = ensureAudio();
       try {
-        await playSinkInPulseHtml(chimeHarmony);
+        await playSinkInPulseHtml();
       } catch {
-        if (ctx) await playSinkInPulse(ctx, chimeHarmony);
+        if (ctx) await playSinkInPulse(ctx);
       }
       const nextDelay = intervalMs;
       if (Date.now() + nextDelay >= advanceAtRef.current - bufferMs) return;
@@ -213,7 +212,6 @@ export function SinkInExperience({ config }: { config: SinkInConfigV1 }) {
     stepsLen,
     clearMidPing,
     ensureAudio,
-    chimeHarmony,
   ]);
 
   useEffect(() => {
@@ -231,7 +229,7 @@ export function SinkInExperience({ config }: { config: SinkInConfigV1 }) {
   }, [scheduleAdvance]);
 
   const handleBegin = () => {
-    playSinkInMainChimeFromGesture(chimeHarmony);
+    playSinkInMainChimeFromGesture();
     setIsPaused(false);
     setHeroLeaving(false);
     setStepIndex(0);

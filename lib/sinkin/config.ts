@@ -10,49 +10,6 @@ export type SinkInStep = {
   holdSec: number;
 };
 
-/** Harmonic color for sink-in tones (C root, equal temperament). */
-export type SinkInChimeHarmonyV1 =
-  | "octave"
-  | "fifth"
-  | "major"
-  | "add9"
-  | "maj7";
-
-/** Stable order for Admin radios. */
-export const SINKIN_CHIME_HARMONY_ORDER: readonly SinkInChimeHarmonyV1[] = [
-  "octave",
-  "fifth",
-  "major",
-  "add9",
-  "maj7",
-];
-
-export const SINKIN_CHIME_HARMONY_LABELS: Record<
-  SinkInChimeHarmonyV1,
-  { title: string; hint: string }
-> = {
-  octave: {
-    title: "Octave",
-    hint: "Low C with the octave above — open, minimal.",
-  },
-  fifth: {
-    title: "Perfect fifth",
-    hint: "Low C with G (no third) — bright, still ambiguous major/minor.",
-  },
-  major: {
-    title: "Major triad",
-    hint: "C, E, and G — clearly major, a little fuller.",
-  },
-  add9: {
-    title: "Major add 9",
-    hint: "C, E, G, and D — gospel sparkle, still open.",
-  },
-  maj7: {
-    title: "Major 7th",
-    hint: "C, E, G, and B — luminous, “angelic” color.",
-  },
-};
-
 /** What to show during a step (keep most off for a calmer screen). */
 export type SinkInUiV1 = {
   showProgramTitle: boolean;
@@ -82,8 +39,6 @@ export type SinkInConfigV1 = {
    * Ignored if step hold is not longer than this interval + a short buffer.
    */
   midToneIntervalSec: number;
-  /** Harmonic blend for chimes and mid-step pulses. */
-  chimeHarmony: SinkInChimeHarmonyV1;
   ui: SinkInUiV1;
   steps: SinkInStep[];
 };
@@ -164,7 +119,6 @@ export function defaultSinkInConfig(): SinkInConfigV1 {
     focusPhaseEnabled: false,
     crossfadeMs: 900,
     midToneIntervalSec: 120,
-    chimeHarmony: "octave",
     ui: { ...defaultSinkInUi },
     steps: SINK_IN_STEPS.map((s, i) => ({
       ...s,
@@ -193,19 +147,6 @@ function clampCrossfadeMs(n: number): number {
 function clampMidToneIntervalSec(n: number): number {
   if (!Number.isFinite(n) || n <= 0) return 0;
   return Math.min(MID_TONE_MAX, Math.max(MID_TONE_MIN, Math.round(n)));
-}
-
-function parseChimeHarmony(raw: unknown): SinkInChimeHarmonyV1 {
-  if (
-    raw === "fifth" ||
-    raw === "major" ||
-    raw === "octave" ||
-    raw === "add9" ||
-    raw === "maj7"
-  ) {
-    return raw;
-  }
-  return "octave";
 }
 
 function parseProgramTitle(raw: unknown): string {
@@ -301,7 +242,6 @@ export function parseSinkInConfig(raw: unknown): SinkInConfigV1 | null {
   const midToneIntervalSec = clampMidToneIntervalSec(
     typeof o.midToneIntervalSec === "number" ? o.midToneIntervalSec : 120
   );
-  const chimeHarmony = parseChimeHarmony(o.chimeHarmony);
   return {
     v: 1,
     programTitle: parseProgramTitle(o.programTitle),
@@ -314,7 +254,6 @@ export function parseSinkInConfig(raw: unknown): SinkInConfigV1 | null {
     focusPhaseEnabled,
     crossfadeMs,
     midToneIntervalSec,
-    chimeHarmony,
     ui: mergeUi(o.ui),
     steps,
   };
@@ -362,7 +301,6 @@ export function normalizeSinkInConfig(input: SinkInConfigV1): SinkInConfigV1 {
         ? input.midToneIntervalSec
         : 120
     ),
-    chimeHarmony: parseChimeHarmony(input.chimeHarmony),
     ui: mergeUi(input.ui),
     steps: safe,
   };

@@ -7,8 +7,6 @@ import { useRouter } from "next/navigation";
 import { saveSinkInConfig } from "@/app/admin/actions";
 import {
   defaultSinkInConfig,
-  SINKIN_CHIME_HARMONY_LABELS,
-  SINKIN_CHIME_HARMONY_ORDER,
   SINKIN_CLOSING_MESSAGE_MAX,
   SINKIN_INTRO_BLURB_MAX,
   SINKIN_PROGRAM_TITLE_MAX,
@@ -225,44 +223,6 @@ export function SinkInEditorPanel({
           </span>
         </label>
       </div>
-
-      <fieldset className="space-y-3 border border-[var(--thusness-rule)] px-4 py-4">
-        <legend className={`px-1 ${adminFieldLabel}`}>Chime harmony</legend>
-        <p className="text-[11px] leading-relaxed text-[var(--thusness-muted)]">
-          Root is low C. Applies to Begin, each step change tone, and mid-step
-          reminders.
-        </p>
-        <div className="space-y-2.5">
-          {SINKIN_CHIME_HARMONY_ORDER.map((value) => {
-              const meta = SINKIN_CHIME_HARMONY_LABELS[value];
-              return (
-                <label
-                  key={value}
-                  className="flex cursor-pointer gap-2.5 text-sm leading-snug text-[var(--thusness-ink-soft)]"
-                >
-                  <input
-                    type="radio"
-                    name="sinkin-chime-harmony"
-                    className="mt-0.5 shrink-0"
-                    disabled={isPending}
-                    checked={config.chimeHarmony === value}
-                    onChange={() =>
-                      setConfig((c) => ({ ...c, chimeHarmony: value }))
-                    }
-                  />
-                  <span>
-                    <span className="font-medium text-[var(--thusness-ink)]">
-                      {meta.title}
-                    </span>
-                    <span className="text-[var(--thusness-muted)]"> — </span>
-                    {meta.hint}
-                  </span>
-                </label>
-              );
-            }
-          )}
-        </div>
-      </fieldset>
 
       <fieldset className="space-y-3 border border-[var(--thusness-rule)] px-4 py-4">
         <legend className={`px-1 ${adminFieldLabel}`}>
