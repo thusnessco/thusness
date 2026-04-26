@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import Wordmark from "@/components/thusness/Wordmark";
 import RedDot from "@/components/thusness/RedDot";
-import type { SinkInConfigV1 } from "@/lib/sinkin/config";
+import { defaultSinkInUi, type SinkInConfigV1 } from "@/lib/sinkin/config";
 import { playSoftChime } from "@/lib/sinkin/soft-chime";
 
 const helv = 'Helvetica, "Helvetica Neue", Arial, sans-serif';
@@ -27,7 +27,7 @@ function intervalSelectOptions(sec: number): { sec: number; label: string }[] {
 
 export function SinkInExperience({ config }: { config: SinkInConfigV1 }) {
   const steps = config.steps;
-  const ui = config.ui;
+  const ui = { ...defaultSinkInUi, ...config.ui };
   const [intervalSec, setIntervalSec] = useState<number>(config.intervalSec);
   const [running, setRunning] = useState(false);
   const [stepIndex, setStepIndex] = useState(-1);
@@ -190,19 +190,6 @@ export function SinkInExperience({ config }: { config: SinkInConfigV1 }) {
     >
       <div style={{ maxWidth: 880, margin: "0 auto", padding: "48px 40px 96px" }}>
         <header style={{ marginBottom: running ? 28 : 40 }}>
-          {(!running || ui.showNotesKicker) && (
-            <p
-              style={{
-                margin: "0 0 16px",
-                fontSize: 11,
-                letterSpacing: "2.4px",
-                textTransform: "uppercase",
-                color: "var(--thusness-muted, #8a8672)",
-              }}
-            >
-              ~ notes
-            </p>
-          )}
           <Wordmark size={20} tagline="~ as it is" />
         </header>
 

@@ -13,24 +13,33 @@ export type SinkInConfigBundle = {
 };
 
 export async function getSinkInConfigBundle(): Promise<SinkInConfigBundle> {
-  const supabase = createPublicSupabase();
-  if (!supabase) {
-    return { config: defaultSinkInConfig(), updatedAt: null };
-  }
-
-  const { data, error } = await supabase
-    .from("site_content")
-    .select("content_json, updated_at")
-    .eq("key", SINKIN_SITE_KEY)
-    .maybeSingle();
-
-  if (error || !data?.content_json) {
-    return { config: defaultSinkInConfig(), updatedAt: null };
-  }
-
-  const parsed = parseSinkInConfig(data.content_json);
-  return {
-    config: parsed ?? defaultSinkInConfig(),
-    updatedAt: (data.updated_at as string | null) ?? null,
+  const fallback: SinkInConfigBundle = {
+    config: defaultSinkInConfig(),
+    updatedAt: null,
   };
+  try {
+    const supabase = createPublicSupabase();
+    if (!supabase) {
+      return fallback;
+    }
+
+    const { data, error } = await supabase
+      .from("site_content")
+      .select("content_json, updated_at")
+      .eq("key", SINKIN_SITE_KEY)
+      .maybeSingle();
+
+    if (error || !data?.content_json) {
+      return fallback;
+    }
+
+    const parsed = parseSinkInConfig(data.content_json);
+    return {
+      config: parsed ?? defaultSinkInConfig(),
+      updatedAt: (data.updated_at as string | null) ?? null,
+    };
+  } catch {
+    // Never break /sinkin if Supabase is down, RLS changes, or stored JSON is invalid.
+    return fallback;
+  }
 }

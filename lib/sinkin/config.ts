@@ -11,7 +11,6 @@ export type SinkInStep = {
 /** What to show during a step (keep most off for a calmer screen). */
 export type SinkInUiV1 = {
   showProgramTitle: boolean;
-  showNotesKicker: boolean;
   showProgress: boolean;
   showSectionLabel: boolean;
   showRestHint: boolean;
@@ -40,7 +39,6 @@ const FOCUS_MAX = 90;
 /** Default: almost everything off so the session stays visually quiet. */
 export const defaultSinkInUi: SinkInUiV1 = {
   showProgramTitle: false,
-  showNotesKicker: false,
   showProgress: false,
   showSectionLabel: false,
   showRestHint: false,
@@ -106,7 +104,6 @@ function mergeUi(raw: unknown): SinkInUiV1 {
     typeof v === "boolean" ? v : def;
   return {
     showProgramTitle: b(o.showProgramTitle, d.showProgramTitle),
-    showNotesKicker: b(o.showNotesKicker, d.showNotesKicker),
     showProgress: b(o.showProgress, d.showProgress),
     showSectionLabel: b(o.showSectionLabel, d.showSectionLabel),
     showRestHint: b(o.showRestHint, d.showRestHint),

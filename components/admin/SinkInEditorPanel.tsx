@@ -167,11 +167,6 @@ export function SinkInEditorPanel({
               hint: "Upper line: “Sinking in + deepening…”.",
             },
             {
-              key: "showNotesKicker" as const,
-              title: "~ notes kicker",
-              hint: "Small caps line above the wordmark.",
-            },
-            {
               key: "showProgress" as const,
               title: "Step progress",
               hint: "e.g. “3 / 23 · when you hear the tone, read”.",
