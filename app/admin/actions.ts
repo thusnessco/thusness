@@ -19,6 +19,7 @@ import {
   buildSiteTemplateDoc,
   normalizeSiteTemplateFields,
 } from "@/lib/homepage/site-templates";
+import type { NoteCategory } from "@/lib/notes/category";
 import { createServerSupabase } from "@/lib/supabase/server";
 import type { NoteRow } from "@/lib/supabase/public-server";
 import { countTiptapImages } from "@/lib/tiptap/count-tiptap-images";
@@ -154,6 +155,7 @@ export async function saveNote(input: {
   published: boolean;
   show_background_circle: boolean;
   is_template: boolean;
+  category: NoteCategory | null;
 }) {
   const supabase = await createServerSupabase();
 
@@ -175,6 +177,7 @@ export async function saveNote(input: {
     published: input.published,
     show_background_circle: input.show_background_circle,
     is_template: input.is_template,
+    category: input.category,
   };
 
   if (input.published) {
@@ -186,6 +189,7 @@ export async function saveNote(input: {
     updated_at: string;
     show_background_circle?: boolean;
     is_template?: boolean;
+    category?: NoteCategory | null;
   };
   let data: NoteUpdateRow | null = null;
   let error: { message: string } | null = null;
@@ -207,6 +211,10 @@ export async function saveNote(input: {
     }
     if (noteUpdateMissingOptionalColumn(error, "is_template")) {
       delete attemptPatch.is_template;
+      continue;
+    }
+    if (noteUpdateMissingOptionalColumn(error, "category")) {
+      delete attemptPatch.category;
       continue;
     }
     break;
@@ -272,6 +280,7 @@ export async function saveNote(input: {
       (data as { show_background_circle?: boolean }).show_background_circle
     ),
     is_template: Boolean((data as { is_template?: boolean }).is_template),
+    category: (data as { category?: NoteCategory | null }).category ?? null,
   };
 }
 

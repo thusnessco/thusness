@@ -10,6 +10,12 @@ import {
   createNoteFromTemplate,
 } from "@/app/admin/actions";
 import type { HomepagePin } from "@/lib/homepage/homepage-pin";
+import {
+  NOTE_CATEGORIES,
+  NOTE_CATEGORY_SHORT,
+  parseNoteCategory,
+  type NoteCategory,
+} from "@/lib/notes/category";
 import type { NoteRow } from "@/lib/supabase/public-server";
 import type {
   FullDescriptionFields,
@@ -20,7 +26,12 @@ import {
   DEFAULT_SIMPLE_FIELDS,
 } from "@/lib/homepage/site-templates";
 
-import { adminBtnSmall, adminFieldLabel, adminNavBtn } from "./admin-ui";
+import {
+  adminBtnSmall,
+  adminFieldLabel,
+  adminNavBtn,
+  adminSegmentBtn,
+} from "./admin-ui";
 import { FullLayoutForm } from "./FullLayoutForm";
 import {
   isLiveAtRoot,
@@ -32,6 +43,8 @@ import { RootStatusStrip } from "./RootStatusStrip";
 import { SimpleLayoutForm } from "./SimpleLayoutForm";
 import { SwitchRootToNote } from "./SwitchRootToNote";
 import type { TiptapEditorFieldHandle } from "./TiptapEditorField";
+
+type AdminNoteListFilter = "all" | NoteCategory | "unsorted";
 
 type Props = {
   notes: NoteRow[];
@@ -73,11 +86,23 @@ export function AdminEditorHub({
   );
   const [full, setFull] = useState<FullDescriptionFields>(DEFAULT_FULL_FIELDS);
   const [templateSourceId, setTemplateSourceId] = useState("");
+  const [noteListFilter, setNoteListFilter] =
+    useState<AdminNoteListFilter>("all");
 
   const templateNotes = useMemo(
     () => notes.filter((n) => n.is_template === true),
     [notes]
   );
+
+  const notesForNav = useMemo(() => {
+    if (noteListFilter === "all") return notes;
+    if (noteListFilter === "unsorted") {
+      return notes.filter((n) => !parseNoteCategory(n.category));
+    }
+    return notes.filter(
+      (n) => parseNoteCategory(n.category) === noteListFilter
+    );
+  }, [notes, noteListFilter]);
 
   const pinSyncKey = useMemo(() => JSON.stringify(homepagePin), [homepagePin]);
 
@@ -222,24 +247,60 @@ export function AdminEditorHub({
               </button>
             </div>
           ) : null}
-          {notes.map((n) => (
-            <button
-              key={n.id}
-              type="button"
-              className={adminNavBtn(contentKey === `n:${n.id}`)}
-              onClick={() => setContentKey(`n:${n.id}`)}
-            >
-              <span className="block truncate">{n.title || "Untitled"}</span>
-              <span className="mt-0.5 flex flex-wrap gap-x-2 text-[10px] uppercase tracking-wider text-[var(--thusness-muted)]">
-                {!n.published ? <span>Draft</span> : null}
-                {n.published ? <span>/notes</span> : null}
-                {n.is_template ? <span>Template</span> : null}
-                {isLiveAtRoot(homepagePin, `n:${n.id}`, notes) ? (
-                  <span className="text-[var(--thusness-red,#c23a2a)]">/</span>
-                ) : null}
-              </span>
-            </button>
-          ))}
+          <div className="mb-2 space-y-1.5">
+            <span className={adminFieldLabel}>View</span>
+            <div className="flex flex-wrap gap-1">
+              <button
+                type="button"
+                disabled={isPending}
+                className={adminSegmentBtn(noteListFilter === "all")}
+                onClick={() => setNoteListFilter("all")}
+              >
+                All
+              </button>
+              {NOTE_CATEGORIES.map((c) => (
+                <button
+                  key={c}
+                  type="button"
+                  disabled={isPending}
+                  className={adminSegmentBtn(noteListFilter === c)}
+                  onClick={() => setNoteListFilter(c)}
+                >
+                  {NOTE_CATEGORY_SHORT[c]}
+                </button>
+              ))}
+              <button
+                type="button"
+                disabled={isPending}
+                className={adminSegmentBtn(noteListFilter === "unsorted")}
+                onClick={() => setNoteListFilter("unsorted")}
+              >
+                Unsorted
+              </button>
+            </div>
+          </div>
+          {notesForNav.map((n) => {
+            const cat = parseNoteCategory(n.category);
+            return (
+              <button
+                key={n.id}
+                type="button"
+                className={adminNavBtn(contentKey === `n:${n.id}`)}
+                onClick={() => setContentKey(`n:${n.id}`)}
+              >
+                <span className="block truncate">{n.title || "Untitled"}</span>
+                <span className="mt-0.5 flex flex-wrap gap-x-2 text-[10px] uppercase tracking-wider text-[var(--thusness-muted)]">
+                  {!n.published ? <span>Draft</span> : null}
+                  {n.published ? <span>/notes</span> : null}
+                  {cat ? <span>{NOTE_CATEGORY_SHORT[cat]}</span> : null}
+                  {n.is_template ? <span>Template</span> : null}
+                  {isLiveAtRoot(homepagePin, `n:${n.id}`, notes) ? (
+                    <span className="text-[var(--thusness-red,#c23a2a)]">/</span>
+                  ) : null}
+                </span>
+              </button>
+            );
+          })}
 
           <p className="mb-2 mt-8 text-[10px] uppercase tracking-[0.2em] text-[var(--thusness-muted)]">
             Built-in layouts

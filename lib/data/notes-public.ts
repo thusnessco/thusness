@@ -1,3 +1,4 @@
+import type { NoteCategory } from "@/lib/notes/category";
 import { createPublicSupabase, type NoteRow } from "@/lib/supabase/public-server";
 
 export type GetPublishedNoteOptions = {
@@ -24,15 +25,28 @@ export function normalizePublishedNoteSlugParam(slug: string): string {
   return s.normalize("NFC");
 }
 
-export async function getPublishedNotes(): Promise<NoteRow[]> {
+export type GetPublishedNotesOptions = {
+  /** When set, only notes in this category (still excludes templates). */
+  category?: NoteCategory;
+};
+
+export async function getPublishedNotes(
+  options?: GetPublishedNotesOptions
+): Promise<NoteRow[]> {
   const supabase = createPublicSupabase();
   if (!supabase) return [];
 
-  const { data, error } = await supabase
+  let q = supabase
     .from("notes")
     .select("*")
     .eq("published", true)
     .order("published_at", { ascending: false });
+
+  if (options?.category) {
+    q = q.eq("category", options.category);
+  }
+
+  const { data, error } = await q;
 
   if (error || !data) return [];
   return (data as NoteRow[]).filter((n) => n.is_template !== true);

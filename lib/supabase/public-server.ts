@@ -1,5 +1,8 @@
 import { createClient } from "@supabase/supabase-js";
 import type { JSONContent } from "@tiptap/core";
+
+import type { NoteCategory } from "@/lib/notes/category";
+
 import { getSupabasePublicConfig } from "./config";
 
 /** Anonymous Supabase client (respects RLS). Safe for public server reads. */
@@ -29,4 +32,6 @@ export type NoteRow = {
   show_background_circle?: boolean;
   /** Reusable layout: spawn drafts from Admin; hidden from public /notes index. */
   is_template?: boolean;
+  /** Optional archive grouping (see `lib/notes/category.ts`). */
+  category?: NoteCategory | null;
 };

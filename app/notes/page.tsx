@@ -7,6 +7,11 @@ import {
   formatPublishedDate,
   getPublishedNotes,
 } from "@/lib/data/notes-public";
+import {
+  NOTE_CATEGORIES,
+  NOTE_CATEGORY_LABELS,
+  parseNoteCategory,
+} from "@/lib/notes/category";
 
 export const metadata: Metadata = {
   title: "Notes",
@@ -16,8 +21,16 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-export default async function NotesIndexPage() {
-  const notes = await getPublishedNotes();
+type PageProps = { searchParams: Promise<{ category?: string }> };
+
+export default async function NotesIndexPage({ searchParams }: PageProps) {
+  const sp = await searchParams;
+  const categoryFilter = parseNoteCategory(
+    typeof sp.category === "string" ? sp.category : undefined
+  );
+  const notes = await getPublishedNotes(
+    categoryFilter ? { category: categoryFilter } : undefined
+  );
 
   return (
     <main className="min-h-screen bg-[var(--thusness-bg)] font-sans text-[var(--thusness-ink)]">
@@ -30,13 +43,45 @@ export default async function NotesIndexPage() {
           <p className="text-[11px] uppercase tracking-[2.4px] text-[var(--thusness-muted)]">
             ~ published
           </p>
+          <nav
+            aria-label="Filter by category"
+            className="mt-6 flex flex-wrap gap-x-5 gap-y-2 border-b border-[var(--thusness-rule)] pb-5 text-[11px] uppercase tracking-[2px]"
+          >
+            <Link
+              href="/notes"
+              className={
+                !categoryFilter
+                  ? "text-[var(--thusness-ink)]"
+                  : "text-[var(--thusness-muted)] transition-opacity hover:opacity-70"
+              }
+            >
+              All
+            </Link>
+            {NOTE_CATEGORIES.map((c) => (
+              <Link
+                key={c}
+                href={`/notes?category=${c}`}
+                className={
+                  categoryFilter === c
+                    ? "text-[var(--thusness-ink)]"
+                    : "text-[var(--thusness-muted)] transition-opacity hover:opacity-70"
+                }
+              >
+                {NOTE_CATEGORY_LABELS[c]}
+              </Link>
+            ))}
+          </nav>
           {notes.length === 0 ? (
             <p className="mt-6 text-base italic text-[var(--thusness-muted)]">
-              No published notes yet. Draft and publish them in Admin.
+              {categoryFilter
+                ? "No published notes in this category."
+                : "No published notes yet. Draft and publish them in Admin."}
             </p>
           ) : (
             <ol className="m-0 mt-8 max-w-[620px] list-none p-0">
-              {notes.map((n) => (
+              {notes.map((n) => {
+                const cat = parseNoteCategory(n.category);
+                return (
                 <li
                   key={n.id}
                   className="border-t border-[var(--thusness-rule)] py-6 last:border-b last:border-[var(--thusness-rule)]"
@@ -45,8 +90,13 @@ export default async function NotesIndexPage() {
                     href={`/notes/${n.slug}`}
                     className="block text-[var(--thusness-ink)] transition-opacity hover:opacity-70 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-[var(--thusness-ink)]"
                   >
-                    <span className="block text-[11px] uppercase tracking-[2px] text-[var(--thusness-muted)]">
-                      {formatPublishedDate(n.published_at)}
+                    <span className="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-[11px] uppercase tracking-[2px] text-[var(--thusness-muted)]">
+                      <span>{formatPublishedDate(n.published_at)}</span>
+                      {cat ? (
+                        <span className="normal-case tracking-normal text-[var(--thusness-ink-soft)]">
+                          · {NOTE_CATEGORY_LABELS[cat]}
+                        </span>
+                      ) : null}
                     </span>
                     <span className="mt-2 block text-[22px] font-medium leading-tight text-[var(--thusness-ink)]">
                       {n.title || "Untitled"}
@@ -58,7 +108,8 @@ export default async function NotesIndexPage() {
                     ) : null}
                   </Link>
                 </li>
-              ))}
+              );
+              })}
             </ol>
           )}
         </section>

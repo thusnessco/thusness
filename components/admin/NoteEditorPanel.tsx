@@ -11,6 +11,12 @@ import {
   setHomepagePinToNoteSlug,
 } from "@/app/admin/actions";
 import type { HomepagePin } from "@/lib/homepage/homepage-pin";
+import {
+  NOTE_CATEGORIES,
+  NOTE_CATEGORY_LABELS,
+  parseNoteCategory,
+  type NoteCategory,
+} from "@/lib/notes/category";
 import type { NoteRow } from "@/lib/supabase/public-server";
 
 import {
@@ -60,6 +66,9 @@ export function NoteEditorPanel({
     () => note.show_background_circle ?? false
   );
   const [isTemplate, setIsTemplate] = useState(() => note.is_template ?? false);
+  const [category, setCategory] = useState<"" | NoteCategory>(
+    () => parseNoteCategory(note.category) ?? ""
+  );
 
   useEffect(() => {
     setPublished(note.published);
@@ -72,6 +81,10 @@ export function NoteEditorPanel({
   useEffect(() => {
     setIsTemplate(note.is_template ?? false);
   }, [note.id, note.updated_at, note.is_template]);
+
+  useEffect(() => {
+    setCategory(parseNoteCategory(note.category) ?? "");
+  }, [note.id, note.updated_at, note.category]);
 
   const slugDirty = slug.trim() !== note.slug;
   const liveOnRoot = noteDrivesRoot(homepagePin, note);
@@ -227,6 +240,33 @@ export function NoteEditorPanel({
         />
       </label>
 
+      <label className="block max-w-md space-y-1.5">
+        <span className={adminFieldLabel}>Category</span>
+        <select
+          value={category}
+          disabled={isPending}
+          onChange={(e) =>
+            setCategory(
+              (e.target.value as NoteCategory | "") === ""
+                ? ""
+                : (e.target.value as NoteCategory)
+            )
+          }
+          className={adminFieldInput}
+        >
+          <option value="">Unsorted</option>
+          {NOTE_CATEGORIES.map((c) => (
+            <option key={c} value={c}>
+              {NOTE_CATEGORY_LABELS[c]}
+            </option>
+          ))}
+        </select>
+        <span className={`block ${checkHint}`}>
+          Filters the note list in Admin and optional views on{" "}
+          <span className="italic">/notes</span>. Save to apply.
+        </span>
+      </label>
+
       <TiptapEditorField
         ref={noteBodyRef}
         label="Body"
@@ -264,6 +304,7 @@ export function NoteEditorPanel({
                   published,
                   show_background_circle: showBackgroundCircle,
                   is_template: isTemplate,
+                  category: parseNoteCategory(category || null),
                 });
                 if (!res.ok) onMessage(res.message);
                 else {
