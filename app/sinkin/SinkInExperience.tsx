@@ -35,7 +35,6 @@ export function SinkInExperience({ config }: { config: SinkInConfigV1 }) {
 
   const [running, setRunning] = useState(false);
   const [stepIndex, setStepIndex] = useState(-1);
-  const [sessionTick, setSessionTick] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [heroLeaving, setHeroLeaving] = useState(false);
 
@@ -138,21 +137,6 @@ export function SinkInExperience({ config }: { config: SinkInConfigV1 }) {
     advanceAtRef.current = now + holdForStep(stepIndex) * 1000;
   }, [running, stepIndex, holdForStep]);
 
-  /** Opening chime after Begin: deferred so layout/refs settle; Begin still sync-resumes audio. */
-  useEffect(() => {
-    if (!running || stepIndex !== 0) return;
-    let cancelled = false;
-    const t = window.setTimeout(() => {
-      if (cancelled || !mountedRef.current) return;
-      const ctx = audioCtxRef.current ?? ensureAudio();
-      if (ctx) void playSoftChime(ctx);
-    }, 0);
-    return () => {
-      cancelled = true;
-      clearTimeout(t);
-    };
-  }, [running, stepIndex, sessionTick, ensureAudio]);
-
   /** Soft pulses on long steps (not on last passage). */
   useEffect(() => {
     if (!running || stepIndex < 0 || isPaused) {
@@ -226,8 +210,10 @@ export function SinkInExperience({ config }: { config: SinkInConfigV1 }) {
 
   const handleBegin = () => {
     const ctx = ensureAudio();
-    if (ctx?.state === "suspended") void ctx.resume();
-    setSessionTick((n) => n + 1);
+    if (ctx) {
+      void ctx.resume();
+      void playSoftChime(ctx);
+    }
     setIsPaused(false);
     setHeroLeaving(false);
     setStepIndex(0);
