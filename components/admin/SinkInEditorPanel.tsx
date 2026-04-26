@@ -173,6 +173,33 @@ export function SinkInEditorPanel({
             Fade out / fade in when the tone moves to the next passage (200–5000).
           </span>
         </label>
+        <label className="block space-y-1.5 sm:col-span-2">
+          <span className={adminFieldLabel}>
+            Mid-step reminder (seconds, 0 = off)
+          </span>
+          <input
+            type="number"
+            min={0}
+            max={600}
+            step={30}
+            disabled={isPending}
+            value={config.midToneIntervalSec}
+            onChange={(e) => {
+              const v = Number(e.target.value);
+              const n = Number.isFinite(v) ? Math.round(v) : 0;
+              setConfig((c) => ({
+                ...c,
+                midToneIntervalSec:
+                  n <= 0 ? 0 : Math.min(600, Math.max(60, n)),
+              }));
+            }}
+            className={adminFieldInput}
+          />
+          <span className="text-[10px] leading-snug text-[var(--thusness-muted)]">
+            On long steps (not the last passage), a short soft tone repeats at this
+            interval (60–600s). Set to 0 to disable. Saves clamped the same way.
+          </span>
+        </label>
       </div>
 
       <fieldset className="space-y-3 border border-[var(--thusness-rule)] px-4 py-4">

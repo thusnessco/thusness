@@ -58,3 +58,46 @@ export async function playSoftChime(ctx: AudioContext): Promise<void> {
   oscLow.stop(stopAt);
   oscHigh.stop(stopAt);
 }
+
+/** Short gentle pulse during long holds (same C partials, ~0.35s). */
+export async function playSinkInPulse(ctx: AudioContext): Promise<void> {
+  try {
+    if (ctx.state !== "running") {
+      await ctx.resume();
+    }
+  } catch {
+    return;
+  }
+  if (ctx.state !== "running") return;
+
+  const t0 = ctx.currentTime;
+  const dur = 0.35;
+  const peak = 0.09;
+
+  const master = ctx.createGain();
+  master.gain.setValueAtTime(0.0001, t0);
+  master.gain.linearRampToValueAtTime(peak, t0 + 0.04);
+  master.gain.linearRampToValueAtTime(0.0001, t0 + dur);
+  master.connect(ctx.destination);
+
+  const oscLow = ctx.createOscillator();
+  oscLow.type = "sine";
+  oscLow.frequency.setValueAtTime(C2_HZ, t0);
+  const oscHigh = ctx.createOscillator();
+  oscHigh.type = "sine";
+  oscHigh.frequency.setValueAtTime(C3_HZ, t0);
+  const gLow = ctx.createGain();
+  gLow.gain.value = 0.55;
+  const gHigh = ctx.createGain();
+  gHigh.gain.value = 0.45;
+  oscLow.connect(gLow);
+  gLow.connect(master);
+  oscHigh.connect(gHigh);
+  gHigh.connect(master);
+
+  const stopAt = t0 + dur + 0.05;
+  oscLow.start(t0);
+  oscHigh.start(t0);
+  oscLow.stop(stopAt);
+  oscHigh.stop(stopAt);
+}

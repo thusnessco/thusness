@@ -5,7 +5,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react
 import Wordmark from "@/components/thusness/Wordmark";
 import RedDot from "@/components/thusness/RedDot";
 import { defaultSinkInUi, type SinkInConfigV1 } from "@/lib/sinkin/config";
-import { playSoftChime } from "@/lib/sinkin/soft-chime";
+import { playSinkInPulse, playSoftChime } from "@/lib/sinkin/soft-chime";
 
 const helv = 'Helvetica, "Helvetica Neue", Arial, sans-serif';
 
@@ -28,19 +28,24 @@ function SinkinResumeIcon() {
 
 export function SinkInExperience({ config }: { config: SinkInConfigV1 }) {
   const steps = config.steps;
+  const stepsLen = steps.length;
   const ui = { ...defaultSinkInUi, ...config.ui };
   const crossfadeMs = config.crossfadeMs;
+  const midToneIntervalSec = config.midToneIntervalSec;
 
   const [running, setRunning] = useState(false);
   const [stepIndex, setStepIndex] = useState(-1);
+  const [sessionTick, setSessionTick] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [heroLeaving, setHeroLeaving] = useState(false);
 
   const audioCtxRef = useRef<AudioContext | null>(null);
   const advanceAtRef = useRef(0);
+  const stepStartedAtRef = useRef(0);
   const frozenAdvanceRemRef = useRef(0);
   const advanceTimerRef = useRef<number | null>(null);
   const leaveTimerRef = useRef<number | null>(null);
+  const midPingTimerRef = useRef<number | null>(null);
   const mountedRef = useRef(true);
   const stepIndexRef = useRef(-1);
   const isPausedRef = useRef(false);
@@ -95,13 +100,13 @@ export function SinkInExperience({ config }: { config: SinkInConfigV1 }) {
       leaveTimerRef.current = null;
     }
     if (!running || stepIndex < 0 || isPaused) return;
-    if (stepIndex >= steps.length - 1) return;
+    if (stepIndex >= stepsLen - 1) return;
     const rem = Math.max(0, advanceAtRef.current - Date.now());
     advanceTimerRef.current = window.setTimeout(() => {
       advanceTimerRef.current = null;
       void (async () => {
         const idx = stepIndexRef.current;
-        if (idx < 0 || idx >= steps.length - 1) return;
+        if (idx < 0 || idx >= stepsLen - 1) return;
         const ctx = ensureAudio();
         if (ctx) await playSoftChime(ctx);
         if (!mountedRef.current) return;
@@ -117,13 +122,93 @@ export function SinkInExperience({ config }: { config: SinkInConfigV1 }) {
         }, crossfadeMs);
       })();
     }, rem);
-  }, [running, stepIndex, isPaused, steps.length, ensureAudio, crossfadeMs]);
+  }, [running, stepIndex, isPaused, stepsLen, ensureAudio, crossfadeMs]);
+
+  const clearMidPing = useCallback(() => {
+    if (midPingTimerRef.current != null) {
+      clearTimeout(midPingTimerRef.current);
+      midPingTimerRef.current = null;
+    }
+  }, []);
 
   useLayoutEffect(() => {
     if (!running || stepIndex < 0) return;
     const now = Date.now();
+    stepStartedAtRef.current = now;
     advanceAtRef.current = now + holdForStep(stepIndex) * 1000;
   }, [running, stepIndex, holdForStep]);
+
+  /** Opening chime after Begin: deferred so layout/refs settle; Begin still sync-resumes audio. */
+  useEffect(() => {
+    if (!running || stepIndex !== 0) return;
+    let cancelled = false;
+    const t = window.setTimeout(() => {
+      if (cancelled || !mountedRef.current) return;
+      const ctx = audioCtxRef.current ?? ensureAudio();
+      if (ctx) void playSoftChime(ctx);
+    }, 0);
+    return () => {
+      cancelled = true;
+      clearTimeout(t);
+    };
+  }, [running, stepIndex, sessionTick, ensureAudio]);
+
+  /** Soft pulses on long steps (not on last passage). */
+  useEffect(() => {
+    if (!running || stepIndex < 0 || isPaused) {
+      clearMidPing();
+      return;
+    }
+    if (stepIndex >= stepsLen - 1) {
+      clearMidPing();
+      return;
+    }
+    const mid = midToneIntervalSec;
+    if (!mid || mid <= 0) {
+      clearMidPing();
+      return;
+    }
+    const bufferMs = 2500;
+    const intervalMs = mid * 1000;
+    const deadline = advanceAtRef.current;
+    const now = Date.now();
+    if (deadline - bufferMs - now < intervalMs) {
+      clearMidPing();
+      return;
+    }
+
+    const tick = async () => {
+      midPingTimerRef.current = null;
+      if (!mountedRef.current || isPausedRef.current) return;
+      const idx = stepIndexRef.current;
+      if (idx < 0 || idx >= stepsLen - 1) return;
+      if (Date.now() >= advanceAtRef.current - bufferMs) return;
+      const ctx = ensureAudio();
+      if (ctx) await playSinkInPulse(ctx);
+      const nextDelay = intervalMs;
+      if (Date.now() + nextDelay >= advanceAtRef.current - bufferMs) return;
+      midPingTimerRef.current = window.setTimeout(() => {
+        void tick();
+      }, nextDelay);
+    };
+
+    const firstDelay = Math.max(
+      0,
+      Math.min(intervalMs, stepStartedAtRef.current + intervalMs - Date.now())
+    );
+    midPingTimerRef.current = window.setTimeout(() => {
+      void tick();
+    }, firstDelay);
+    return () => clearMidPing();
+  }, [
+    running,
+    stepIndex,
+    isPaused,
+    midToneIntervalSec,
+    stepsLen,
+    clearMidPing,
+    ensureAudio,
+  ]);
 
   useEffect(() => {
     scheduleAdvance();
@@ -141,7 +226,8 @@ export function SinkInExperience({ config }: { config: SinkInConfigV1 }) {
 
   const handleBegin = () => {
     const ctx = ensureAudio();
-    if (ctx) void playSoftChime(ctx);
+    if (ctx?.state === "suspended") void ctx.resume();
+    setSessionTick((n) => n + 1);
     setIsPaused(false);
     setHeroLeaving(false);
     setStepIndex(0);
@@ -157,6 +243,7 @@ export function SinkInExperience({ config }: { config: SinkInConfigV1 }) {
       clearTimeout(leaveTimerRef.current);
       leaveTimerRef.current = null;
     }
+    clearMidPing();
     setRunning(false);
     setStepIndex(-1);
     setIsPaused(false);
@@ -178,7 +265,7 @@ export function SinkInExperience({ config }: { config: SinkInConfigV1 }) {
   }, []);
 
   const current = stepIndex >= 0 ? steps[stepIndex] : null;
-  const isLastStep = stepIndex === steps.length - 1;
+  const isLastStep = stepIndex === stepsLen - 1;
   const showFooter = !running || ui.showFooter;
 
   const heroClass = ["sinkin-hero", heroLeaving ? "sinkin-hero--leave" : ""]
@@ -231,17 +318,6 @@ export function SinkInExperience({ config }: { config: SinkInConfigV1 }) {
               }}
             >
               {config.introBlurb}
-            </p>
-            <p
-              style={{
-                margin: "0 0 24px",
-                fontSize: 12,
-                color: "var(--thusness-muted, #8a8672)",
-                lineHeight: 1.55,
-              }}
-            >
-              Each step has its own time until the next tone. Copy and dissolve
-              timing are set in Admin → Sink in.
             </p>
           </div>
         ) : null}
@@ -302,7 +378,7 @@ export function SinkInExperience({ config }: { config: SinkInConfigV1 }) {
             <button
               type="button"
               className="sinkin-dock-btn sinkin-dock-btn--primary"
-              disabled={steps.length === 0}
+              disabled={stepsLen === 0}
               onClick={handleBegin}
             >
               Begin

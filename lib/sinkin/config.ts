@@ -32,6 +32,11 @@ export type SinkInConfigV1 = {
   focusPhaseEnabled: boolean;
   /** Dissolve out / in between steps (ms), e.g. 600–2000. */
   crossfadeMs: number;
+  /**
+   * During a long step, soft pulse every this many seconds (0 = off).
+   * Ignored if step hold is not longer than this interval + a short buffer.
+   */
+  midToneIntervalSec: number;
   ui: SinkInUiV1;
   steps: SinkInStep[];
 };
@@ -56,6 +61,8 @@ const FOCUS_MIN = 3;
 const FOCUS_MAX = 90;
 const CROSSFADE_MIN = 200;
 const CROSSFADE_MAX = 5000;
+const MID_TONE_MIN = 60;
+const MID_TONE_MAX = 600;
 
 /** Default: almost everything off so the session stays visually quiet. */
 export const defaultSinkInUi: SinkInUiV1 = {
@@ -102,6 +109,7 @@ export function defaultSinkInConfig(): SinkInConfigV1 {
     focusAfterSec: 12,
     focusPhaseEnabled: false,
     crossfadeMs: 900,
+    midToneIntervalSec: 120,
     ui: { ...defaultSinkInUi },
     steps: SINK_IN_STEPS.map((s, i) => ({
       ...s,
@@ -124,6 +132,12 @@ function clampFocus(n: number): number {
 function clampCrossfadeMs(n: number): number {
   if (!Number.isFinite(n)) return 900;
   return Math.min(CROSSFADE_MAX, Math.max(CROSSFADE_MIN, Math.round(n)));
+}
+
+/** 0 = off; otherwise seconds between mid-step pulses (60–600). */
+function clampMidToneIntervalSec(n: number): number {
+  if (!Number.isFinite(n) || n <= 0) return 0;
+  return Math.min(MID_TONE_MAX, Math.max(MID_TONE_MIN, Math.round(n)));
 }
 
 function parseProgramTitle(raw: unknown): string {
@@ -209,6 +223,9 @@ export function parseSinkInConfig(raw: unknown): SinkInConfigV1 | null {
   const crossfadeMs = clampCrossfadeMs(
     typeof o.crossfadeMs === "number" ? o.crossfadeMs : 900
   );
+  const midToneIntervalSec = clampMidToneIntervalSec(
+    typeof o.midToneIntervalSec === "number" ? o.midToneIntervalSec : 120
+  );
   return {
     v: 1,
     programTitle: parseProgramTitle(o.programTitle),
@@ -219,6 +236,7 @@ export function parseSinkInConfig(raw: unknown): SinkInConfigV1 | null {
     focusAfterSec,
     focusPhaseEnabled,
     crossfadeMs,
+    midToneIntervalSec,
     ui: mergeUi(o.ui),
     steps,
   };
@@ -255,6 +273,11 @@ export function normalizeSinkInConfig(input: SinkInConfigV1): SinkInConfigV1 {
     focusPhaseEnabled: Boolean(input.focusPhaseEnabled),
     crossfadeMs: clampCrossfadeMs(
       typeof input.crossfadeMs === "number" ? input.crossfadeMs : 900
+    ),
+    midToneIntervalSec: clampMidToneIntervalSec(
+      typeof input.midToneIntervalSec === "number"
+        ? input.midToneIntervalSec
+        : 120
     ),
     ui: mergeUi(input.ui),
     steps: safe,
