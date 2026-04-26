@@ -5,6 +5,11 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react
 import Wordmark from "@/components/thusness/Wordmark";
 import RedDot from "@/components/thusness/RedDot";
 import { defaultSinkInUi, type SinkInConfigV1 } from "@/lib/sinkin/config";
+import {
+  playSinkInMainChimeFromGesture,
+  playSinkInMainChimeHtml,
+  playSinkInPulseHtml,
+} from "@/lib/sinkin/sinkin-chime-html";
 import { playSinkInPulse, playSoftChime } from "@/lib/sinkin/soft-chime";
 
 const helv = 'Helvetica, "Helvetica Neue", Arial, sans-serif';
@@ -74,8 +79,15 @@ export function SinkInExperience({ config }: { config: SinkInConfigV1 }) {
       (window as unknown as { webkitAudioContext?: typeof AudioContext })
         .webkitAudioContext;
     if (!Ctx) return null;
+    if (audioCtxRef.current?.state === "closed") {
+      audioCtxRef.current = null;
+    }
     if (!audioCtxRef.current) {
-      audioCtxRef.current = new Ctx();
+      try {
+        audioCtxRef.current = new Ctx({ latencyHint: "interactive" });
+      } catch {
+        audioCtxRef.current = new Ctx();
+      }
     }
     return audioCtxRef.current;
   }, []);
@@ -107,7 +119,11 @@ export function SinkInExperience({ config }: { config: SinkInConfigV1 }) {
         const idx = stepIndexRef.current;
         if (idx < 0 || idx >= stepsLen - 1) return;
         const ctx = ensureAudio();
-        if (ctx) await playSoftChime(ctx);
+        try {
+          await playSinkInMainChimeHtml();
+        } catch {
+          if (ctx) await playSoftChime(ctx);
+        }
         if (!mountedRef.current) return;
         setHeroLeaving(true);
         leaveTimerRef.current = window.setTimeout(() => {
@@ -168,7 +184,11 @@ export function SinkInExperience({ config }: { config: SinkInConfigV1 }) {
       if (idx < 0 || idx >= stepsLen - 1) return;
       if (Date.now() >= advanceAtRef.current - bufferMs) return;
       const ctx = ensureAudio();
-      if (ctx) await playSinkInPulse(ctx);
+      try {
+        await playSinkInPulseHtml();
+      } catch {
+        if (ctx) await playSinkInPulse(ctx);
+      }
       const nextDelay = intervalMs;
       if (Date.now() + nextDelay >= advanceAtRef.current - bufferMs) return;
       midPingTimerRef.current = window.setTimeout(() => {
@@ -209,11 +229,7 @@ export function SinkInExperience({ config }: { config: SinkInConfigV1 }) {
   }, [scheduleAdvance]);
 
   const handleBegin = () => {
-    const ctx = ensureAudio();
-    if (ctx) {
-      void ctx.resume();
-      void playSoftChime(ctx);
-    }
+    playSinkInMainChimeFromGesture();
     setIsPaused(false);
     setHeroLeaving(false);
     setStepIndex(0);
@@ -326,9 +342,12 @@ export function SinkInExperience({ config }: { config: SinkInConfigV1 }) {
               {current.body}
             </p>
             {isLastStep ? (
-              <p key={`c-${stepIndex}`} className="sinkin-hero-closing">
-                This was the last passage. Stay as long as you like. Thank you for
-                sitting with this.
+              <p
+                key={`c-${stepIndex}`}
+                className="sinkin-hero-closing"
+                style={{ whiteSpace: "pre-line" }}
+              >
+                {config.closingMessage}
               </p>
             ) : null}
           </div>

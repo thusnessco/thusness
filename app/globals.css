@@ -637,6 +637,10 @@ body.thusness ::selection {
   opacity: 0;
   filter: blur(12px);
   transform: translateY(10px);
+  transition:
+    opacity var(--sinkin-crossfade-ms, 900ms) linear,
+    filter calc(var(--sinkin-crossfade-ms, 900ms) * 0.85) linear,
+    transform var(--sinkin-crossfade-ms, 900ms) linear;
 }
 
 .sinkin-dock {

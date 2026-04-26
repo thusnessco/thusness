@@ -25,6 +25,8 @@ export type SinkInConfigV1 = {
   programTitle: string;
   /** Intro copy above “Begin” on /sinkin (editable). */
   introBlurb: string;
+  /** Copy below the last step’s body after the final tone (editable). */
+  closingMessage: string;
   /** Default seconds for new steps & fallback when a step omits holdSec. */
   intervalSec: number;
   /** Legacy fields; ignored by simplified /sinkin UI. */
@@ -54,6 +56,12 @@ export const DEFAULT_INTRO_BLURB =
   "Close your eyes between each part. A soft tone marks when to open your eyes and read the next passage. After a short while the words fade to a single anchor you can rest with.";
 
 export const SINKIN_INTRO_BLURB_MAX = 2000;
+
+/** Shown under the final step’s passage on /sinkin (plain text; line breaks allowed). */
+export const DEFAULT_CLOSING_MESSAGE =
+  "This was the last passage. Stay as long as you like. Thank you for sitting with this.";
+
+export const SINKIN_CLOSING_MESSAGE_MAX = 1200;
 
 const INTERVAL_MIN = 30;
 const INTERVAL_MAX = 720;
@@ -105,6 +113,7 @@ export function defaultSinkInConfig(): SinkInConfigV1 {
     v: 1,
     programTitle: DEFAULT_PROGRAM_TITLE,
     introBlurb: DEFAULT_INTRO_BLURB,
+    closingMessage: DEFAULT_CLOSING_MESSAGE,
     intervalSec: 60,
     focusAfterSec: 12,
     focusPhaseEnabled: false,
@@ -152,6 +161,13 @@ function parseIntroBlurb(raw: unknown): string {
     return raw.trim().slice(0, SINKIN_INTRO_BLURB_MAX);
   }
   return DEFAULT_INTRO_BLURB;
+}
+
+function parseClosingMessage(raw: unknown): string {
+  if (typeof raw === "string" && raw.trim()) {
+    return raw.trim().slice(0, SINKIN_CLOSING_MESSAGE_MAX);
+  }
+  return DEFAULT_CLOSING_MESSAGE;
 }
 
 function mergeUi(raw: unknown): SinkInUiV1 {
@@ -230,6 +246,7 @@ export function parseSinkInConfig(raw: unknown): SinkInConfigV1 | null {
     v: 1,
     programTitle: parseProgramTitle(o.programTitle),
     introBlurb: parseIntroBlurb(o.introBlurb),
+    closingMessage: parseClosingMessage(o.closingMessage),
     intervalSec: clampInterval(
       typeof o.intervalSec === "number" ? o.intervalSec : 60
     ),
@@ -264,10 +281,15 @@ export function normalizeSinkInConfig(input: SinkInConfigV1): SinkInConfigV1 {
     typeof input.introBlurb === "string"
       ? input.introBlurb.trim().slice(0, SINKIN_INTRO_BLURB_MAX)
       : "";
+  const closing =
+    typeof input.closingMessage === "string"
+      ? input.closingMessage.trim().slice(0, SINKIN_CLOSING_MESSAGE_MAX)
+      : "";
   return {
     v: 1,
     programTitle: title || DEFAULT_PROGRAM_TITLE,
     introBlurb: intro || DEFAULT_INTRO_BLURB,
+    closingMessage: closing || DEFAULT_CLOSING_MESSAGE,
     intervalSec: clampInterval(input.intervalSec),
     focusAfterSec: clampFocus(input.focusAfterSec),
     focusPhaseEnabled: Boolean(input.focusPhaseEnabled),

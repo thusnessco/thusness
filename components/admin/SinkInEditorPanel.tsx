@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { saveSinkInConfig } from "@/app/admin/actions";
 import {
   defaultSinkInConfig,
+  SINKIN_CLOSING_MESSAGE_MAX,
   SINKIN_INTRO_BLURB_MAX,
   SINKIN_PROGRAM_TITLE_MAX,
   type SinkInConfigV1,
@@ -126,6 +127,27 @@ export function SinkInEditorPanel({
         />
         <span className="text-[10px] leading-snug text-[var(--thusness-muted)]">
           Plain text on /sinkin before Begin. Line breaks are kept.
+        </span>
+      </label>
+
+      <label className="block max-w-2xl space-y-1.5">
+        <span className={adminFieldLabel}>Closing (after last passage)</span>
+        <textarea
+          rows={4}
+          disabled={isPending}
+          value={config.closingMessage}
+          maxLength={SINKIN_CLOSING_MESSAGE_MAX}
+          onChange={(e) =>
+            setConfig((c) => ({
+              ...c,
+              closingMessage: e.target.value.slice(0, SINKIN_CLOSING_MESSAGE_MAX),
+            }))
+          }
+          className={`${adminFieldInput} resize-y min-h-[100px]`}
+        />
+        <span className="text-[10px] leading-snug text-[var(--thusness-muted)]">
+          Shown below the final step’s text on /sinkin after the last tone. Line
+          breaks are kept.
         </span>
       </label>
 

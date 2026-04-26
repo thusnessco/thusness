@@ -3,35 +3,19 @@
 const C2_HZ = 65.40639132514965;
 const C3_HZ = 130.8127826502993;
 
-const TOTAL_SEC = 5;
-const ATTACK_SEC = 1.25;
-const RELEASE_SEC = 1.75;
-/** Peak master gain (quiet; sustained tone). */
-const PEAK_GAIN = 0.18;
+const TOTAL_SEC = 5.8;
+/** Peak after short rise; envelope then decays exponentially (no long plateau). */
+const PEAK_GAIN = 0.16;
+const RISE_SEC = 0.08;
 
-/**
- * Plays the sink-in tone. Must be called after `AudioContext` is running —
- * awaits `resume()` when still suspended (needed for tones fired from timers).
- */
-export async function playSoftChime(ctx: AudioContext): Promise<void> {
-  try {
-    if (ctx.state !== "running") {
-      await ctx.resume();
-    }
-  } catch {
-    return;
-  }
-  if (ctx.state !== "running") return;
-
-  const t0 = ctx.currentTime;
+function scheduleSoftChimeGraph(ctx: AudioContext): void {
+  const t0 = ctx.currentTime + 0.002;
   const tEnd = t0 + TOTAL_SEC;
-  const tReleaseStart = tEnd - RELEASE_SEC;
 
   const master = ctx.createGain();
-  master.gain.setValueAtTime(0, t0);
-  master.gain.linearRampToValueAtTime(PEAK_GAIN, t0 + ATTACK_SEC);
-  master.gain.setValueAtTime(PEAK_GAIN, tReleaseStart);
-  master.gain.linearRampToValueAtTime(0.0001, tEnd);
+  master.gain.setValueAtTime(0.0001, t0);
+  master.gain.linearRampToValueAtTime(PEAK_GAIN, t0 + RISE_SEC);
+  master.gain.exponentialRampToValueAtTime(0.0001, tEnd);
   master.connect(ctx.destination);
 
   const oscLow = ctx.createOscillator();
@@ -59,6 +43,22 @@ export async function playSoftChime(ctx: AudioContext): Promise<void> {
   oscHigh.stop(stopAt);
 }
 
+/**
+ * Plays the sink-in tone. Awaits `resume()` when still suspended (timers / step
+ * advance). The app uses HTMLAudio first; this is the Web Audio fallback.
+ */
+export async function playSoftChime(ctx: AudioContext): Promise<void> {
+  try {
+    if (ctx.state !== "running") {
+      await ctx.resume();
+    }
+  } catch {
+    return;
+  }
+  if (ctx.state !== "running") return;
+  scheduleSoftChimeGraph(ctx);
+}
+
 /** Short gentle pulse during long holds (same C partials, ~0.35s). */
 export async function playSinkInPulse(ctx: AudioContext): Promise<void> {
   try {
@@ -70,7 +70,7 @@ export async function playSinkInPulse(ctx: AudioContext): Promise<void> {
   }
   if (ctx.state !== "running") return;
 
-  const t0 = ctx.currentTime;
+  const t0 = ctx.currentTime + 0.002;
   const dur = 0.35;
   const peak = 0.09;
 
