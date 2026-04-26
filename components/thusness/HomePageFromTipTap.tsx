@@ -32,11 +32,14 @@ export function HomePageFromTipTap({
           <Wordmark size={20} />
         </header>
 
-        <div style={{ position: "relative", margin: "0 auto", maxWidth: 620 }}>
-          <TiptapHtml
-            html={html}
-            className="tiptap-html relative z-[0] mx-auto max-w-[620px] text-[17px] leading-[1.7] text-[var(--thusness-ink-soft)]"
-          />
+        <div
+          style={{
+            position: "relative",
+            margin: "0 auto",
+            maxWidth: 620,
+            isolation: "isolate",
+          }}
+        >
           {showBackgroundCircle ? (
             <div
               aria-hidden
@@ -50,13 +53,17 @@ export function HomePageFromTipTap({
                 maxWidth: "100%",
                 borderRadius: "50%",
                 boxSizing: "border-box",
-                border: "1px solid rgba(74, 68, 52, 0.22)",
+                border: "1px solid rgba(74, 68, 52, 0.35)",
                 background: "transparent",
                 pointerEvents: "none",
-                zIndex: 2,
+                zIndex: 0,
               }}
             />
           ) : null}
+          <TiptapHtml
+            html={html}
+            className="tiptap-html relative z-[1] mx-auto max-w-[620px] text-[17px] leading-[1.7] text-[var(--thusness-ink-soft)]"
+          />
         </div>
 
         <footer

@@ -92,6 +92,23 @@ export function NoteEditorPanel({
 
   return (
     <>
+      {liveOnRoot ? (
+        <div
+          className="border border-[var(--thusness-red,#c23a2a)] bg-[var(--thusness-bg)] px-4 py-3 text-sm text-[var(--thusness-ink)]"
+          role="status"
+        >
+          <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-[var(--thusness-red,#c23a2a)]">
+            Live homepage
+          </p>
+          <p className="mt-1 leading-relaxed">
+            This note is what visitors see at{" "}
+            <span className="font-medium">/</span>. Uncheck{" "}
+            <span className="italic">Same note at /</span> below to return the root
+            to the default Simple layout.
+          </p>
+        </div>
+      ) : null}
+
       <fieldset className="space-y-4 border border-[var(--thusness-rule)] px-4 py-4">
         <legend className={`px-1 ${adminFieldLabel}`}>Visibility</legend>
 
@@ -130,7 +147,7 @@ export function NoteEditorPanel({
               const on = e.target.checked;
               if (on) {
                 startTransition(async () => {
-                  const res = await setHomepagePinToNoteSlug(note.slug);
+                  const res = await setHomepagePinToNoteSlug(slug.trim());
                   if (!res.ok) onMessage(res.message);
                   else {
                     onMessage("This note is now live at /.");
@@ -151,11 +168,12 @@ export function NoteEditorPanel({
           />
           <span>
             <span className="font-medium text-[var(--thusness-ink)]">
-              Same note at /
+              Same note at / (homepage)
             </span>
             <span className={`mt-1 block ${checkHint}`}>
-              Same body as here — only the URL changes. Requires published + saved
-              slug.
+              When on, <span className="italic">/</span> shows this note&apos;s body.
+              Requires published and saved slug. Turn off to restore the default
+              Simple layout at <span className="italic">/</span>.
             </span>
           </span>
         </label>

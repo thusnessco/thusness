@@ -295,7 +295,9 @@ export function AdminEditorHub({
                   {cat ? <span>{NOTE_CATEGORY_SHORT[cat]}</span> : null}
                   {n.is_template ? <span>Template</span> : null}
                   {isLiveAtRoot(homepagePin, `n:${n.id}`, notes) ? (
-                    <span className="text-[var(--thusness-red,#c23a2a)]">/</span>
+                    <span className="text-[10px] uppercase tracking-wider text-[var(--thusness-red,#c23a2a)]">
+                      Live at /
+                    </span>
                   ) : null}
                 </span>
               </button>
@@ -340,6 +342,7 @@ export function AdminEditorHub({
 
           {contentKey === "tpl:simple" || contentKey === "tpl:full" ? (
             <SwitchRootToNote
+              homepagePin={homepagePin}
               notes={notes}
               isPending={isPending}
               startTransition={startTransition}
