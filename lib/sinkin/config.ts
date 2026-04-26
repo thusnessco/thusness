@@ -21,6 +21,8 @@ export type SinkInConfigV1 = {
   v: 1;
   /** Line under the wordmark when “Program title” is visible (editable). */
   programTitle: string;
+  /** Intro copy above “Begin” on /sinkin (editable). */
+  introBlurb: string;
   /** Seconds between tones (next passage). */
   intervalSec: number;
   /** Seconds to show full text before fading to the keyword (last step skips fade). */
@@ -38,6 +40,12 @@ export const DEFAULT_PROGRAM_TITLE =
   "Sinking in, deepening — one continuous read";
 
 export const SINKIN_PROGRAM_TITLE_MAX = 200;
+
+/** Shown on /sinkin before “Begin” (plain text; line breaks allowed). */
+export const DEFAULT_INTRO_BLURB =
+  "Close your eyes between each part. A soft tone marks when to open your eyes and read the next passage. After a short while the words fade to a single anchor you can rest with.";
+
+export const SINKIN_INTRO_BLURB_MAX = 2000;
 
 const INTERVAL_MIN = 30;
 const INTERVAL_MAX = 720;
@@ -84,6 +92,7 @@ export function defaultSinkInConfig(): SinkInConfigV1 {
   return {
     v: 1,
     programTitle: DEFAULT_PROGRAM_TITLE,
+    introBlurb: DEFAULT_INTRO_BLURB,
     intervalSec: 60,
     focusAfterSec: 12,
     focusPhaseEnabled: true,
@@ -110,6 +119,13 @@ function parseProgramTitle(raw: unknown): string {
     return raw.trim().slice(0, SINKIN_PROGRAM_TITLE_MAX);
   }
   return DEFAULT_PROGRAM_TITLE;
+}
+
+function parseIntroBlurb(raw: unknown): string {
+  if (typeof raw === "string" && raw.trim()) {
+    return raw.trim().slice(0, SINKIN_INTRO_BLURB_MAX);
+  }
+  return DEFAULT_INTRO_BLURB;
 }
 
 function mergeUi(raw: unknown): SinkInUiV1 {
@@ -172,6 +188,7 @@ export function parseSinkInConfig(raw: unknown): SinkInConfigV1 | null {
   return {
     v: 1,
     programTitle: parseProgramTitle(o.programTitle),
+    introBlurb: parseIntroBlurb(o.introBlurb),
     intervalSec: clampInterval(
       typeof o.intervalSec === "number" ? o.intervalSec : 60
     ),
@@ -197,9 +214,14 @@ export function normalizeSinkInConfig(input: SinkInConfigV1): SinkInConfigV1 {
     typeof input.programTitle === "string"
       ? input.programTitle.trim().slice(0, SINKIN_PROGRAM_TITLE_MAX)
       : "";
+  const intro =
+    typeof input.introBlurb === "string"
+      ? input.introBlurb.trim().slice(0, SINKIN_INTRO_BLURB_MAX)
+      : "";
   return {
     v: 1,
     programTitle: title || DEFAULT_PROGRAM_TITLE,
+    introBlurb: intro || DEFAULT_INTRO_BLURB,
     intervalSec: clampInterval(input.intervalSec),
     focusAfterSec: clampFocus(input.focusAfterSec),
     focusPhaseEnabled: Boolean(input.focusPhaseEnabled),

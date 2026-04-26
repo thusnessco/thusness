@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { saveSinkInConfig } from "@/app/admin/actions";
 import {
   defaultSinkInConfig,
+  SINKIN_INTRO_BLURB_MAX,
   SINKIN_PROGRAM_TITLE_MAX,
   type SinkInConfigV1,
   type SinkInStep,
@@ -103,6 +104,27 @@ export function SinkInEditorPanel({
         <span className="text-[10px] leading-snug text-[var(--thusness-muted)]">
           Shown on /sinkin only when “Program title” is on under During a step.
           Replace a pasted file name with whatever you want participants to see.
+        </span>
+      </label>
+
+      <label className="block max-w-2xl space-y-1.5">
+        <span className={adminFieldLabel}>Intro (before Begin)</span>
+        <textarea
+          rows={5}
+          disabled={isPending}
+          value={config.introBlurb}
+          maxLength={SINKIN_INTRO_BLURB_MAX}
+          onChange={(e) =>
+            setConfig((c) => ({
+              ...c,
+              introBlurb: e.target.value.slice(0, SINKIN_INTRO_BLURB_MAX),
+            }))
+          }
+          className={`${adminFieldInput} resize-y min-h-[120px]`}
+        />
+        <span className="text-[10px] leading-snug text-[var(--thusness-muted)]">
+          Plain text on the public /sinkin page above the interval control. Line
+          breaks are kept.
         </span>
       </label>
 

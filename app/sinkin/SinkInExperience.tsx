@@ -218,11 +218,10 @@ export function SinkInExperience({ config }: { config: SinkInConfigV1 }) {
                   fontSize: 17,
                   lineHeight: 1.65,
                   color: "var(--thusness-ink-soft, #3d3a2f)",
+                  whiteSpace: "pre-line",
                 }}
               >
-                Close your eyes between each part. A soft tone marks when to open
-                your eyes and read the next passage. After a short while the words
-                fade to a single anchor you can rest with.
+                {config.introBlurb}
               </p>
               <label
                 style={{
@@ -272,8 +271,8 @@ export function SinkInExperience({ config }: { config: SinkInConfigV1 }) {
                   color: "var(--thusness-muted, #8a8672)",
                 }}
               >
-                Timing and what appears on screen are set in Admin → Sink in
-                (hidden page).
+                Intro, timing, and what appears during steps are set in Admin → Sink
+                in (hidden page).
               </p>
               <button
                 type="button"
