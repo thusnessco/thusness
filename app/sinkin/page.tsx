@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 
+import { getSinkInConfigBundle } from "@/lib/data/sinkin-config";
+
 import { SinkInExperience } from "./SinkInExperience";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Sink in",
@@ -9,6 +13,12 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function SinkInPage() {
-  return <SinkInExperience />;
+export default async function SinkInPage() {
+  const bundle = await getSinkInConfigBundle();
+  return (
+    <SinkInExperience
+      key={bundle.updatedAt ?? "sinkin-default"}
+      config={bundle.config}
+    />
+  );
 }

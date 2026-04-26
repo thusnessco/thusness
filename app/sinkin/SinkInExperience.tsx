@@ -4,20 +4,30 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import Wordmark from "@/components/thusness/Wordmark";
 import RedDot from "@/components/thusness/RedDot";
-import { SINK_IN_STEPS } from "@/lib/sinkin/sink-in-script";
+import type { SinkInConfigV1 } from "@/lib/sinkin/config";
 import { playSoftChime } from "@/lib/sinkin/soft-chime";
 
 const helv = 'Helvetica, "Helvetica Neue", Arial, sans-serif';
 
-const INTERVAL_OPTIONS = [
+const INTERVAL_OPTIONS: { sec: number; label: string }[] = [
   { sec: 45, label: "45 seconds" },
   { sec: 60, label: "1 minute" },
   { sec: 90, label: "90 seconds" },
   { sec: 120, label: "2 minutes" },
-] as const;
+];
 
-export function SinkInExperience() {
-  const [intervalSec, setIntervalSec] = useState<number>(60);
+function intervalSelectOptions(sec: number): { sec: number; label: string }[] {
+  const base = [...INTERVAL_OPTIONS];
+  if (!base.some((o) => o.sec === sec)) {
+    base.push({ sec, label: `${sec} seconds` });
+    base.sort((a, b) => a.sec - b.sec);
+  }
+  return base;
+}
+
+export function SinkInExperience({ config }: { config: SinkInConfigV1 }) {
+  const steps = config.steps;
+  const [intervalSec, setIntervalSec] = useState<number>(config.intervalSec);
   const [running, setRunning] = useState(false);
   const [stepIndex, setStepIndex] = useState(-1);
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -48,7 +58,7 @@ export function SinkInExperience() {
   useEffect(() => {
     if (!running) return;
     if (stepIndex < 0) return;
-    if (stepIndex >= SINK_IN_STEPS.length - 1) return;
+    if (stepIndex >= steps.length - 1) return;
 
     const id = window.setTimeout(() => {
       const ctx = ensureAudio();
@@ -57,11 +67,11 @@ export function SinkInExperience() {
     }, intervalSec * 1000);
 
     return () => window.clearTimeout(id);
-  }, [running, stepIndex, intervalSec, ensureAudio]);
+  }, [running, stepIndex, intervalSec, ensureAudio, steps.length]);
 
-  const current = stepIndex >= 0 ? SINK_IN_STEPS[stepIndex] : null;
+  const current = stepIndex >= 0 ? steps[stepIndex] : null;
   const stepNum = stepIndex + 1;
-  const total = SINK_IN_STEPS.length;
+  const total = steps.length;
 
   return (
     <div
@@ -152,7 +162,7 @@ export function SinkInExperience() {
                     fontFamily: helv,
                   }}
                 >
-                  {INTERVAL_OPTIONS.map((o) => (
+                  {intervalSelectOptions(intervalSec).map((o) => (
                     <option key={o.sec} value={o.sec}>
                       {o.label}
                     </option>
@@ -161,6 +171,7 @@ export function SinkInExperience() {
               </label>
               <button
                 type="button"
+                disabled={steps.length === 0}
                 onClick={handleBegin}
                 style={{
                   border: "1px solid var(--thusness-ink, #1a1915)",
@@ -170,7 +181,8 @@ export function SinkInExperience() {
                   letterSpacing: "0.12em",
                   textTransform: "uppercase",
                   color: "var(--thusness-ink, #1a1915)",
-                  cursor: "pointer",
+                  cursor: steps.length === 0 ? "not-allowed" : "pointer",
+                  opacity: steps.length === 0 ? 0.45 : 1,
                   fontFamily: helv,
                 }}
               >
@@ -215,7 +227,7 @@ export function SinkInExperience() {
               >
                 {current.body}
               </p>
-              {stepIndex < SINK_IN_STEPS.length - 1 ? (
+              {stepIndex < steps.length - 1 ? (
                 <p
                   style={{
                     marginTop: 36,

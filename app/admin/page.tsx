@@ -2,6 +2,7 @@ import { unstable_noStore as noStore } from "next/cache";
 
 import { AdminDashboard } from "@/components/admin/AdminDashboard";
 import { getHomepagePinForAdmin } from "@/lib/data/homepage-source";
+import { getSinkInConfigBundle } from "@/lib/data/sinkin-config";
 import { getAllNotesForAdmin } from "@/lib/data/notes-admin";
 import { getSupabasePublicConfig } from "@/lib/supabase/config";
 
@@ -31,12 +32,18 @@ export default async function AdminPage() {
     );
   }
 
-  const [notes, homepagePin] = await Promise.all([
+  const [notes, homepagePin, sinkInBundle] = await Promise.all([
     getAllNotesForAdmin(),
     getHomepagePinForAdmin(),
+    getSinkInConfigBundle(),
   ]);
 
   return (
-    <AdminDashboard notes={notes} homepagePin={homepagePin} />
+    <AdminDashboard
+      notes={notes}
+      homepagePin={homepagePin}
+      sinkInConfig={sinkInBundle.config}
+      sinkInUpdatedAt={sinkInBundle.updatedAt}
+    />
   );
 }

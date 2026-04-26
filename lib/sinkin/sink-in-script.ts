@@ -1,12 +1,6 @@
-/** Guided script for /sinkin — one step per timed reveal. */
+/** Default steps for /sinkin (bundled; overridden by `site_content` key `sinkin`). */
 
-export type SinkInStep = {
-  id: string;
-  label: string;
-  body: string;
-};
-
-export const SINK_IN_STEPS: SinkInStep[] = [
+export const SINK_IN_STEPS = [
   {
     id: "i",
     label: "I · Arrival / Regulation",

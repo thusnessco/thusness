@@ -1,7 +1,11 @@
 import type { HomepagePin } from "@/lib/homepage/homepage-pin";
 import type { NoteRow } from "@/lib/supabase/public-server";
 
-export type ContentKey = `n:${string}` | "tpl:simple" | "tpl:full";
+export type ContentKey =
+  | `n:${string}`
+  | "tpl:simple"
+  | "tpl:full"
+  | "sinkin";
 
 function slugMatchesPin(noteSlug: string, pinSlug: string): boolean {
   return noteSlug.trim().toLowerCase() === pinSlug.trim().toLowerCase();

@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 
 import { createNote, signOut } from "@/app/admin/actions";
 import type { HomepagePin } from "@/lib/homepage/homepage-pin";
+import type { SinkInConfigV1 } from "@/lib/sinkin/config";
 import type { NoteRow } from "@/lib/supabase/public-server";
 
 import { jsonContentEqual } from "@/lib/tiptap/json-content-equal";
@@ -28,11 +29,18 @@ import {
 type Props = {
   notes: NoteRow[];
   homepagePin: HomepagePin;
+  sinkInConfig: SinkInConfigV1;
+  sinkInUpdatedAt: string | null;
 };
 
 type NoteBodyOverride = { doc: JSONContent; key: string };
 
-export function AdminDashboard({ notes, homepagePin }: Props) {
+export function AdminDashboard({
+  notes,
+  homepagePin,
+  sinkInConfig,
+  sinkInUpdatedAt,
+}: Props) {
   const router = useRouter();
   const [contentKey, setContentKey] = useState<ContentKey>(() =>
     initialContentKey(homepagePin, notes)
@@ -143,6 +151,8 @@ export function AdminDashboard({ notes, homepagePin }: Props) {
       <AdminEditorHub
         notes={notesMerged}
         homepagePin={homepagePin}
+        sinkInConfig={sinkInConfig}
+        sinkInUpdatedAt={sinkInUpdatedAt}
         contentKey={contentKey}
         setContentKey={setContentKey}
         onMessage={flash}

@@ -16,6 +16,7 @@ import {
   parseNoteCategory,
   type NoteCategory,
 } from "@/lib/notes/category";
+import type { SinkInConfigV1 } from "@/lib/sinkin/config";
 import type { NoteRow } from "@/lib/supabase/public-server";
 import type {
   FullDescriptionFields,
@@ -41,6 +42,7 @@ import {
 import { NoteEditorPanel } from "./NoteEditorPanel";
 import { RootStatusStrip } from "./RootStatusStrip";
 import { SimpleLayoutForm } from "./SimpleLayoutForm";
+import { SinkInEditorPanel } from "./SinkInEditorPanel";
 import { SwitchRootToNote } from "./SwitchRootToNote";
 import type { TiptapEditorFieldHandle } from "./TiptapEditorField";
 
@@ -49,6 +51,8 @@ type AdminNoteListFilter = "all" | NoteCategory | "unsorted";
 type Props = {
   notes: NoteRow[];
   homepagePin: HomepagePin;
+  sinkInConfig: SinkInConfigV1;
+  sinkInUpdatedAt: string | null;
   contentKey: ContentKey;
   setContentKey: (k: ContentKey) => void;
   onMessage: (msg: string) => void;
@@ -69,6 +73,8 @@ type Props = {
 export function AdminEditorHub({
   notes,
   homepagePin,
+  sinkInConfig,
+  sinkInUpdatedAt,
   contentKey,
   setContentKey,
   onMessage,
@@ -335,6 +341,20 @@ export function AdminEditorHub({
               </span>
             ) : null}
           </button>
+
+          <p className="mb-2 mt-8 text-[10px] uppercase tracking-[0.2em] text-[var(--thusness-muted)]">
+            Hidden pages
+          </p>
+          <button
+            type="button"
+            className={adminNavBtn(contentKey === "sinkin")}
+            onClick={() => setContentKey("sinkin")}
+          >
+            <span className="block truncate">Sink in</span>
+            <span className="mt-0.5 block text-[10px] uppercase tracking-wider text-[var(--thusness-muted)]">
+              /sinkin
+            </span>
+          </button>
         </nav>
 
         <div className="min-w-0 space-y-6">
@@ -390,6 +410,16 @@ export function AdminEditorHub({
               onMessage={onMessage}
               isLiveAtRoot={isLiveAtRoot(homepagePin, "tpl:full", notes)}
               onDraftNoteCreated={onCreatedNoteAwaitingRefresh}
+            />
+          ) : null}
+
+          {contentKey === "sinkin" ? (
+            <SinkInEditorPanel
+              key={sinkInUpdatedAt ?? "sinkin"}
+              initialConfig={sinkInConfig}
+              isPending={isPending}
+              startTransition={startTransition}
+              onMessage={onMessage}
             />
           ) : null}
         </div>

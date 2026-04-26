@@ -22,6 +22,11 @@ import {
 import type { NoteCategory } from "@/lib/notes/category";
 import { createServerSupabase } from "@/lib/supabase/server";
 import type { NoteRow } from "@/lib/supabase/public-server";
+import {
+  normalizeSinkInConfig,
+  SINKIN_SITE_KEY,
+  type SinkInConfigV1,
+} from "@/lib/sinkin/config";
 import { countTiptapImages } from "@/lib/tiptap/count-tiptap-images";
 import { emptyDoc } from "@/lib/tiptap/empty-doc";
 
@@ -144,6 +149,45 @@ export async function saveSiteContent(key: string, content_json: JSONContent) {
     content_json: stored,
     updated_at: data.updated_at as string,
   };
+}
+
+export async function saveSinkInConfig(
+  input: SinkInConfigV1
+): Promise<
+  { ok: true; updated_at: string } | { ok: false; message: string }
+> {
+  const supabase = await createServerSupabase();
+  const normalized = normalizeSinkInConfig(input);
+  const payload = JSON.parse(JSON.stringify(normalized)) as Record<
+    string,
+    unknown
+  >;
+
+  const { data, error } = await supabase
+    .from("site_content")
+    .upsert(
+      {
+        key: SINKIN_SITE_KEY,
+        title: "Sink-in meditation",
+        content_json: payload,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "key" }
+    )
+    .select("updated_at")
+    .single();
+
+  if (error) return { ok: false as const, message: error.message };
+  if (!data?.updated_at) {
+    return {
+      ok: false as const,
+      message: "Save did not return updated_at. Try again.",
+    };
+  }
+
+  revalidatePath("/sinkin");
+  revalidatePath("/admin");
+  return { ok: true as const, updated_at: data.updated_at as string };
 }
 
 export async function saveNote(input: {
