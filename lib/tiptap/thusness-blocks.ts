@@ -11,6 +11,8 @@ const pillar = "thusnessPillar";
 const sessionGrid = "thusnessSessionGrid";
 const sessionCard = "thusnessSessionCard";
 const zoomBlock = "thusnessZoomBlock";
+const programRow = "thusnessProgramRow";
+const programCard = "thusnessProgramCard";
 
 function text(s: string): JSONContent {
   return { type: "text", text: s };
@@ -279,6 +281,52 @@ export const ThusnessZoomBlock = Node.create({
   },
 });
 
+/** One row in the program schedule card: when label, session title, day. */
+export const ThusnessProgramRow = Node.create({
+  name: programRow,
+  group: "block",
+  content: "paragraph paragraph paragraph",
+  defining: true,
+  parseHTML() {
+    return [{ tag: `div[data-thusness-node="${programRow}"]` }];
+  },
+  renderHTML({ HTMLAttributes }) {
+    return [
+      "div",
+      mergeAttributes(HTMLAttributes, {
+        "data-thusness-node": programRow,
+        class: "tiptap-thusness-program-row",
+      }),
+      0,
+    ];
+  },
+});
+
+/**
+ * Upcoming program / deepening schedule (bordered card under hero).
+ * Content: kicker, title, progress line, one or more rows, footnote paragraph.
+ */
+export const ThusnessProgramCard = Node.create({
+  name: programCard,
+  group: "block",
+  content: "paragraph paragraph paragraph thusnessProgramRow+ paragraph",
+  defining: true,
+  parseHTML() {
+    return [{ tag: `section[data-thusness-node="${programCard}"]` }];
+  },
+  renderHTML({ HTMLAttributes }) {
+    return [
+      "section",
+      mergeAttributes(HTMLAttributes, {
+        "data-thusness-node": programCard,
+        class: "tiptap-thusness-program-card",
+        "aria-label": "Upcoming sessions",
+      }),
+      0,
+    ];
+  },
+});
+
 export function thusnessBlockExtensions() {
   return [
     ThusnessSectionMark,
@@ -289,6 +337,8 @@ export function thusnessBlockExtensions() {
     ThusnessPillar,
     ThusnessSessionCard,
     ThusnessSessionGrid,
+    ThusnessProgramRow,
+    ThusnessProgramCard,
     ThusnessZoomBlock,
   ];
 }
@@ -310,6 +360,21 @@ export function makeThusnessSessionCard(
   };
 }
 
+export function makeThusnessProgramRow(
+  when: string,
+  sessionTitle: string,
+  day: string
+): JSONContent {
+  return {
+    type: programRow,
+    content: [
+      para(text(when)),
+      para(text(sessionTitle)),
+      para(text(day)),
+    ],
+  };
+}
+
 export type ThusnessSnippetKey =
   | "hero"
   | "sectionMark"
@@ -317,6 +382,7 @@ export type ThusnessSnippetKey =
   | "ruleList"
   | "pillar"
   | "sessionGrid"
+  | "programSchedule"
   | "zoomBlock";
 
 export const THUSNESS_SNIPPET_OPTIONS: { key: ThusnessSnippetKey; label: string }[] =
@@ -327,8 +393,53 @@ export const THUSNESS_SNIPPET_OPTIONS: { key: ThusnessSnippetKey; label: string 
     { key: "ruleList", label: "Ruled numbered list" },
     { key: "pillar", label: "Pillar of Success" },
     { key: "sessionGrid", label: "Session tabs (2 cards)" },
+    {
+      key: "programSchedule",
+      label: "Program schedule card (8-week style)",
+    },
     { key: "zoomBlock", label: "Join / book link row" },
   ];
+
+/** Default “8-week deepening” schedule card (handoff copy; edit dates in admin). */
+export function getDefaultProgramScheduleCard(): JSONContent {
+  return {
+    type: programCard,
+    content: [
+      para(text("~ In progress")),
+      para(text("An 8-week deepening is underway.")),
+      para({
+        type: "text",
+        text: "week 3 of 8",
+        marks: [{ type: "italic" }],
+      }),
+      makeThusnessProgramRow(
+        "Next session",
+        "Guided Deepening",
+        "Wed · Apr 29"
+      ),
+      makeThusnessProgramRow(
+        "Then",
+        "Open Sitting & Sharing",
+        "Fri · May 01"
+      ),
+      makeThusnessProgramRow(
+        "Week 4",
+        "Effort, finer textures",
+        "Wed · May 06"
+      ),
+      makeThusnessProgramRow(
+        "Week 4",
+        "Resting in what remains",
+        "Fri · May 08"
+      ),
+      para({
+        type: "text",
+        text: "All sessions 09:00 — 10:00 Pacific · on Zoom",
+        marks: [{ type: "italic" }],
+      }),
+    ],
+  };
+}
 
 export function getThusnessSnippetFragment(
   key: ThusnessSnippetKey
@@ -396,6 +507,8 @@ export function getThusnessSnippetFragment(
           ),
         ],
       };
+    case "programSchedule":
+      return getDefaultProgramScheduleCard();
     case "zoomBlock":
       return {
         type: zoomBlock,
@@ -423,6 +536,7 @@ export function getPageLayoutSampleDoc(): JSONContent {
           para(text("— a question to sit with —")),
         ],
       },
+      getDefaultProgramScheduleCard(),
       {
         type: sectionMark,
         content: [

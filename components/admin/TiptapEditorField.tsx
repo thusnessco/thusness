@@ -247,7 +247,7 @@ function Toolbar({
             onClick={() => {
               if (
                 !window.confirm(
-                  "Replace the entire page with the sample week layout (hero, ruled lists, session cards, join row)? You will lose whatever is in the editor now."
+                  "Replace the entire page with the sample week layout (hero, program schedule card, ruled lists, session cards, join row)? You will lose whatever is in the editor now."
                 )
               ) {
                 return;
