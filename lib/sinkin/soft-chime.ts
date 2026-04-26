@@ -1,26 +1,47 @@
-/**
- * Very soft two-tone chime (Web Audio). Call only after a user gesture
- * so the AudioContext is allowed to run.
- */
+/** D2 + soft D3 (Web Audio). ~5s with slow fade in / out — call after a user gesture. */
+
+const D2_HZ = 73.41619197801053;
+const D3_HZ = 146.83238395602106;
+
+const TOTAL_SEC = 5;
+const ATTACK_SEC = 1.25;
+const RELEASE_SEC = 1.75;
+/** Peak master gain (quiet; sustained tone). */
+const PEAK_GAIN = 0.13;
+
 export function playSoftChime(ctx: AudioContext): void {
+  const t0 = ctx.currentTime;
+  const tEnd = t0 + TOTAL_SEC;
+  const tReleaseStart = tEnd - RELEASE_SEC;
+
   const master = ctx.createGain();
-  master.gain.setValueAtTime(0.0001, ctx.currentTime);
-  master.gain.exponentialRampToValueAtTime(0.12, ctx.currentTime + 0.04);
-  master.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.85);
+  master.gain.setValueAtTime(0, t0);
+  master.gain.linearRampToValueAtTime(PEAK_GAIN, t0 + ATTACK_SEC);
+  master.gain.setValueAtTime(PEAK_GAIN, tReleaseStart);
+  master.gain.linearRampToValueAtTime(0.0001, tEnd);
   master.connect(ctx.destination);
 
-  const freqs = [523.25, 659.25];
-  freqs.forEach((freq, i) => {
-    const osc = ctx.createOscillator();
-    osc.type = "sine";
-    osc.frequency.setValueAtTime(freq, ctx.currentTime);
-    const g = ctx.createGain();
-    g.gain.setValueAtTime(0.0001, ctx.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.45, ctx.currentTime + 0.02 + i * 0.05);
-    g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.55 + i * 0.06);
-    osc.connect(g);
-    g.connect(master);
-    osc.start(ctx.currentTime + i * 0.08);
-    osc.stop(ctx.currentTime + 0.9);
-  });
+  const oscLow = ctx.createOscillator();
+  oscLow.type = "sine";
+  oscLow.frequency.setValueAtTime(D2_HZ, t0);
+
+  const oscHigh = ctx.createOscillator();
+  oscHigh.type = "sine";
+  oscHigh.frequency.setValueAtTime(D3_HZ, t0);
+
+  const gLow = ctx.createGain();
+  gLow.gain.value = 0.62;
+  const gHigh = ctx.createGain();
+  gHigh.gain.value = 0.38;
+
+  oscLow.connect(gLow);
+  gLow.connect(master);
+  oscHigh.connect(gHigh);
+  gHigh.connect(master);
+
+  const stopAt = tEnd + 0.08;
+  oscLow.start(t0);
+  oscHigh.start(t0);
+  oscLow.stop(stopAt);
+  oscHigh.stop(stopAt);
 }
