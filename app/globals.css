@@ -615,13 +615,15 @@ body.thusness ::selection {
 }
 
 .sinkin-phase-layer {
-  /* Long crossfade: passage out + breath/keyword in (keep focusAfterSec comfortably above this in Admin). */
-  --sinkin-dissolve-ms: 7s;
-  --sinkin-dissolve-ease: cubic-bezier(0.42, 0.02, 0.58, 0.98);
+  /* Long crossfade: opacity lingers with a soft tail; blur/transform finish a bit earlier. */
+  --sinkin-opacity-ms: 9s;
+  --sinkin-opacity-ease: cubic-bezier(0.08, 0.88, 0.12, 1);
+  --sinkin-blur-ms: 5.25s;
+  --sinkin-blur-ease: cubic-bezier(0.32, 0, 0.22, 1);
   transition:
-    opacity var(--sinkin-dissolve-ms) var(--sinkin-dissolve-ease),
-    filter var(--sinkin-dissolve-ms) var(--sinkin-dissolve-ease),
-    transform var(--sinkin-dissolve-ms) var(--sinkin-dissolve-ease);
+    opacity var(--sinkin-opacity-ms) var(--sinkin-opacity-ease),
+    filter var(--sinkin-blur-ms) var(--sinkin-blur-ease),
+    transform var(--sinkin-blur-ms) var(--sinkin-blur-ease);
   max-width: 620px;
   margin-left: auto;
   margin-right: auto;
@@ -681,9 +683,7 @@ body.thusness ::selection {
 
 @media (prefers-reduced-motion: reduce) {
   .sinkin-phase-layer {
-    --sinkin-dissolve-ms: 0.35s;
-    --sinkin-dissolve-ease: ease-out;
-    transition: opacity var(--sinkin-dissolve-ms) var(--sinkin-dissolve-ease);
+    transition: opacity 0.45s ease-out;
   }
 
   .sinkin-phase-layer--full:not(.sinkin-phase-layer--visible),

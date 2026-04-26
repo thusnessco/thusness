@@ -1,7 +1,7 @@
-/** D2 + soft D3 (Web Audio). ~5s with slow fade in / out — call after a user gesture. */
+/** C2 + soft C3 (Web Audio). ~5s with slow fade in / out — call after a user gesture. */
 
-const D2_HZ = 73.41619197801053;
-const D3_HZ = 146.83238395602106;
+const C2_HZ = 65.40639132514965;
+const C3_HZ = 130.8127826502993;
 
 const TOTAL_SEC = 5;
 const ATTACK_SEC = 1.25;
@@ -23,11 +23,11 @@ export function playSoftChime(ctx: AudioContext): void {
 
   const oscLow = ctx.createOscillator();
   oscLow.type = "sine";
-  oscLow.frequency.setValueAtTime(D2_HZ, t0);
+  oscLow.frequency.setValueAtTime(C2_HZ, t0);
 
   const oscHigh = ctx.createOscillator();
   oscHigh.type = "sine";
-  oscHigh.frequency.setValueAtTime(D3_HZ, t0);
+  oscHigh.frequency.setValueAtTime(C3_HZ, t0);
 
   const gLow = ctx.createGain();
   gLow.gain.value = 0.62;
