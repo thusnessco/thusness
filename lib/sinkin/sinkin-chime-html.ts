@@ -3,14 +3,15 @@
  * silent with Web Audio oscillators; decoded WAV + play() is the reliable path.
  * Web Audio in soft-chime.ts remains optional fallback from the experience layer.
  *
- * Tuning-fork–style timbre: damped fundamental (A4) plus short-lived 2× and 3×
- * partials for the metallic “ping,” then mostly pure decay. Mono so it stays clean
- * on built-in speakers (true binaural beats need isolated ears; summed mono sounds
- * like a tremolo).
+ * C3 + G3 perfect fifth — two soft sines, C as root with G a fifth above. Lower
+ * and more open than a single high fork tone; mono for clean playback on speakers.
  */
 
-/** Concert A — familiar fork pitch; clear without being very low. */
-const FORK_F0_HZ = 440;
+const C3_HZ = 130.8127826502993;
+const G3_HZ = 195.99771799087497;
+/** Root slightly louder so the stack stays grounded. */
+const CG_ROOT = 0.54;
+const CG_FIFTH = 0.36;
 
 const CHIME_SR = 44100;
 const CHIME_SEC = 6.2;
@@ -61,27 +62,10 @@ function floatToWavMono16(samples: Float32Array, sampleRate: number): Blob {
   return new Blob([buf], { type: "audio/wav" });
 }
 
-/** Harmonics die quickly like a struck fork; fundamental implied by long envelope. */
-function forkStrikeTone(t: number): number {
-  const th1 = 2 * Math.PI * FORK_F0_HZ * t;
-  const th2 = 2 * Math.PI * 2 * FORK_F0_HZ * t;
-  const th3 = 2 * Math.PI * 3 * FORK_F0_HZ * t;
-  const h2 = Math.exp(-t * 7.2);
-  const h3 = Math.exp(-t * 11);
-  const raw =
-    Math.sin(th1) +
-    0.12 * h2 * Math.sin(th2) +
-    0.038 * h3 * Math.sin(th3);
-  return raw / 1.14;
-}
-
-/** Short mid-step tap: lighter partials. */
-function forkTapTone(t: number): number {
-  const th1 = 2 * Math.PI * FORK_F0_HZ * t;
-  const th2 = 2 * Math.PI * 2 * FORK_F0_HZ * t;
-  const h2 = Math.exp(-t * 38);
-  const raw = Math.sin(th1) + 0.09 * h2 * Math.sin(th2);
-  return raw / 1.06;
+function cgFifthTone(t: number): number {
+  const c = Math.sin(2 * Math.PI * C3_HZ * t);
+  const g = Math.sin(2 * Math.PI * G3_HZ * t);
+  return (CG_ROOT * c + CG_FIFTH * g) / 0.92;
 }
 
 function renderMainChimeSamples(): Float32Array {
@@ -92,7 +76,7 @@ function renderMainChimeSamples(): Float32Array {
   for (let i = 0; i < n; i++) {
     const t = i / CHIME_SR;
     const u = (i + 1) / n;
-    const tone = forkStrikeTone(t);
+    const tone = cgFifthTone(t);
     const a = Math.min(1, t / attackSec);
     const fadeIn = 0.5 * (1 - Math.cos(Math.PI * a));
     const decay = Math.exp(-t / tau);
@@ -109,7 +93,7 @@ function renderPulseSamples(): Float32Array {
   const attackSec = 0.06;
   for (let i = 0; i < n; i++) {
     const t = i / PULSE_SR;
-    const tone = forkTapTone(t);
+    const tone = cgFifthTone(t);
     const u = (i + 1) / n;
     const a = Math.min(1, t / attackSec);
     const fadeIn = 0.5 * (1 - Math.cos(Math.PI * a));
