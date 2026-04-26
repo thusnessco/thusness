@@ -9,6 +9,7 @@ import {
   defaultSinkInConfig,
   type SinkInConfigV1,
   type SinkInStep,
+  type SinkInUiV1,
 } from "@/lib/sinkin/config";
 
 import {
@@ -48,9 +49,14 @@ export function SinkInEditorPanel({
           id: `step-${c.steps.length + 1}`,
           label: "New section",
           body: "",
+          keyword: "notice",
         },
       ],
     }));
+  }
+
+  function setUi(patch: Partial<SinkInUiV1>) {
+    setConfig((c) => ({ ...c, ui: { ...c.ui, ...patch } }));
   }
 
   function removeStep(i: number) {
@@ -78,7 +84,7 @@ export function SinkInEditorPanel({
         </p>
       </header>
 
-      <div className="grid gap-6 sm:grid-cols-[minmax(0,12rem)_minmax(0,1fr)]">
+      <div className="grid gap-8 sm:grid-cols-2">
         <label className="block space-y-1.5">
           <span className={adminFieldLabel}>Seconds between tones</span>
           <input
@@ -101,7 +107,112 @@ export function SinkInEditorPanel({
             dings.
           </span>
         </label>
+        <label className="block space-y-1.5">
+          <span className={adminFieldLabel}>Seconds of full text before fade</span>
+          <input
+            type="number"
+            min={3}
+            max={90}
+            step={1}
+            disabled={isPending}
+            value={config.focusAfterSec}
+            onChange={(e) =>
+              setConfig((c) => ({
+                ...c,
+                focusAfterSec: Number(e.target.value) || 12,
+              }))
+            }
+            className={adminFieldInput}
+          />
+          <span className="text-[10px] leading-snug text-[var(--thusness-muted)]">
+            Then the passage fades to the keyword only (last step never fades).
+          </span>
+        </label>
       </div>
+
+      <label className="flex items-start gap-2 text-sm text-[var(--thusness-ink-soft)]">
+        <input
+          type="checkbox"
+          className="mt-1 border-[var(--thusness-rule)] accent-[var(--thusness-ink)]"
+          checked={config.focusPhaseEnabled}
+          disabled={isPending}
+          onChange={(e) =>
+            setConfig((c) => ({ ...c, focusPhaseEnabled: e.target.checked }))
+          }
+        />
+        <span>
+          <span className={adminFieldLabel}>Keyword beat</span>
+          <span className="mt-1 block text-[11px] leading-relaxed text-[var(--thusness-muted)]">
+            After the timer above, fade all copy to the single keyword for the rest
+            of the interval. Turn off to keep full text on screen until the next
+            tone.
+          </span>
+        </span>
+      </label>
+
+      <fieldset className="space-y-3 border border-[var(--thusness-rule)] px-4 py-4">
+        <legend className={`px-1 ${adminFieldLabel}`}>
+          During a step (keep off for a calmer screen)
+        </legend>
+        <p className="text-[11px] leading-relaxed text-[var(--thusness-muted)]">
+          Defaults are all off: only the Thusness wordmark, passage body, End
+          session, and (during the keyword beat) the keyword. Turn items on if you
+          want more orientation on screen.
+        </p>
+        {(
+          [
+            {
+              key: "showProgramTitle" as const,
+              title: "Program title",
+              hint: "Upper line: “Sinking in + deepening…”.",
+            },
+            {
+              key: "showNotesKicker" as const,
+              title: "~ notes kicker",
+              hint: "Small caps line above the wordmark.",
+            },
+            {
+              key: "showProgress" as const,
+              title: "Step progress",
+              hint: "e.g. “3 / 23 · when you hear the tone, read”.",
+            },
+            {
+              key: "showSectionLabel" as const,
+              title: "Section title",
+              hint: "Roman heading above the passage.",
+            },
+            {
+              key: "showRestHint" as const,
+              title: "Rest hint",
+              hint: "Italic reminder to close eyes until the next tone.",
+            },
+            {
+              key: "showFooter" as const,
+              title: "Footer",
+              hint: "Rule line and thusness.co · sink in.",
+            },
+          ] as const
+        ).map(({ key, title, hint }) => (
+          <label
+            key={key}
+            className="flex items-start gap-2 text-sm text-[var(--thusness-ink-soft)]"
+          >
+            <input
+              type="checkbox"
+              className="mt-1 border-[var(--thusness-rule)] accent-[var(--thusness-ink)]"
+              checked={config.ui[key]}
+              disabled={isPending}
+              onChange={(e) => setUi({ [key]: e.target.checked })}
+            />
+            <span>
+              <span className="font-medium text-[var(--thusness-ink)]">{title}</span>
+              <span className="mt-0.5 block text-[10px] text-[var(--thusness-muted)]">
+                {hint}
+              </span>
+            </span>
+          </label>
+        ))}
+      </fieldset>
 
       <div className="max-h-[min(70vh,720px)] space-y-4 overflow-y-auto border border-[var(--thusness-rule)] px-4 py-4">
         <p className={adminFieldLabel}>Steps (in order)</p>
@@ -132,7 +243,7 @@ export function SinkInEditorPanel({
                 className={adminFieldInput}
               />
             </label>
-            <label className="block space-y-1.5">
+            <label className="mb-3 block space-y-1.5">
               <span className={adminFieldLabel}>Body</span>
               <textarea
                 value={step.body}
@@ -141,6 +252,19 @@ export function SinkInEditorPanel({
                 rows={5}
                 className={`${adminFieldInput} resize-y`}
               />
+            </label>
+            <label className="block space-y-1.5">
+              <span className={adminFieldLabel}>Keyword (after fade)</span>
+              <input
+                value={step.keyword}
+                disabled={isPending}
+                onChange={(e) => updateStep(i, { keyword: e.target.value })}
+                className={adminFieldInput}
+                placeholder="notice"
+              />
+              <span className="text-[10px] text-[var(--thusness-muted)]">
+                One word or very short phrase; shown alone after full text fades.
+              </span>
             </label>
           </div>
         ))}
