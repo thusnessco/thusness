@@ -6,8 +6,11 @@ import { useRouter } from "next/navigation";
 
 import { saveSinkInConfig } from "@/app/admin/actions";
 import {
+  clampCueToneHz,
   defaultSinkInConfig,
   SINKIN_CLOSING_MESSAGE_MAX,
+  SINKIN_CUE_TONE_HZ_MAX,
+  SINKIN_CUE_TONE_HZ_MIN,
   SINKIN_INTRO_BLURB_MAX,
   SINKIN_PROGRAM_TITLE_MAX,
   type SinkInConfigV1,
@@ -221,6 +224,30 @@ export function SinkInEditorPanel({
           />
           <span className="text-[10px] leading-snug text-[var(--thusness-muted)]">
             Fade out / fade in when the tone moves to the next passage (200–5000).
+          </span>
+        </label>
+        <label className="block space-y-1.5">
+          <span className={adminFieldLabel}>Cue tone pitch (Hz)</span>
+          <input
+            type="number"
+            min={SINKIN_CUE_TONE_HZ_MIN}
+            max={SINKIN_CUE_TONE_HZ_MAX}
+            step={1}
+            disabled={isPending}
+            value={config.cueToneHz}
+            onChange={(e) => {
+              const v = Number(e.target.value);
+              setConfig((c) => ({
+                ...c,
+                cueToneHz: clampCueToneHz(Number.isFinite(v) ? v : c.cueToneHz),
+              }));
+            }}
+            className={adminFieldInput}
+          />
+          <span className="text-[10px] leading-snug text-[var(--thusness-muted)]">
+            Soft sine when a passage ends and for mid-step reminders. Default 220
+            (A3). Lower feels heavier; higher lighter ({SINKIN_CUE_TONE_HZ_MIN}–
+            {SINKIN_CUE_TONE_HZ_MAX}).
           </span>
         </label>
         <label className="block space-y-1.5 sm:col-span-2">

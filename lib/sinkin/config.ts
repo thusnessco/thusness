@@ -39,6 +39,8 @@ export type SinkInConfigV1 = {
    * Ignored if step hold is not longer than this interval + a short buffer.
    */
   midToneIntervalSec: number;
+  /** Pure sine frequency for step and mid-step cues (Hz). */
+  cueToneHz: number;
   ui: SinkInUiV1;
   steps: SinkInStep[];
 };
@@ -71,6 +73,19 @@ const CROSSFADE_MIN = 200;
 const CROSSFADE_MAX = 5000;
 const MID_TONE_MIN = 60;
 const MID_TONE_MAX = 600;
+
+/** Pure sine cue between passages (Hz). */
+export const SINKIN_CUE_TONE_HZ_DEFAULT = 220;
+export const SINKIN_CUE_TONE_HZ_MIN = 160;
+export const SINKIN_CUE_TONE_HZ_MAX = 380;
+
+export function clampCueToneHz(n: number): number {
+  if (!Number.isFinite(n)) return SINKIN_CUE_TONE_HZ_DEFAULT;
+  return Math.min(
+    SINKIN_CUE_TONE_HZ_MAX,
+    Math.max(SINKIN_CUE_TONE_HZ_MIN, Math.round(n))
+  );
+}
 
 /** Default: almost everything off so the session stays visually quiet. */
 export const defaultSinkInUi: SinkInUiV1 = {
@@ -119,6 +134,7 @@ export function defaultSinkInConfig(): SinkInConfigV1 {
     focusPhaseEnabled: false,
     crossfadeMs: 900,
     midToneIntervalSec: 120,
+    cueToneHz: SINKIN_CUE_TONE_HZ_DEFAULT,
     ui: { ...defaultSinkInUi },
     steps: SINK_IN_STEPS.map((s, i) => ({
       ...s,
@@ -242,6 +258,9 @@ export function parseSinkInConfig(raw: unknown): SinkInConfigV1 | null {
   const midToneIntervalSec = clampMidToneIntervalSec(
     typeof o.midToneIntervalSec === "number" ? o.midToneIntervalSec : 120
   );
+  const cueToneHz = clampCueToneHz(
+    typeof o.cueToneHz === "number" ? o.cueToneHz : SINKIN_CUE_TONE_HZ_DEFAULT
+  );
   return {
     v: 1,
     programTitle: parseProgramTitle(o.programTitle),
@@ -254,6 +273,7 @@ export function parseSinkInConfig(raw: unknown): SinkInConfigV1 | null {
     focusPhaseEnabled,
     crossfadeMs,
     midToneIntervalSec,
+    cueToneHz,
     ui: mergeUi(o.ui),
     steps,
   };
@@ -300,6 +320,11 @@ export function normalizeSinkInConfig(input: SinkInConfigV1): SinkInConfigV1 {
       typeof input.midToneIntervalSec === "number"
         ? input.midToneIntervalSec
         : 120
+    ),
+    cueToneHz: clampCueToneHz(
+      typeof input.cueToneHz === "number"
+        ? input.cueToneHz
+        : SINKIN_CUE_TONE_HZ_DEFAULT
     ),
     ui: mergeUi(input.ui),
     steps: safe,

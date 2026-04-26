@@ -1,26 +1,24 @@
 /**
- * Sink-in tones via HTMLAudioElement + in-memory WAV. Safari (macOS) often stays
- * silent with Web Audio oscillators; decoded WAV + play() is the reliable path.
+ * Sink-in cues via HTMLAudioElement + in-memory WAV. Safari (macOS) often stays
+ * silent with Web Audio buffers; decoded WAV + play() is the reliable path.
  * Web Audio in soft-chime.ts remains optional fallback from the experience layer.
  *
- * C3 + G3 perfect fifth — two soft sines, C as root with G a fifth above. Lower
- * and more open than a single high fork tone; mono for clean playback on speakers.
+ * WAVs are cached per cue frequency (see sinkin-peace-tone).
  */
 
-const C3_HZ = 130.8127826502993;
-const G3_HZ = 195.99771799087497;
-/** Root slightly louder so the stack stays grounded. */
-const CG_ROOT = 0.54;
-const CG_FIFTH = 0.36;
+import { clampCueToneHz } from "./config";
+import {
+  renderMainPeaceSamples,
+  renderPulsePeaceSamples,
+} from "./sinkin-peace-tone";
 
 const CHIME_SR = 44100;
-const CHIME_SEC = 6.2;
 const PULSE_SR = 44100;
-const PULSE_SEC = 0.42;
 
-const MAIN_CHIME_LEVEL = 0.32;
-const PULSE_LEVEL = 0.12;
 const HTML_AUDIO_VOLUME = 0.88;
+
+const mainChimeUrlByHz = new Map<number, string>();
+const pulseUrlByHz = new Map<number, string>();
 
 function floatToWavMono16(samples: Float32Array, sampleRate: number): Blob {
   const n = samples.length;
@@ -62,71 +60,33 @@ function floatToWavMono16(samples: Float32Array, sampleRate: number): Blob {
   return new Blob([buf], { type: "audio/wav" });
 }
 
-function cgFifthTone(t: number): number {
-  const c = Math.sin(2 * Math.PI * C3_HZ * t);
-  const g = Math.sin(2 * Math.PI * G3_HZ * t);
-  return (CG_ROOT * c + CG_FIFTH * g) / 0.92;
-}
-
-function renderMainChimeSamples(): Float32Array {
-  const n = Math.floor(CHIME_SR * CHIME_SEC);
-  const out = new Float32Array(n);
-  const attackSec = 0.48;
-  const tau = 3.35;
-  for (let i = 0; i < n; i++) {
-    const t = i / CHIME_SR;
-    const u = (i + 1) / n;
-    const tone = cgFifthTone(t);
-    const a = Math.min(1, t / attackSec);
-    const fadeIn = 0.5 * (1 - Math.cos(Math.PI * a));
-    const decay = Math.exp(-t / tau);
-    const endWindow = Math.cos((Math.PI / 2) * u);
-    const env = fadeIn * decay * endWindow;
-    out[i] = tone * env * MAIN_CHIME_LEVEL;
-  }
-  return out;
-}
-
-function renderPulseSamples(): Float32Array {
-  const n = Math.floor(PULSE_SR * PULSE_SEC);
-  const out = new Float32Array(n);
-  const attackSec = 0.06;
-  for (let i = 0; i < n; i++) {
-    const t = i / PULSE_SR;
-    const tone = cgFifthTone(t);
-    const u = (i + 1) / n;
-    const a = Math.min(1, t / attackSec);
-    const fadeIn = 0.5 * (1 - Math.cos(Math.PI * a));
-    const env = fadeIn * Math.sin(Math.PI * u) * Math.exp(-2.2 * (t / PULSE_SEC));
-    out[i] = tone * env * PULSE_LEVEL;
-  }
-  return out;
-}
-
-let mainChimeUrl: string | null = null;
-let pulseUrl: string | null = null;
-
-function mainChimeObjectUrl(): string {
-  if (!mainChimeUrl) {
-    mainChimeUrl = URL.createObjectURL(
-      floatToWavMono16(renderMainChimeSamples(), CHIME_SR)
+function mainChimeObjectUrl(cueToneHz: number): string {
+  const hz = clampCueToneHz(cueToneHz);
+  let url = mainChimeUrlByHz.get(hz);
+  if (!url) {
+    url = URL.createObjectURL(
+      floatToWavMono16(renderMainPeaceSamples(CHIME_SR, hz), CHIME_SR)
     );
+    mainChimeUrlByHz.set(hz, url);
   }
-  return mainChimeUrl;
+  return url;
 }
 
-function pulseObjectUrl(): string {
-  if (!pulseUrl) {
-    pulseUrl = URL.createObjectURL(
-      floatToWavMono16(renderPulseSamples(), PULSE_SR)
+function pulseObjectUrl(cueToneHz: number): string {
+  const hz = clampCueToneHz(cueToneHz);
+  let url = pulseUrlByHz.get(hz);
+  if (!url) {
+    url = URL.createObjectURL(
+      floatToWavMono16(renderPulsePeaceSamples(PULSE_SR, hz), PULSE_SR)
     );
+    pulseUrlByHz.set(hz, url);
   }
-  return pulseUrl;
+  return url;
 }
 
-export function playSinkInMainChimeFromGesture(): void {
+export function playSinkInMainChimeFromGesture(cueToneHz: number): void {
   try {
-    const a = new Audio(mainChimeObjectUrl());
+    const a = new Audio(mainChimeObjectUrl(cueToneHz));
     a.volume = HTML_AUDIO_VOLUME;
     void a.play().catch(() => {});
   } catch {
@@ -134,14 +94,14 @@ export function playSinkInMainChimeFromGesture(): void {
   }
 }
 
-export async function playSinkInMainChimeHtml(): Promise<void> {
-  const a = new Audio(mainChimeObjectUrl());
+export async function playSinkInMainChimeHtml(cueToneHz: number): Promise<void> {
+  const a = new Audio(mainChimeObjectUrl(cueToneHz));
   a.volume = HTML_AUDIO_VOLUME;
   await a.play();
 }
 
-export async function playSinkInPulseHtml(): Promise<void> {
-  const a = new Audio(pulseObjectUrl());
+export async function playSinkInPulseHtml(cueToneHz: number): Promise<void> {
+  const a = new Audio(pulseObjectUrl(cueToneHz));
   a.volume = HTML_AUDIO_VOLUME;
   await a.play();
 }
