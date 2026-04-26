@@ -615,8 +615,9 @@ body.thusness ::selection {
 }
 
 .sinkin-phase-layer {
-  --sinkin-dissolve-ms: 1.85s;
-  --sinkin-dissolve-ease: cubic-bezier(0.38, 0, 0.22, 1);
+  /* Long crossfade: passage out + breath/keyword in (keep focusAfterSec comfortably above this in Admin). */
+  --sinkin-dissolve-ms: 7s;
+  --sinkin-dissolve-ease: cubic-bezier(0.42, 0.02, 0.58, 0.98);
   transition:
     opacity var(--sinkin-dissolve-ms) var(--sinkin-dissolve-ease),
     filter var(--sinkin-dissolve-ms) var(--sinkin-dissolve-ease),
@@ -633,8 +634,8 @@ body.thusness ::selection {
 
 .sinkin-phase-layer--full:not(.sinkin-phase-layer--visible) {
   opacity: 0;
-  filter: blur(10px);
-  transform: translateY(8px);
+  filter: blur(14px);
+  transform: translateY(10px);
   pointer-events: none;
   position: absolute;
   left: 0;
@@ -653,8 +654,8 @@ body.thusness ::selection {
   left: 0;
   right: 0;
   top: 50%;
-  transform: translateY(calc(-50% + 10px));
-  filter: blur(10px);
+  transform: translateY(calc(-50% + 12px));
+  filter: blur(14px);
   z-index: 2;
   text-align: center;
   opacity: 0;
