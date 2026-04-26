@@ -566,3 +566,26 @@ body.thusness ::selection {
     text-align: left;
   }
 }
+
+/* —— /sinkin timed meditation steps */
+
+@keyframes sinkin-step-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.sinkin-step-animate {
+  animation: sinkin-step-in 0.9s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sinkin-step-animate {
+    animation: none;
+  }
+}
