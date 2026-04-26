@@ -19,6 +19,20 @@ export function sinkInChimePartials(
         { hz: ROOT_HZ * 2 ** (4 / 12), weight: 0.33 },
         { hz: ROOT_HZ * 2 ** (7 / 12), weight: 0.33 },
       ];
+    case "add9":
+      return [
+        { hz: ROOT_HZ, weight: 0.26 },
+        { hz: ROOT_HZ * 2 ** (4 / 12), weight: 0.25 },
+        { hz: ROOT_HZ * 2 ** (7 / 12), weight: 0.25 },
+        { hz: ROOT_HZ * 2 ** (14 / 12), weight: 0.24 },
+      ];
+    case "maj7":
+      return [
+        { hz: ROOT_HZ, weight: 0.26 },
+        { hz: ROOT_HZ * 2 ** (4 / 12), weight: 0.25 },
+        { hz: ROOT_HZ * 2 ** (7 / 12), weight: 0.25 },
+        { hz: ROOT_HZ * 2 ** (11 / 12), weight: 0.24 },
+      ];
     case "octave":
       return [
         { hz: ROOT_HZ, weight: 0.52 },

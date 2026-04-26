@@ -5,7 +5,7 @@ import { sinkInChimePartials } from "./chime-harmony";
 
 const TOTAL_SEC = 6.2;
 /** Peak after short rise; long decay, then linear tail to silence before osc stop. */
-const PEAK_GAIN = 0.09;
+const PEAK_GAIN = 0.15;
 /** Longer linear gain rise from near-silence removes the little click on onset. */
 const RISE_SEC = 0.5;
 /** Seconds after gain hits silence before stopping sources (avoids click). */
@@ -76,7 +76,7 @@ export async function playSinkInPulse(
 
   const t0 = ctx.currentTime + 0.002;
   const dur = 0.35;
-  const peak = 0.045;
+  const peak = 0.085;
 
   const master = ctx.createGain();
   master.gain.setValueAtTime(0.0001, t0);

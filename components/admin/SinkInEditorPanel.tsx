@@ -8,10 +8,10 @@ import { saveSinkInConfig } from "@/app/admin/actions";
 import {
   defaultSinkInConfig,
   SINKIN_CHIME_HARMONY_LABELS,
+  SINKIN_CHIME_HARMONY_ORDER,
   SINKIN_CLOSING_MESSAGE_MAX,
   SINKIN_INTRO_BLURB_MAX,
   SINKIN_PROGRAM_TITLE_MAX,
-  type SinkInChimeHarmonyV1,
   type SinkInConfigV1,
   type SinkInStep,
   type SinkInUiV1,
@@ -233,8 +233,7 @@ export function SinkInEditorPanel({
           reminders.
         </p>
         <div className="space-y-2.5">
-          {(["octave", "fifth", "major"] as const satisfies readonly SinkInChimeHarmonyV1[]).map(
-            (value) => {
+          {SINKIN_CHIME_HARMONY_ORDER.map((value) => {
               const meta = SINKIN_CHIME_HARMONY_LABELS[value];
               return (
                 <label

@@ -11,7 +11,21 @@ export type SinkInStep = {
 };
 
 /** Harmonic color for sink-in tones (C root, equal temperament). */
-export type SinkInChimeHarmonyV1 = "octave" | "fifth" | "major";
+export type SinkInChimeHarmonyV1 =
+  | "octave"
+  | "fifth"
+  | "major"
+  | "add9"
+  | "maj7";
+
+/** Stable order for Admin radios. */
+export const SINKIN_CHIME_HARMONY_ORDER: readonly SinkInChimeHarmonyV1[] = [
+  "octave",
+  "fifth",
+  "major",
+  "add9",
+  "maj7",
+];
 
 export const SINKIN_CHIME_HARMONY_LABELS: Record<
   SinkInChimeHarmonyV1,
@@ -28,6 +42,14 @@ export const SINKIN_CHIME_HARMONY_LABELS: Record<
   major: {
     title: "Major triad",
     hint: "C, E, and G — clearly major, a little fuller.",
+  },
+  add9: {
+    title: "Major add 9",
+    hint: "C, E, G, and D — gospel sparkle, still open.",
+  },
+  maj7: {
+    title: "Major 7th",
+    hint: "C, E, G, and B — luminous, “angelic” color.",
   },
 };
 
@@ -174,7 +196,15 @@ function clampMidToneIntervalSec(n: number): number {
 }
 
 function parseChimeHarmony(raw: unknown): SinkInChimeHarmonyV1 {
-  if (raw === "fifth" || raw === "major" || raw === "octave") return raw;
+  if (
+    raw === "fifth" ||
+    raw === "major" ||
+    raw === "octave" ||
+    raw === "add9" ||
+    raw === "maj7"
+  ) {
+    return raw;
+  }
   return "octave";
 }
 

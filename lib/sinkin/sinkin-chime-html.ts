@@ -12,11 +12,11 @@ const CHIME_SEC = 6.2;
 const PULSE_SR = 22050;
 const PULSE_SEC = 0.42;
 
-/** Peak sample scale in WAV (was higher when output was barely audible). */
-const MAIN_CHIME_LEVEL = 0.22;
-const PULSE_LEVEL = 0.095;
-/** Extra headroom on the media element so system volume stays comfortable. */
-const HTML_AUDIO_VOLUME = 0.72;
+/** Peak sample scale in WAV (output level; fades unchanged). */
+const MAIN_CHIME_LEVEL = 0.4;
+const PULSE_LEVEL = 0.16;
+/** Media element gain (1 = full browser output). */
+const HTML_AUDIO_VOLUME = 1;
 
 function floatToWavMono16(samples: Float32Array, sampleRate: number): Blob {
   const n = samples.length;
