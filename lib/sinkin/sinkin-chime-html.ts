@@ -15,7 +15,7 @@ import {
 const CHIME_SR = 44100;
 const PULSE_SR = 44100;
 
-const HTML_AUDIO_VOLUME = 0.88;
+const HTML_AUDIO_VOLUME = 0.78;
 
 const mainChimeUrlByHz = new Map<number, string>();
 const pulseUrlByHz = new Map<number, string>();
@@ -51,8 +51,10 @@ function floatToWavMono16(samples: Float32Array, sampleRate: number): Blob {
   w("data");
   v.setUint32(o, dataSize, true);
   o += 4;
+  /** ~1 dB below full scale int16 to avoid inter-sample / DAC clipping. */
+  const INT16_HEADROOM = 0.97;
   for (let i = 0; i < n; i++) {
-    const s = Math.max(-1, Math.min(1, samples[i] ?? 0));
+    const s = Math.max(-1, Math.min(1, (samples[i] ?? 0) * INT16_HEADROOM));
     const q = s < 0 ? s * 0x8000 : s * 0x7fff;
     v.setInt16(o, Math.round(q), true);
     o += 2;

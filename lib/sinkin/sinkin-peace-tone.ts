@@ -14,12 +14,26 @@ const PEACE_MAIN_BODY_SEC = 6.28;
 export const PEACE_PULSE_TOTAL_SEC = 0.48;
 const PEACE_PULSE_BODY_SEC = 0.36;
 
-const MAIN_GAIN = 0.26;
-const PULSE_GAIN = 0.09;
+const MAIN_GAIN = 0.22;
+const PULSE_GAIN = 0.078;
+
+/** Keep float peaks below this before int16 encode + browser volume. */
+const FLOAT_PEAK_CEILING = 0.88;
 
 function smoothstep01(x: number): number {
   const t = Math.max(0, Math.min(1, x));
   return t * t * (3 - 2 * t);
+}
+
+function limitPeak(out: Float32Array, ceiling: number): void {
+  let m = 0;
+  for (let i = 0; i < out.length; i++) {
+    const a = Math.abs(out[i]);
+    if (a > m) m = a;
+  }
+  if (m <= 0 || m <= ceiling) return;
+  const g = ceiling / m;
+  for (let i = 0; i < out.length; i++) out[i] *= g;
 }
 
 /** Fade last `samples` to exact 0 (guards int16 edge). */
@@ -58,6 +72,7 @@ export function renderMainPeaceSamples(
     out[i] = env * MAIN_GAIN * Math.sin(2 * Math.PI * fundHz * t);
   }
   softenLastSamples(out, 128);
+  limitPeak(out, FLOAT_PEAK_CEILING);
   return out;
 }
 
@@ -82,5 +97,6 @@ export function renderPulsePeaceSamples(
     out[i] = env * PULSE_GAIN * Math.sin(2 * Math.PI * fundHz * t);
   }
   softenLastSamples(out, 96);
+  limitPeak(out, FLOAT_PEAK_CEILING);
   return out;
 }
