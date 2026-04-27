@@ -242,6 +242,8 @@ export function SinkInExperience({ config }: { config: SinkInConfigV1 }) {
   }, [scheduleAdvance]);
 
   const handleBegin = () => {
+    const ctx = ensureAudio();
+    void ctx?.resume?.().catch(() => {});
     playSinkInMainChimeFromGesture(cueToneHz);
     setIsPaused(false);
     setHeroLeaving(false);

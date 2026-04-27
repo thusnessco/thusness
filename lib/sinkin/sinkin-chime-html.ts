@@ -3,7 +3,8 @@
  * silent with Web Audio buffers; decoded WAV + play() is the reliable path.
  * Web Audio in soft-chime.ts remains optional fallback from the experience layer.
  *
- * WAVs are cached per cue frequency (see sinkin-peace-tone).
+ * iOS Safari: reuse the same <audio> nodes for all cues; new Audio() from timers
+ * is often silent. Elements are created on first use and primed on Begin (gesture).
  */
 
 import { clampCueToneHz } from "./config";
@@ -19,6 +20,31 @@ const HTML_AUDIO_VOLUME = 0.78;
 
 const mainChimeUrlByHz = new Map<number, string>();
 const pulseUrlByHz = new Map<number, string>();
+
+/** Reused for every main cue (gesture + timers) — required for iOS inline audio. */
+let mainCueAudio: HTMLAudioElement | null = null;
+/** Reused for mid-step pulses; primed muted on first Begin tap. */
+let pulseCueAudio: HTMLAudioElement | null = null;
+let lastMainObjectUrl = "";
+let lastPulseObjectUrl = "";
+
+function createInlineAudio(): HTMLAudioElement {
+  const el = new Audio();
+  el.setAttribute("playsinline", "");
+  el.setAttribute("webkit-playsinline", "");
+  el.preload = "auto";
+  return el;
+}
+
+function getMainCueAudio(): HTMLAudioElement {
+  if (!mainCueAudio) mainCueAudio = createInlineAudio();
+  return mainCueAudio;
+}
+
+function getPulseCueAudio(): HTMLAudioElement {
+  if (!pulseCueAudio) pulseCueAudio = createInlineAudio();
+  return pulseCueAudio;
+}
 
 function floatToWavMono16(samples: Float32Array, sampleRate: number): Blob {
   const n = samples.length;
@@ -86,24 +112,74 @@ function pulseObjectUrl(cueToneHz: number): string {
   return url;
 }
 
-export function playSinkInMainChimeFromGesture(cueToneHz: number): void {
+async function playMainShared(cueToneHz: number): Promise<void> {
+  const a = getMainCueAudio();
+  const url = mainChimeObjectUrl(cueToneHz);
+  if (url !== lastMainObjectUrl) {
+    a.src = url;
+    a.load();
+    lastMainObjectUrl = url;
+  } else {
+    a.pause();
+    a.currentTime = 0;
+  }
+  a.volume = HTML_AUDIO_VOLUME;
+  await a.play();
+}
+
+/** Muted micro-play on the pulse element during the user gesture so later timer plays work on iOS. */
+function primePulseCueElement(cueToneHz: number): void {
   try {
-    const a = new Audio(mainChimeObjectUrl(cueToneHz));
-    a.volume = HTML_AUDIO_VOLUME;
-    void a.play().catch(() => {});
+    const a = getPulseCueAudio();
+    const url = pulseObjectUrl(cueToneHz);
+    if (url !== lastPulseObjectUrl) {
+      a.src = url;
+      a.load();
+      lastPulseObjectUrl = url;
+    } else {
+      a.pause();
+      a.currentTime = 0;
+    }
+    a.muted = true;
+    a.volume = 0;
+    void a
+      .play()
+      .then(() => {
+        a.pause();
+        a.currentTime = 0;
+        a.muted = false;
+        a.volume = HTML_AUDIO_VOLUME;
+      })
+      .catch(() => {
+        a.muted = false;
+        a.volume = HTML_AUDIO_VOLUME;
+      });
   } catch {
     /* ignore */
   }
 }
 
+export function playSinkInMainChimeFromGesture(cueToneHz: number): void {
+  primePulseCueElement(cueToneHz);
+  void playMainShared(cueToneHz).catch(() => {});
+}
+
 export async function playSinkInMainChimeHtml(cueToneHz: number): Promise<void> {
-  const a = new Audio(mainChimeObjectUrl(cueToneHz));
-  a.volume = HTML_AUDIO_VOLUME;
-  await a.play();
+  await playMainShared(cueToneHz);
 }
 
 export async function playSinkInPulseHtml(cueToneHz: number): Promise<void> {
-  const a = new Audio(pulseObjectUrl(cueToneHz));
+  const a = getPulseCueAudio();
+  const url = pulseObjectUrl(cueToneHz);
+  if (url !== lastPulseObjectUrl) {
+    a.src = url;
+    a.load();
+    lastPulseObjectUrl = url;
+  } else {
+    a.pause();
+    a.currentTime = 0;
+  }
+  a.muted = false;
   a.volume = HTML_AUDIO_VOLUME;
   await a.play();
 }
