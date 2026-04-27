@@ -14,6 +14,11 @@ import { playSinkInPulse, playSoftChime } from "@/lib/sinkin/soft-chime";
 
 const helv = 'Helvetica, "Helvetica Neue", Arial, sans-serif';
 
+/** Some in-app browsers never settle `Audio.play()`; cap wait so steps still advance. */
+function sleep(ms: number): Promise<void> {
+  return new Promise((r) => setTimeout(r, ms));
+}
+
 function SinkinPauseIcon() {
   return (
     <svg width="14" height="16" viewBox="0 0 14 16" aria-hidden>
@@ -120,11 +125,14 @@ export function SinkInExperience({ config }: { config: SinkInConfigV1 }) {
         const idx = stepIndexRef.current;
         if (idx < 0 || idx >= stepsLen - 1) return;
         const ctx = ensureAudio();
-        try {
-          await playSinkInMainChimeHtml(cueToneHz);
-        } catch {
-          if (ctx) await playSoftChime(ctx, cueToneHz);
-        }
+        const playMainCue = async () => {
+          try {
+            await playSinkInMainChimeHtml(cueToneHz);
+          } catch {
+            if (ctx) await playSoftChime(ctx, cueToneHz);
+          }
+        };
+        await Promise.race([playMainCue(), sleep(2500)]);
         if (!mountedRef.current) return;
         setHeroLeaving(true);
         leaveTimerRef.current = window.setTimeout(() => {
@@ -185,11 +193,14 @@ export function SinkInExperience({ config }: { config: SinkInConfigV1 }) {
       if (idx < 0 || idx >= stepsLen - 1) return;
       if (Date.now() >= advanceAtRef.current - bufferMs) return;
       const ctx = ensureAudio();
-      try {
-        await playSinkInPulseHtml(cueToneHz);
-      } catch {
-        if (ctx) await playSinkInPulse(ctx, cueToneHz);
-      }
+      const playPulseCue = async () => {
+        try {
+          await playSinkInPulseHtml(cueToneHz);
+        } catch {
+          if (ctx) await playSinkInPulse(ctx, cueToneHz);
+        }
+      };
+      await Promise.race([playPulseCue(), sleep(1500)]);
       const nextDelay = intervalMs;
       if (Date.now() + nextDelay >= advanceAtRef.current - bufferMs) return;
       midPingTimerRef.current = window.setTimeout(() => {
