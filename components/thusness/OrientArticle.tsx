@@ -47,11 +47,11 @@ export function OrientArticle({ html }: { html: string }) {
 
   return (
     <div className="mx-auto grid w-full max-w-[1080px] gap-8 px-6 pb-20 pt-10 lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-10 lg:px-10">
-      <aside className="hidden lg:block">
+      <aside className="block">
         {headings.length ? (
           <nav
             aria-label="On this page"
-            className="sticky top-8 border-l border-[var(--thusness-rule)] pl-4 text-[11px] uppercase tracking-[2px] text-[var(--thusness-muted)]"
+            className="border-l border-[var(--thusness-rule)] pl-4 text-[11px] uppercase tracking-[2px] text-[var(--thusness-muted)] lg:sticky lg:top-8"
           >
             <p className="mb-3">On this page</p>
             <ol className="space-y-2">
@@ -85,19 +85,27 @@ export function OrientArticle({ html }: { html: string }) {
         .orient-article h2,
         .orient-article h3 {
           scroll-margin-top: 84px;
+          font-family: Helvetica, "Helvetica Neue", Arial, sans-serif;
+          color: var(--thusness-ink, #1a1915);
         }
         .orient-article h2 {
-          margin-top: 2.7rem;
-          font-size: 1.25rem;
+          margin-top: 3rem;
+          padding-top: 0.85rem;
+          border-top: 1px solid var(--thusness-rule, #c7c2b0);
+          font-size: 0.86rem;
           line-height: 1.25;
-          letter-spacing: 0.01em;
-          color: var(--thusness-ink, #1a1915);
+          letter-spacing: 1.9px;
+          text-transform: uppercase;
+          font-weight: 600;
         }
         .orient-article h3 {
-          margin-top: 2rem;
-          font-size: 1rem;
+          margin-top: 1.8rem;
+          padding-left: 0.55rem;
+          border-left: 2px solid var(--thusness-rule, #c7c2b0);
+          font-size: 0.96rem;
           line-height: 1.35;
-          color: var(--thusness-ink, #1a1915);
+          letter-spacing: 0.01em;
+          font-weight: 500;
         }
       `}</style>
     </div>
