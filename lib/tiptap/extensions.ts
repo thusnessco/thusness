@@ -8,7 +8,7 @@ import { thusnessBlockExtensions } from "./thusness-blocks";
 export function getTiptapExtensions(): Extensions {
   return [
     StarterKit.configure({
-      heading: { levels: [2, 3] },
+      heading: { levels: [1, 2, 3] },
     }),
     ...thusnessBlockExtensions(),
     ImageWithLink.configure({
