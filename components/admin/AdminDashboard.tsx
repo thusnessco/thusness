@@ -31,6 +31,7 @@ type Props = {
   homepagePin: HomepagePin;
   sinkInConfig: SinkInConfigV1;
   sinkInUpdatedAt: string | null;
+  orientNavVisible: boolean;
 };
 
 type NoteBodyOverride = { doc: JSONContent; key: string };
@@ -40,6 +41,7 @@ export function AdminDashboard({
   homepagePin,
   sinkInConfig,
   sinkInUpdatedAt,
+  orientNavVisible,
 }: Props) {
   const router = useRouter();
   const [contentKey, setContentKey] = useState<ContentKey>(() =>
@@ -153,6 +155,7 @@ export function AdminDashboard({
         homepagePin={homepagePin}
         sinkInConfig={sinkInConfig}
         sinkInUpdatedAt={sinkInUpdatedAt}
+        orientNavVisible={orientNavVisible}
         contentKey={contentKey}
         setContentKey={setContentKey}
         onMessage={flash}

@@ -8,6 +8,7 @@ import type { JSONContent } from "@tiptap/core";
 import {
   createDraftNoteFromHomepageTemplate,
   createNoteFromTemplate,
+  saveOrientNavVisible,
 } from "@/app/admin/actions";
 import type { HomepagePin } from "@/lib/homepage/homepage-pin";
 import {
@@ -53,6 +54,7 @@ type Props = {
   homepagePin: HomepagePin;
   sinkInConfig: SinkInConfigV1;
   sinkInUpdatedAt: string | null;
+  orientNavVisible: boolean;
   contentKey: ContentKey;
   setContentKey: (k: ContentKey) => void;
   onMessage: (msg: string) => void;
@@ -75,6 +77,7 @@ export function AdminEditorHub({
   homepagePin,
   sinkInConfig,
   sinkInUpdatedAt,
+  orientNavVisible,
   contentKey,
   setContentKey,
   onMessage,
@@ -91,6 +94,7 @@ export function AdminEditorHub({
     DEFAULT_SIMPLE_FIELDS
   );
   const [full, setFull] = useState<FullDescriptionFields>(DEFAULT_FULL_FIELDS);
+  const [showOrientLink, setShowOrientLink] = useState(orientNavVisible);
   const [templateSourceId, setTemplateSourceId] = useState("");
   const [noteListFilter, setNoteListFilter] =
     useState<AdminNoteListFilter>("all");
@@ -127,6 +131,10 @@ export function AdminEditorHub({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pinSyncKey]);
+
+  useEffect(() => {
+    setShowOrientLink(orientNavVisible);
+  }, [orientNavVisible]);
 
   const editingNoteId = parseNoteId(contentKey);
 
@@ -355,6 +363,38 @@ export function AdminEditorHub({
               /sinkin
             </span>
           </button>
+          <label className="mt-3 flex items-start gap-2 text-sm text-[var(--thusness-ink-soft)]">
+            <input
+              type="checkbox"
+              className="mt-1 border-[var(--thusness-rule)] accent-[var(--thusness-ink)]"
+              checked={showOrientLink}
+              disabled={isPending}
+              onChange={(e) => {
+                const next = e.target.checked;
+                setShowOrientLink(next);
+                startTransition(async () => {
+                  const res = await saveOrientNavVisible(next);
+                  if (!res.ok) onMessage(res.message);
+                  else {
+                    onMessage(
+                      next
+                        ? "Orient is now visible in public nav + homepage."
+                        : "Orient is now hidden from public nav + homepage."
+                    );
+                    router.refresh();
+                  }
+                });
+              }}
+            />
+            <span>
+              <span className="font-medium text-[var(--thusness-ink)]">
+                Show Orient link
+              </span>
+              <span className="mt-0.5 block text-[10px] text-[var(--thusness-muted)]">
+                Controls Orient in top navigation and the homepage top-right link.
+              </span>
+            </span>
+          </label>
         </nav>
 
         <div className="min-w-0 space-y-6">

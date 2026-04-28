@@ -2,18 +2,23 @@ import Link from "next/link";
 
 import { HomePageFromTipTap } from "@/components/thusness/HomePageFromTipTap";
 import { getHomepageTipTapDoc } from "@/lib/data/homepage-body";
+import { getOrientNavVisible } from "@/lib/data/orient-nav";
 import { tiptapJsonToHtml } from "@/lib/tiptap/to-html";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const body = await getHomepageTipTapDoc();
+  const [body, orientNavVisible] = await Promise.all([
+    getHomepageTipTapDoc(),
+    getOrientNavVisible(),
+  ]);
   if (body.ok) {
     const html = tiptapJsonToHtml(body.doc);
     return (
       <HomePageFromTipTap
         html={html}
         showBackgroundCircle={body.showBackgroundCircle === true}
+        showOrientLink={orientNavVisible}
       />
     );
   }

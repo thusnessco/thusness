@@ -27,6 +27,7 @@ import {
   SINKIN_SITE_KEY,
   type SinkInConfigV1,
 } from "@/lib/sinkin/config";
+import { ORIENT_NAV_KEY } from "@/lib/data/orient-nav";
 import { countTiptapImages } from "@/lib/tiptap/count-tiptap-images";
 import { emptyDoc } from "@/lib/tiptap/empty-doc";
 
@@ -188,6 +189,32 @@ export async function saveSinkInConfig(
   revalidatePath("/sinkin");
   revalidatePath("/admin");
   return { ok: true as const, updated_at: data.updated_at as string };
+}
+
+/** Toggle whether Orient is shown in public nav/home links. */
+export async function saveOrientNavVisible(
+  visible: boolean
+): Promise<{ ok: true } | { ok: false; message: string }> {
+  const supabase = await createServerSupabase();
+  const { error } = await supabase
+    .from("site_content")
+    .upsert(
+      {
+        key: ORIENT_NAV_KEY,
+        title: "Orient nav visibility",
+        content_json: { visible: Boolean(visible) },
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "key" }
+    );
+  if (error) return { ok: false as const, message: error.message };
+
+  revalidatePath("/");
+  revalidatePath("/notes");
+  revalidatePath("/orient");
+  revalidatePath("/orientation");
+  revalidatePath("/admin");
+  return { ok: true as const };
 }
 
 export async function saveNote(input: {

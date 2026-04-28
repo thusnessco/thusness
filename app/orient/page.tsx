@@ -2,41 +2,37 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { HomePageFromTipTap } from "@/components/thusness/HomePageFromTipTap";
+import { OrientArticle } from "@/components/thusness/OrientArticle";
 import { getPublishedNoteBySlug } from "@/lib/data/notes-public";
 import { getOrientNavVisible } from "@/lib/data/orient-nav";
 import { tiptapJsonToHtml } from "@/lib/tiptap/to-html";
 
-type Props = { params: Promise<{ slug: string }> };
-
 export const dynamic = "force-dynamic";
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
-  const note = await getPublishedNoteBySlug(slug);
-  if (!note) return { title: "Note" };
+const ORIENTATION_SLUG = "orientation";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const note = await getPublishedNoteBySlug(ORIENTATION_SLUG);
+  if (!note) return { title: "Orient" };
   return {
-    title: note.title || "Note",
+    title: note.title || "Orient",
     description: note.excerpt ?? undefined,
     robots: { index: false, follow: false },
   };
 }
 
-export default async function NotePage({ params }: Props) {
-  const { slug } = await params;
-
+export default async function OrientPage() {
   const [note, orientNavVisible] = await Promise.all([
-    getPublishedNoteBySlug(slug),
+    getPublishedNoteBySlug(ORIENTATION_SLUG),
     getOrientNavVisible(),
   ]);
   if (!note) notFound();
-
   const html = tiptapJsonToHtml(note.content_json);
 
   return (
-    <div>
+    <div className="min-h-screen bg-[var(--thusness-bg)] font-sans text-[var(--thusness-ink)]">
       <div className="border-b border-[var(--thusness-rule)] bg-[var(--thusness-bg)] px-6 py-4 sm:px-10">
-        <div className="mx-auto flex max-w-[880px] justify-end">
+        <div className="mx-auto flex max-w-[1080px] justify-end">
           <nav
             aria-label="Top navigation"
             className="flex items-center gap-4 text-[11px] uppercase tracking-[2.4px] text-[var(--thusness-muted)]"
@@ -53,11 +49,8 @@ export default async function NotePage({ params }: Props) {
           </nav>
         </div>
       </div>
-      <HomePageFromTipTap
-        html={html}
-        showBackgroundCircle={note.show_background_circle === true}
-        showOrientLink={orientNavVisible}
-      />
+
+      <OrientArticle html={html} />
     </div>
   );
 }
