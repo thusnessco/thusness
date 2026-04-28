@@ -34,7 +34,18 @@ export default async function NotesIndexPage({ searchParams }: PageProps) {
 
   return (
     <main className="min-h-screen bg-[var(--thusness-bg)] font-sans text-[var(--thusness-ink)]">
-      <ThusnessPageShell headerAside="~ archive">
+      <ThusnessPageShell
+        headerAside={
+          <nav className="flex items-center justify-end gap-4" aria-label="Top navigation">
+            <Link href="/notes" className="transition-opacity hover:opacity-70">
+              Notes
+            </Link>
+            <Link href="/orientation" className="transition-opacity hover:opacity-70">
+              Orientation
+            </Link>
+          </nav>
+        }
+      >
         <h1 className="mt-1 text-[22px] font-medium tracking-tight text-[var(--thusness-ink)]">
           Notes
         </h1>
@@ -82,33 +93,33 @@ export default async function NotesIndexPage({ searchParams }: PageProps) {
               {notes.map((n) => {
                 const cat = parseNoteCategory(n.category);
                 return (
-                <li
-                  key={n.id}
-                  className="border-t border-[var(--thusness-rule)] py-6 last:border-b last:border-[var(--thusness-rule)]"
-                >
-                  <Link
-                    href={`/notes/${n.slug}`}
-                    className="block text-[var(--thusness-ink)] transition-opacity hover:opacity-70 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-[var(--thusness-ink)]"
+                  <li
+                    key={n.id}
+                    className="border-t border-[var(--thusness-rule)] py-6 last:border-b last:border-[var(--thusness-rule)]"
                   >
-                    <span className="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-[11px] uppercase tracking-[2px] text-[var(--thusness-muted)]">
-                      <span>{formatPublishedDate(n.published_at)}</span>
-                      {cat ? (
-                        <span className="normal-case tracking-normal text-[var(--thusness-ink-soft)]">
-                          · {NOTE_CATEGORY_LABELS[cat]}
+                    <Link
+                      href={`/notes/${n.slug}`}
+                      className="block text-[var(--thusness-ink)] transition-opacity hover:opacity-70 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-[var(--thusness-ink)]"
+                    >
+                      <span className="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-[11px] uppercase tracking-[2px] text-[var(--thusness-muted)]">
+                        <span>{formatPublishedDate(n.published_at)}</span>
+                        {cat ? (
+                          <span className="normal-case tracking-normal text-[var(--thusness-ink-soft)]">
+                            · {NOTE_CATEGORY_LABELS[cat]}
+                          </span>
+                        ) : null}
+                      </span>
+                      <span className="mt-2 block text-[22px] font-medium leading-tight text-[var(--thusness-ink)]">
+                        {n.title || "Untitled"}
+                      </span>
+                      {n.excerpt ? (
+                        <span className="mt-2 block text-base italic leading-snug text-[var(--thusness-ink-soft)]">
+                          {n.excerpt}
                         </span>
                       ) : null}
-                    </span>
-                    <span className="mt-2 block text-[22px] font-medium leading-tight text-[var(--thusness-ink)]">
-                      {n.title || "Untitled"}
-                    </span>
-                    {n.excerpt ? (
-                      <span className="mt-2 block text-base italic leading-snug text-[var(--thusness-ink-soft)]">
-                        {n.excerpt}
-                      </span>
-                    ) : null}
-                  </Link>
-                </li>
-              );
+                    </Link>
+                  </li>
+                );
               })}
             </ol>
           )}

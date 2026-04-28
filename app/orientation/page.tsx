@@ -6,25 +6,22 @@ import { HomePageFromTipTap } from "@/components/thusness/HomePageFromTipTap";
 import { getPublishedNoteBySlug } from "@/lib/data/notes-public";
 import { tiptapJsonToHtml } from "@/lib/tiptap/to-html";
 
-type Props = { params: Promise<{ slug: string }> };
-
 export const dynamic = "force-dynamic";
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
-  const note = await getPublishedNoteBySlug(slug);
-  if (!note) return { title: "Note" };
+const ORIENTATION_SLUG = "orientation";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const note = await getPublishedNoteBySlug(ORIENTATION_SLUG);
+  if (!note) return { title: "Orientation" };
   return {
-    title: note.title || "Note",
+    title: note.title || "Orientation",
     description: note.excerpt ?? undefined,
     robots: { index: false, follow: false },
   };
 }
 
-export default async function NotePage({ params }: Props) {
-  const { slug } = await params;
-
-  const note = await getPublishedNoteBySlug(slug);
+export default async function OrientationPage() {
+  const note = await getPublishedNoteBySlug(ORIENTATION_SLUG);
   if (!note) notFound();
 
   const html = tiptapJsonToHtml(note.content_json);
