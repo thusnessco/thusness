@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { OrientArticle } from "@/components/thusness/OrientArticle";
+import { SiteFooter } from "@/components/thusness/SiteFooter";
 import Wordmark from "@/components/thusness/Wordmark";
 import { getPublishedNoteBySlug } from "@/lib/data/notes-public";
 import { getOrientNavVisible } from "@/lib/data/orient-nav";
@@ -32,14 +33,14 @@ export default async function OrientPage() {
 
   return (
     <div className="min-h-screen bg-[var(--thusness-bg)] font-sans text-[var(--thusness-ink)]">
-      <div className="border-b border-[var(--thusness-rule)] bg-[var(--thusness-bg)] px-6 py-4 sm:px-10">
+      <div className="bg-[var(--thusness-bg)] px-6 py-4 sm:px-10">
         <div className="mx-auto flex max-w-[1080px] items-start justify-between gap-8">
           <Link
             href="/"
             className="inline-block transition-opacity hover:opacity-70"
             aria-label="Thusness home"
           >
-            <Wordmark size={20} tagline="thusness.co" />
+            <Wordmark size={20} tagline="~ as it is" />
           </Link>
           <nav
             aria-label="Top navigation"
@@ -56,6 +57,9 @@ export default async function OrientPage() {
       </div>
 
       <OrientArticle html={html} />
+      <div className="mx-auto max-w-[1080px] px-6 pb-12 lg:px-10">
+        <SiteFooter />
+      </div>
     </div>
   );
 }

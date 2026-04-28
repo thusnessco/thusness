@@ -30,18 +30,44 @@ export function OrientArticle({ html }: { html: string }) {
 
     const used = new Map<string, number>();
     const found: HeadingLink[] = [];
-    const nodes = root.querySelectorAll("h2, h3");
-    nodes.forEach((node) => {
-      const level = node.tagName === "H2" ? 2 : 3;
+    const pushHeading = (node: Element, level: 2 | 3) => {
       const text = node.textContent?.trim() ?? "";
       if (!text) return;
       const base = slugifyHeading(text) || `section-${found.length + 1}`;
       const n = (used.get(base) ?? 0) + 1;
       used.set(base, n);
       const id = n === 1 ? base : `${base}-${n}`;
-      node.id = id;
+      (node as HTMLElement).id = id;
       found.push({ id, text, level });
+    };
+
+    // Reset any previous auto heading classes/ids before recalculating.
+    root
+      .querySelectorAll(".orient-auto-heading")
+      .forEach((n) => n.classList.remove("orient-auto-heading"));
+
+    const headingNodes = root.querySelectorAll("h1, h2, h3");
+    headingNodes.forEach((node) => {
+      const tag = node.tagName;
+      const level = tag === "H3" ? 3 : 2;
+      pushHeading(node, level);
     });
+
+    // Fallback: if content uses plain paragraphs as section labels, auto-promote.
+    if (found.length === 0) {
+      const paras = Array.from(root.querySelectorAll("p"));
+      for (const p of paras) {
+        const text = p.textContent?.trim() ?? "";
+        if (!text) continue;
+        // Short standalone title-ish line, not a sentence ending in punctuation.
+        if (text.length > 90) continue;
+        if (/[.!?]$/.test(text)) continue;
+        if (text.split(/\s+/).length > 12) continue;
+        p.classList.add("orient-auto-heading");
+        pushHeading(p, 2);
+      }
+    }
+
     setHeadings(found);
   }, [html]);
 
@@ -90,22 +116,35 @@ export function OrientArticle({ html }: { html: string }) {
         }
         .orient-article h2 {
           margin-top: 3rem;
-          padding-top: 0.85rem;
-          border-top: 1px solid var(--thusness-rule, #c7c2b0);
+          padding-top: 0.2rem;
           font-size: 0.86rem;
           line-height: 1.25;
           letter-spacing: 1.9px;
           text-transform: uppercase;
           font-weight: 600;
+          color: var(--thusness-muted, #8a8672);
         }
         .orient-article h3 {
           margin-top: 1.8rem;
           padding-left: 0.55rem;
-          border-left: 2px solid var(--thusness-rule, #c7c2b0);
+          border-left: 1px solid rgba(138, 134, 114, 0.5);
           font-size: 0.96rem;
           line-height: 1.35;
           letter-spacing: 0.01em;
           font-weight: 500;
+        }
+        .orient-article .orient-auto-heading {
+          margin-top: 3rem;
+          margin-bottom: 0.9rem;
+          padding-top: 0.2rem;
+          font-family: Helvetica, "Helvetica Neue", Arial, sans-serif;
+          font-size: 0.86rem;
+          line-height: 1.25;
+          letter-spacing: 1.9px;
+          text-transform: uppercase;
+          font-weight: 600;
+          color: var(--thusness-muted, #8a8672);
+          scroll-margin-top: 84px;
         }
       `}</style>
     </div>
