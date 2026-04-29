@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 
 import { createNote, signOut } from "@/app/admin/actions";
 import type { HomepagePin } from "@/lib/homepage/homepage-pin";
+import type { OrientBookletConfig } from "@/lib/orient/booklet-config";
 import type { OrientContent } from "@/lib/orient-infographics/types";
 import type { SinkInConfigV1 } from "@/lib/sinkin/config";
 import type { NoteRow } from "@/lib/supabase/public-server";
@@ -33,6 +34,7 @@ type Props = {
   sinkInConfig: SinkInConfigV1;
   sinkInUpdatedAt: string | null;
   orientNavVisible: boolean;
+  orientBookletConfig: OrientBookletConfig;
   orientInfographics: OrientContent;
   orientInfographicsUpdatedAt: string | null;
 };
@@ -45,6 +47,7 @@ export function AdminDashboard({
   sinkInConfig,
   sinkInUpdatedAt,
   orientNavVisible,
+  orientBookletConfig,
   orientInfographics,
   orientInfographicsUpdatedAt,
 }: Props) {
@@ -161,6 +164,7 @@ export function AdminDashboard({
         sinkInConfig={sinkInConfig}
         sinkInUpdatedAt={sinkInUpdatedAt}
         orientNavVisible={orientNavVisible}
+        orientBookletConfig={orientBookletConfig}
         orientInfographics={orientInfographics}
         orientInfographicsUpdatedAt={orientInfographicsUpdatedAt}
         contentKey={contentKey}

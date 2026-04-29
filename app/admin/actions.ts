@@ -29,6 +29,11 @@ import {
 } from "@/lib/sinkin/config";
 import { ORIENT_INFOGRAPHICS_SITE_KEY } from "@/lib/data/orient-infographics";
 import { ORIENT_NAV_KEY } from "@/lib/data/orient-nav";
+import {
+  ORIENT_BOOKLET_CONFIG_KEY,
+  parseOrientBookletConfig,
+  type OrientBookletConfig,
+} from "@/lib/orient/booklet-config";
 import { parseOrientInfographics } from "@/lib/orient-infographics/parse";
 import type { OrientContent } from "@/lib/orient-infographics/types";
 import { countTiptapImages } from "@/lib/tiptap/count-tiptap-images";
@@ -259,6 +264,38 @@ export async function saveOrientInfographics(
   revalidatePath("/orientation");
   revalidatePath("/admin");
   return { ok: true as const, updated_at: data.updated_at as string };
+}
+
+/** Persist Orient booklet route visibility + footer link settings. */
+export async function saveOrientBookletConfig(
+  input: OrientBookletConfig
+): Promise<{ ok: true } | { ok: false; message: string }> {
+  const supabase = await createServerSupabase();
+  const payload = JSON.parse(
+    JSON.stringify(parseOrientBookletConfig(input))
+  ) as Record<string, unknown>;
+  const { error } = await supabase
+    .from("site_content")
+    .upsert(
+      {
+        key: ORIENT_BOOKLET_CONFIG_KEY,
+        title: "Orient booklet config",
+        content_json: payload,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "key" }
+    );
+  if (error) return { ok: false as const, message: error.message };
+
+  revalidatePath("/orient");
+  revalidatePath("/orient/stages");
+  revalidatePath("/orient/recognition");
+  revalidatePath("/orient/pillars");
+  revalidatePath("/orient/movement");
+  revalidatePath("/orient/themes");
+  revalidatePath("/orient/nihilism");
+  revalidatePath("/admin");
+  return { ok: true as const };
 }
 
 export async function saveNote(input: {

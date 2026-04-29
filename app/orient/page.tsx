@@ -5,9 +5,11 @@ import { notFound } from "next/navigation";
 import { OrientArticle } from "@/components/thusness/OrientArticle";
 import { SiteFooter } from "@/components/thusness/SiteFooter";
 import Wordmark from "@/components/thusness/Wordmark";
+import { getOrientBookletConfig } from "@/lib/data/orient-booklet-config";
 import { getOrientInfographicsBundle } from "@/lib/data/orient-infographics";
 import { getPublishedNoteBySlug } from "@/lib/data/notes-public";
 import { getOrientNavVisible } from "@/lib/data/orient-nav";
+import { ORIENT_BOOKLET_PAGES } from "@/lib/orient/booklet-pages";
 import { tiptapJsonToHtml } from "@/lib/tiptap/to-html";
 
 export const dynamic = "force-dynamic";
@@ -25,10 +27,11 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function OrientPage() {
-  const [note, orientNavVisible, orientIg] = await Promise.all([
+  const [note, orientNavVisible, orientIg, bookletConfig] = await Promise.all([
     getPublishedNoteBySlug(ORIENTATION_SLUG),
     getOrientNavVisible(),
     getOrientInfographicsBundle(),
+    getOrientBookletConfig(),
   ]);
   if (!note) notFound();
   const html = tiptapJsonToHtml(note.content_json);
@@ -60,6 +63,25 @@ export default async function OrientPage() {
 
       <OrientArticle html={html} embedContent={orientIg.content} />
       <div className="mx-auto max-w-[1080px] px-6 pb-12 lg:px-10">
+        <section className="mx-auto mb-12 max-w-[640px] border-t border-[var(--thusness-rule)] pt-5">
+          <p className="mb-3 text-[11px] uppercase tracking-[2.2px] text-[var(--thusness-muted)]">
+            In sequence
+          </p>
+          <ol className="space-y-2">
+            {ORIENT_BOOKLET_PAGES.filter((p) => bookletConfig.pagesVisible[p.slug]).map(
+              (p) => (
+                <li key={p.slug}>
+                  <Link
+                    href={`/orient/${p.slug}`}
+                    className="text-[15px] text-[var(--thusness-ink-soft)] transition-opacity hover:opacity-70"
+                  >
+                    {String(p.index).padStart(2, "0")} · {p.label}
+                  </Link>
+                </li>
+              )
+            )}
+          </ol>
+        </section>
         <SiteFooter />
       </div>
     </div>

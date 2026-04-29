@@ -10,6 +10,7 @@ import {
   createNoteFromTemplate,
   saveOrientNavVisible,
 } from "@/app/admin/actions";
+import type { OrientBookletConfig } from "@/lib/orient/booklet-config";
 import type { OrientContent } from "@/lib/orient-infographics/types";
 import type { HomepagePin } from "@/lib/homepage/homepage-pin";
 import {
@@ -45,6 +46,7 @@ import { NoteEditorPanel } from "./NoteEditorPanel";
 import { RootStatusStrip } from "./RootStatusStrip";
 import { SimpleLayoutForm } from "./SimpleLayoutForm";
 import { OrientInfographicsEditorPanel } from "./OrientInfographicsEditorPanel";
+import { OrientBookletPanel } from "./OrientBookletPanel";
 import { SinkInEditorPanel } from "./SinkInEditorPanel";
 import { SwitchRootToNote } from "./SwitchRootToNote";
 import type { TiptapEditorFieldHandle } from "./TiptapEditorField";
@@ -57,6 +59,7 @@ type Props = {
   sinkInConfig: SinkInConfigV1;
   sinkInUpdatedAt: string | null;
   orientNavVisible: boolean;
+  orientBookletConfig: OrientBookletConfig;
   orientInfographics: OrientContent;
   orientInfographicsUpdatedAt: string | null;
   contentKey: ContentKey;
@@ -82,6 +85,7 @@ export function AdminEditorHub({
   sinkInConfig,
   sinkInUpdatedAt,
   orientNavVisible,
+  orientBookletConfig,
   orientInfographics,
   orientInfographicsUpdatedAt,
   contentKey,
@@ -379,6 +383,16 @@ export function AdminEditorHub({
               /orient diagrams
             </span>
           </button>
+          <button
+            type="button"
+            className={adminNavBtn(contentKey === "orient_booklet")}
+            onClick={() => setContentKey("orient_booklet")}
+          >
+            <span className="block truncate">Orient booklet</span>
+            <span className="mt-0.5 block text-[10px] uppercase tracking-wider text-[var(--thusness-muted)]">
+              /orient/* visibility
+            </span>
+          </button>
           <label className="mt-3 flex items-start gap-2 text-sm text-[var(--thusness-ink-soft)]">
             <input
               type="checkbox"
@@ -485,6 +499,14 @@ export function AdminEditorHub({
               key={orientInfographicsUpdatedAt ?? "orient_graphics"}
               initialContent={orientInfographics}
               updatedAt={orientInfographicsUpdatedAt}
+              isPending={isPending}
+              startTransition={startTransition}
+              onMessage={onMessage}
+            />
+          ) : null}
+          {contentKey === "orient_booklet" ? (
+            <OrientBookletPanel
+              initialConfig={orientBookletConfig}
               isPending={isPending}
               startTransition={startTransition}
               onMessage={onMessage}
