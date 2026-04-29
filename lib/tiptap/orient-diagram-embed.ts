@@ -1,6 +1,8 @@
 import { mergeAttributes, Node } from "@tiptap/core";
 import type { JSONContent } from "@tiptap/core";
 
+import { decodeOrientPatch, encodeOrientPatch } from "@/lib/tiptap/orient-diagram-codec";
+
 export const thusnessOrientDiagramName = "thusnessOrientDiagram" as const;
 
 export const ORIENT_DIAGRAM_IDS = [
@@ -33,11 +35,18 @@ function coerceDiagram(raw: unknown): OrientDiagramId {
   return typeof raw === "string" && isOrientDiagramId(raw) ? raw : "stages";
 }
 
+function normalizePatch(raw: unknown): Record<string, unknown> | null {
+  if (raw == null) return null;
+  if (typeof raw !== "object" || Array.isArray(raw)) return null;
+  const o = raw as Record<string, unknown>;
+  return Object.keys(o).length ? o : null;
+}
+
 /** Insertable fragment for the orientation note body. */
 export function makeOrientDiagramFragment(id: OrientDiagramId): JSONContent {
   return {
     type: thusnessOrientDiagramName,
-    attrs: { diagram: id },
+    attrs: { diagram: id, patch: null },
   };
 }
 
@@ -73,29 +82,52 @@ export const ThusnessOrientDiagram = Node.create({
           "data-thusness-orient-diagram": coerceDiagram(attrs.diagram),
         }),
       },
+      patch: {
+        default: null,
+        parseHTML: (element) =>
+          decodeOrientPatch(element.getAttribute("data-thusness-orient-patch")),
+        renderHTML: (attrs) => {
+          const p = normalizePatch(attrs.patch);
+          if (!p) return {};
+          return { "data-thusness-orient-patch": encodeOrientPatch(p) };
+        },
+      },
     };
   },
   parseHTML() {
     return [
       {
         tag: `figure[data-thusness-node="${thusnessOrientDiagramName}"]`,
+        getAttrs: (el) => {
+          const h = el as HTMLElement;
+          return {
+            diagram: coerceDiagram(h.getAttribute("data-thusness-orient-diagram")),
+            patch: decodeOrientPatch(h.getAttribute("data-thusness-orient-patch")),
+          };
+        },
       },
       {
         tag: "figure[data-thusness-orient-diagram]",
-        getAttrs: (el) => ({
-          diagram: coerceDiagram((el as HTMLElement).getAttribute("data-thusness-orient-diagram")),
-        }),
+        getAttrs: (el) => {
+          const h = el as HTMLElement;
+          return {
+            diagram: coerceDiagram(h.getAttribute("data-thusness-orient-diagram")),
+            patch: decodeOrientPatch(h.getAttribute("data-thusness-orient-patch")),
+          };
+        },
       },
     ];
   },
   renderHTML({ HTMLAttributes, node }) {
     const diagram = coerceDiagram(node.attrs.diagram);
+    const p = normalizePatch(node.attrs.patch);
     return [
       "figure",
       mergeAttributes(HTMLAttributes, {
         "data-thusness-node": thusnessOrientDiagramName,
         "data-thusness-orient-diagram": diagram,
         class: "orient-diagram-embed-slot tiptap-thusness-orient-diagram",
+        ...(p ? { "data-thusness-orient-patch": encodeOrientPatch(p) } : {}),
       }),
     ];
   },

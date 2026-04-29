@@ -438,6 +438,7 @@ export function AdminEditorHub({
               router={router}
               onMessage={onMessage}
               onNoteBodySaved={onNoteBodySaved}
+              orientSiteDefaults={orientInfographics}
             />
           ) : editingNoteId ? (
             <p className="text-sm text-[var(--thusness-muted)]">

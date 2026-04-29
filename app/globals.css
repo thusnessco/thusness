@@ -753,7 +753,9 @@ body.thusness ::selection {
   background: color-mix(in srgb, var(--thusness-bg, #efece1) 92%, var(--thusness-rule, #c7c2b0));
 }
 
-.tiptap-editor .ProseMirror figure.tiptap-thusness-orient-diagram::after {
+.tiptap-editor
+  .ProseMirror
+  figure.tiptap-thusness-orient-diagram:not(.orient-diagram-embed-slot)::after {
   content: "Diagram · " attr(data-thusness-orient-diagram);
   display: block;
   padding: 12px 14px;

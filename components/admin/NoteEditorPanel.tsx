@@ -17,6 +17,7 @@ import {
   parseNoteCategory,
   type NoteCategory,
 } from "@/lib/notes/category";
+import type { OrientContent } from "@/lib/orient-infographics/types";
 import type { NoteRow } from "@/lib/supabase/public-server";
 
 import {
@@ -44,6 +45,7 @@ export function NoteEditorPanel({
   router,
   onMessage,
   onNoteBodySaved,
+  orientSiteDefaults,
 }: {
   note: NoteRow;
   homepagePin: HomepagePin;
@@ -57,6 +59,8 @@ export function NoteEditorPanel({
     doc: JSONContent,
     updatedAt: string
   ) => void;
+  /** Site Orient infographics (merged with per-embed patches in the orientation note editor). */
+  orientSiteDefaults?: OrientContent;
 }) {
   const [slug, setSlug] = useState(note.slug);
   const [title, setTitle] = useState(note.title);
@@ -288,10 +292,10 @@ export function NoteEditorPanel({
       {note.slug === "orientation" ? (
         <p className="mb-3 max-w-2xl text-[11px] leading-relaxed text-[var(--thusness-muted)]">
           Use <span className="text-[var(--thusness-ink-soft)]">+ Orient diagram…</span>{" "}
-          in the toolbar to place diagrams in the article (drag the handle to reorder).
-          All diagram wording is edited under{" "}
-          <span className="font-medium text-[var(--thusness-ink)]">Hidden pages → Orient graphics</span>{" "}
-          in this admin.
+          in the toolbar to place diagrams (drag the handle to reorder). Edit titles
+          and labels in each block; those overrides apply only to that placement. For
+          site-wide defaults, use{" "}
+          <span className="font-medium text-[var(--thusness-ink)]">Hidden pages → Orient graphics</span>.
         </p>
       ) : null}
       <TiptapEditorField
@@ -305,6 +309,9 @@ export function NoteEditorPanel({
         variant="page"
         onTemplateNotice={onMessage}
         orientDiagramControls={note.slug === "orientation"}
+        orientDiagramSiteDefaults={
+          note.slug === "orientation" ? orientSiteDefaults : undefined
+        }
       />
 
       <div className="mt-10 space-y-4 border-t border-[var(--thusness-rule)] pt-8">

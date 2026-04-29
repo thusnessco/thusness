@@ -5,6 +5,7 @@ import { createRoot, type Root } from "react-dom/client";
 
 import { OrientDiagramEmbed } from "@/components/orient/OrientDiagramEmbed";
 import type { OrientContent } from "@/lib/orient-infographics/types";
+import { decodeOrientPatch } from "@/lib/tiptap/orient-diagram-codec";
 import { isOrientDiagramId } from "@/lib/tiptap/orient-diagram-embed";
 
 type HeadingLink = {
@@ -127,11 +128,14 @@ export function OrientArticle({
     root.querySelectorAll("figure[data-thusness-orient-diagram]").forEach((fig) => {
       const raw = fig.getAttribute("data-thusness-orient-diagram") ?? "";
       if (!isOrientDiagramId(raw)) return;
+      const patch = decodeOrientPatch(fig.getAttribute("data-thusness-orient-patch"));
       (fig as HTMLElement).innerHTML = "";
       const host = document.createElement("div");
       fig.appendChild(host);
       const rr = createRoot(host);
-      rr.render(<OrientDiagramEmbed diagram={raw} content={embedContent} />);
+      rr.render(
+        <OrientDiagramEmbed diagram={raw} content={embedContent} patch={patch} />
+      );
       embedRootsRef.current.push(rr);
     });
   }, [html, embedContent]);

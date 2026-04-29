@@ -1,5 +1,6 @@
 "use client";
 
+import { applyOrientDiagramPatch } from "@/lib/orient-infographics/merge-orient-diagram-patch";
 import type { OrientContent } from "@/lib/orient-infographics/types";
 import type { OrientDiagramId } from "@/lib/tiptap/orient-diagram-embed";
 
@@ -14,25 +15,29 @@ import { ThemesDiagram } from "./ThemesDiagram";
 export function OrientDiagramEmbed({
   diagram,
   content,
+  patch,
 }: {
   diagram: OrientDiagramId;
   content: OrientContent;
+  /** Optional per-embed overrides from the orientation note (TipTap `patch` attr). */
+  patch?: Record<string, unknown> | null;
 }) {
+  const merged = applyOrientDiagramPatch(content, diagram, patch ?? null);
   switch (diagram) {
     case "giant":
-      return <GiantMaster content={content} />;
+      return <GiantMaster content={merged} />;
     case "stages":
-      return <StagesOfPeace content={content.stages} />;
+      return <StagesOfPeace content={merged.stages} />;
     case "recognition":
-      return <RecognitionDiagram content={content.recognition} />;
+      return <RecognitionDiagram content={merged.recognition} />;
     case "pillars":
-      return <PillarsDiagram content={content.pillars} />;
+      return <PillarsDiagram content={merged.pillars} />;
     case "movement":
-      return <MovementDiagram content={content.movement} />;
+      return <MovementDiagram content={merged.movement} />;
     case "themes":
-      return <ThemesDiagram content={content.themes} />;
+      return <ThemesDiagram content={merged.themes} />;
     case "nihilism":
-      return <NihilismDiagram content={content.nihilism} />;
+      return <NihilismDiagram content={merged.nihilism} />;
     default:
       return null;
   }

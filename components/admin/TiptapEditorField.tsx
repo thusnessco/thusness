@@ -22,11 +22,18 @@ import {
   THUSNESS_SNIPPET_OPTIONS,
   type ThusnessSnippetKey,
 } from "@/lib/tiptap/thusness-blocks";
+import type { OrientContent } from "@/lib/orient-infographics/types";
 import {
   makeOrientDiagramFragment,
   ORIENT_DIAGRAM_CHOICES,
+  thusnessOrientDiagramName,
   type OrientDiagramId,
 } from "@/lib/tiptap/orient-diagram-embed";
+
+import {
+  OrientDiagramSiteProvider,
+  orientDiagramWithReactNodeView,
+} from "./orient-diagram-node-view";
 
 export type TiptapEditorFieldHandle = {
   getJSON: () => JSONContent | null;
@@ -291,7 +298,7 @@ function Toolbar({
                       )
                       .run();
                     onTemplateNotice?.(
-                      "Inserted Orient diagram — drag the block handle to reposition. Copy is edited under Orient graphics."
+                      "Inserted Orient diagram — edit labels in the block below; drag the handle to reorder. Global defaults: Orient graphics."
                     );
                   }}
                 >
@@ -327,6 +334,8 @@ type Props = {
   onTemplateNotice?: (msg: string) => void;
   /** When true (orientation note), show toolbar control to embed /orient diagrams in the body. */
   orientDiagramControls?: boolean;
+  /** Site-wide Orient copy; used to merge with per-block overrides in diagram embeds. */
+  orientDiagramSiteDefaults?: OrientContent | null;
 };
 
 export const TiptapEditorField = forwardRef<TiptapEditorFieldHandle, Props>(
@@ -341,13 +350,22 @@ export const TiptapEditorField = forwardRef<TiptapEditorFieldHandle, Props>(
       variant = "default",
       onTemplateNotice,
       orientDiagramControls,
+      orientDiagramSiteDefaults,
     },
     ref
   ) {
     // Stable reference: a fresh extensions[] every render makes TipTap's useEditor
     // think options changed and call setOptions(), which can merge props back onto
     // the live editor and wipe unsaved edits.
-    const extensions = useMemo(() => getTiptapExtensions(), []);
+    const extensions = useMemo(() => {
+      const base = getTiptapExtensions();
+      if (!orientDiagramControls) return base;
+      return base.map((ext) =>
+        ext.name === thusnessOrientDiagramName
+          ? orientDiagramWithReactNodeView()
+          : ext
+      );
+    }, [orientDiagramControls]);
 
     const editorProps = useMemo(
       () => ({
@@ -434,11 +452,8 @@ export const TiptapEditorField = forwardRef<TiptapEditorFieldHandle, Props>(
       [editor]
     );
 
-    return (
-      <div className="space-y-2">
-        <div className="text-[11px] uppercase tracking-[2.4px] text-[var(--thusness-muted)]">
-          {label}
-        </div>
+    const editorChrome = (
+      <>
         <Toolbar
           editor={editor}
           imageUploadScope={imageUploadScope}
@@ -476,6 +491,21 @@ export const TiptapEditorField = forwardRef<TiptapEditorFieldHandle, Props>(
             }
           />
         </div>
+      </>
+    );
+
+    return (
+      <div className="space-y-2">
+        <div className="text-[11px] uppercase tracking-[2.4px] text-[var(--thusness-muted)]">
+          {label}
+        </div>
+        {orientDiagramControls ? (
+          <OrientDiagramSiteProvider value={orientDiagramSiteDefaults ?? null}>
+            {editorChrome}
+          </OrientDiagramSiteProvider>
+        ) : (
+          editorChrome
+        )}
       </div>
     );
   }
