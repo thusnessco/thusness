@@ -10,6 +10,7 @@ import {
   createNoteFromTemplate,
   saveOrientNavVisible,
 } from "@/app/admin/actions";
+import type { OrientContent } from "@/lib/orient-infographics/types";
 import type { HomepagePin } from "@/lib/homepage/homepage-pin";
 import {
   NOTE_CATEGORIES,
@@ -43,6 +44,7 @@ import {
 import { NoteEditorPanel } from "./NoteEditorPanel";
 import { RootStatusStrip } from "./RootStatusStrip";
 import { SimpleLayoutForm } from "./SimpleLayoutForm";
+import { OrientInfographicsEditorPanel } from "./OrientInfographicsEditorPanel";
 import { SinkInEditorPanel } from "./SinkInEditorPanel";
 import { SwitchRootToNote } from "./SwitchRootToNote";
 import type { TiptapEditorFieldHandle } from "./TiptapEditorField";
@@ -55,6 +57,8 @@ type Props = {
   sinkInConfig: SinkInConfigV1;
   sinkInUpdatedAt: string | null;
   orientNavVisible: boolean;
+  orientInfographics: OrientContent;
+  orientInfographicsUpdatedAt: string | null;
   contentKey: ContentKey;
   setContentKey: (k: ContentKey) => void;
   onMessage: (msg: string) => void;
@@ -78,6 +82,8 @@ export function AdminEditorHub({
   sinkInConfig,
   sinkInUpdatedAt,
   orientNavVisible,
+  orientInfographics,
+  orientInfographicsUpdatedAt,
   contentKey,
   setContentKey,
   onMessage,
@@ -363,6 +369,16 @@ export function AdminEditorHub({
               /sinkin
             </span>
           </button>
+          <button
+            type="button"
+            className={adminNavBtn(contentKey === "orient_graphics")}
+            onClick={() => setContentKey("orient_graphics")}
+          >
+            <span className="block truncate">Orient graphics</span>
+            <span className="mt-0.5 block text-[10px] uppercase tracking-wider text-[var(--thusness-muted)]">
+              /orient diagrams
+            </span>
+          </button>
           <label className="mt-3 flex items-start gap-2 text-sm text-[var(--thusness-ink-soft)]">
             <input
               type="checkbox"
@@ -457,6 +473,17 @@ export function AdminEditorHub({
             <SinkInEditorPanel
               key={sinkInUpdatedAt ?? "sinkin"}
               initialConfig={sinkInConfig}
+              isPending={isPending}
+              startTransition={startTransition}
+              onMessage={onMessage}
+            />
+          ) : null}
+
+          {contentKey === "orient_graphics" ? (
+            <OrientInfographicsEditorPanel
+              key={orientInfographicsUpdatedAt ?? "orient_graphics"}
+              initialContent={orientInfographics}
+              updatedAt={orientInfographicsUpdatedAt}
               isPending={isPending}
               startTransition={startTransition}
               onMessage={onMessage}

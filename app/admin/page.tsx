@@ -2,6 +2,7 @@ import { unstable_noStore as noStore } from "next/cache";
 
 import { AdminDashboard } from "@/components/admin/AdminDashboard";
 import { getHomepagePinForAdmin } from "@/lib/data/homepage-source";
+import { getOrientInfographicsBundleForAdmin } from "@/lib/data/orient-infographics";
 import { getOrientNavVisibleForAdmin } from "@/lib/data/orient-nav";
 import { getSinkInConfigBundle } from "@/lib/data/sinkin-config";
 import { getAllNotesForAdmin } from "@/lib/data/notes-admin";
@@ -33,12 +34,14 @@ export default async function AdminPage() {
     );
   }
 
-  const [notes, homepagePin, sinkInBundle, orientNavVisible] = await Promise.all([
-    getAllNotesForAdmin(),
-    getHomepagePinForAdmin(),
-    getSinkInConfigBundle(),
-    getOrientNavVisibleForAdmin(),
-  ]);
+  const [notes, homepagePin, sinkInBundle, orientNavVisible, orientIg] =
+    await Promise.all([
+      getAllNotesForAdmin(),
+      getHomepagePinForAdmin(),
+      getSinkInConfigBundle(),
+      getOrientNavVisibleForAdmin(),
+      getOrientInfographicsBundleForAdmin(),
+    ]);
 
   return (
     <AdminDashboard
@@ -47,6 +50,8 @@ export default async function AdminPage() {
       sinkInConfig={sinkInBundle.config}
       sinkInUpdatedAt={sinkInBundle.updatedAt}
       orientNavVisible={orientNavVisible}
+      orientInfographics={orientIg.content}
+      orientInfographicsUpdatedAt={orientIg.updatedAt}
     />
   );
 }

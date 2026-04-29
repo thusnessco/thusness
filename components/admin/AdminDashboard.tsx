@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 
 import { createNote, signOut } from "@/app/admin/actions";
 import type { HomepagePin } from "@/lib/homepage/homepage-pin";
+import type { OrientContent } from "@/lib/orient-infographics/types";
 import type { SinkInConfigV1 } from "@/lib/sinkin/config";
 import type { NoteRow } from "@/lib/supabase/public-server";
 
@@ -32,6 +33,8 @@ type Props = {
   sinkInConfig: SinkInConfigV1;
   sinkInUpdatedAt: string | null;
   orientNavVisible: boolean;
+  orientInfographics: OrientContent;
+  orientInfographicsUpdatedAt: string | null;
 };
 
 type NoteBodyOverride = { doc: JSONContent; key: string };
@@ -42,6 +45,8 @@ export function AdminDashboard({
   sinkInConfig,
   sinkInUpdatedAt,
   orientNavVisible,
+  orientInfographics,
+  orientInfographicsUpdatedAt,
 }: Props) {
   const router = useRouter();
   const [contentKey, setContentKey] = useState<ContentKey>(() =>
@@ -156,6 +161,8 @@ export function AdminDashboard({
         sinkInConfig={sinkInConfig}
         sinkInUpdatedAt={sinkInUpdatedAt}
         orientNavVisible={orientNavVisible}
+        orientInfographics={orientInfographics}
+        orientInfographicsUpdatedAt={orientInfographicsUpdatedAt}
         contentKey={contentKey}
         setContentKey={setContentKey}
         onMessage={flash}

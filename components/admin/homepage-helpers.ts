@@ -5,7 +5,8 @@ export type ContentKey =
   | `n:${string}`
   | "tpl:simple"
   | "tpl:full"
-  | "sinkin";
+  | "sinkin"
+  | "orient_graphics";
 
 function slugMatchesPin(noteSlug: string, pinSlug: string): boolean {
   return noteSlug.trim().toLowerCase() === pinSlug.trim().toLowerCase();

@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { OrientDiagramsSection } from "@/components/orient/OrientDiagramsSection";
 import { OrientArticle } from "@/components/thusness/OrientArticle";
 import { SiteFooter } from "@/components/thusness/SiteFooter";
 import Wordmark from "@/components/thusness/Wordmark";
+import { getOrientInfographicsBundle } from "@/lib/data/orient-infographics";
 import { getPublishedNoteBySlug } from "@/lib/data/notes-public";
 import { getOrientNavVisible } from "@/lib/data/orient-nav";
 import { tiptapJsonToHtml } from "@/lib/tiptap/to-html";
@@ -24,9 +26,10 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function OrientPage() {
-  const [note, orientNavVisible] = await Promise.all([
+  const [note, orientNavVisible, orientIg] = await Promise.all([
     getPublishedNoteBySlug(ORIENTATION_SLUG),
     getOrientNavVisible(),
+    getOrientInfographicsBundle(),
   ]);
   if (!note) notFound();
   const html = tiptapJsonToHtml(note.content_json);
@@ -57,6 +60,7 @@ export default async function OrientPage() {
       </div>
 
       <OrientArticle html={html} />
+      <OrientDiagramsSection content={orientIg.content} />
       <div className="mx-auto max-w-[1080px] px-6 pb-12 lg:px-10">
         <SiteFooter />
       </div>

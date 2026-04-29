@@ -27,7 +27,10 @@ import {
   SINKIN_SITE_KEY,
   type SinkInConfigV1,
 } from "@/lib/sinkin/config";
+import { ORIENT_INFOGRAPHICS_SITE_KEY } from "@/lib/data/orient-infographics";
 import { ORIENT_NAV_KEY } from "@/lib/data/orient-nav";
+import { parseOrientInfographics } from "@/lib/orient-infographics/parse";
+import type { OrientContent } from "@/lib/orient-infographics/types";
 import { countTiptapImages } from "@/lib/tiptap/count-tiptap-images";
 import { emptyDoc } from "@/lib/tiptap/empty-doc";
 
@@ -215,6 +218,47 @@ export async function saveOrientNavVisible(
   revalidatePath("/orientation");
   revalidatePath("/admin");
   return { ok: true as const };
+}
+
+/** Persist Orient diagram copy (`site_content` JSON, not TipTap). */
+export async function saveOrientInfographics(
+  input: OrientContent
+): Promise<
+  { ok: true; updated_at: string } | { ok: false; message: string }
+> {
+  const supabase = await createServerSupabase();
+  const normalized = parseOrientInfographics(input);
+  const payload = JSON.parse(JSON.stringify(normalized)) as Record<
+    string,
+    unknown
+  >;
+
+  const { data, error } = await supabase
+    .from("site_content")
+    .upsert(
+      {
+        key: ORIENT_INFOGRAPHICS_SITE_KEY,
+        title: "Orient infographics",
+        content_json: payload,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "key" }
+    )
+    .select("updated_at")
+    .single();
+
+  if (error) return { ok: false as const, message: error.message };
+  if (!data?.updated_at) {
+    return {
+      ok: false as const,
+      message: "Save did not return updated_at. Try again.",
+    };
+  }
+
+  revalidatePath("/orient");
+  revalidatePath("/orientation");
+  revalidatePath("/admin");
+  return { ok: true as const, updated_at: data.updated_at as string };
 }
 
 export async function saveNote(input: {
