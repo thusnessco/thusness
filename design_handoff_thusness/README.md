@@ -2,6 +2,8 @@
 
 This bundle contains everything needed to implement the Thusness visual identity across `thusness.co`, including design tokens, the logo system, ready-to-paste CSS, a React component for the single-page layout, and SVG assets.
 
+**Requesting new pages from Claude (or another agent):** use **`HANDOFF_REQUEST_TEMPLATE.md`** — copy the fenced block into a new chat so the output is structured (`content.json`, runnable prototype, `INTEGRATION.md`, token discipline) and stays flexible as copy and blocks evolve.
+
 ## About the design files
 
 The files in this bundle are **design references** — an HTML/React prototype showing the intended look and behavior, plus production-ready CSS and assets. The prototype uses inline styles for iteration speed; for shipping, prefer the tokenized CSS in `tokens.css` and the component pattern in `components/`.
