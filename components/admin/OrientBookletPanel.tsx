@@ -16,7 +16,7 @@ const LABELS: Record<(typeof ORIENT_BOOKLET_SLUGS)[number], string> = {
   pillars: "03 · Three pillars",
   movement: "04 · Movement & progression",
   themes: "05 · Aspects of exploration",
-  nihilism: "06 · Aside · Emptiness != non-existence",
+  nihilism: "06 · Emptiness ≠ non-existence",
 };
 
 export function OrientBookletPanel({
@@ -45,10 +45,12 @@ export function OrientBookletPanel({
           you work on backend content.
         </p>
         <p className="text-[11px] text-[var(--thusness-muted)]">
-          Prose is edited in regular notes with slugs:{" "}
+          Optional prose overrides: publish notes with slugs{" "}
           <code>orient-stages</code>, <code>orient-recognition</code>,{" "}
           <code>orient-pillars</code>, <code>orient-movement</code>,{" "}
-          <code>orient-themes</code>, <code>orient-nihilism</code>.
+          <code>orient-themes</code>, <code>orient-nihilism</code>. If a note is
+          missing or unpublished, the public page still loads with default booklet
+          copy.
         </p>
       </header>
 

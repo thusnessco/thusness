@@ -10,6 +10,7 @@ import { getOrientBookletConfig } from "@/lib/data/orient-booklet-config";
 import { getOrientInfographicsBundle } from "@/lib/data/orient-infographics";
 import { getPublishedNoteBySlug } from "@/lib/data/notes-public";
 import { getBookletPage, ORIENT_BOOKLET_PAGES } from "@/lib/orient/booklet-pages";
+import { getDefaultOrientBookletProse } from "@/lib/orient/orient-booklet-default-prose";
 import { tiptapJsonToHtml } from "@/lib/tiptap/to-html";
 
 type Params = { slug: string };
@@ -67,14 +68,14 @@ export default async function OrientSectionPage({
     getPublishedNoteBySlug(page.noteSlug),
   ]);
   if (!cfg.pagesVisible[page.slug]) notFound();
-  if (!note) notFound();
 
-  const html = (
-    <TiptapHtml
-      html={tiptapJsonToHtml(note.content_json)}
-      className=""
-    />
-  );
+  const noteHtml = note ? tiptapJsonToHtml(note.content_json).trim() : "";
+  const proseBody =
+    note && noteHtml ? (
+      <TiptapHtml html={noteHtml} className="" />
+    ) : (
+      getDefaultOrientBookletProse(page.slug).map((b, i) => <p key={i}>{b.text}</p>)
+    );
 
   const nav = neighbors(page.slug);
 
@@ -109,7 +110,7 @@ export default async function OrientSectionPage({
           <OrientDiagramEmbed diagram={page.diagram} content={infographics.content} />
         </div>
 
-        <section className="orient-prose">{html}</section>
+        <section className="orient-prose">{proseBody}</section>
 
         <nav className="orient-prevnext" aria-label="Booklet navigation">
           <div>

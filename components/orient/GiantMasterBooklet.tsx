@@ -107,6 +107,50 @@ export function GiantMasterBooklet({ content }: { content: OrientContent }) {
           );
         })()}
 
+        {t.movement.items.slice(0, 3).map((it, i) => {
+          const x = [220, 520, 780][i] ?? 520;
+          const gloss =
+            it.gloss.length > 46 ? `${it.gloss.slice(0, 44)}…` : it.gloss;
+          return (
+            <g key={`mv-${i}`}>
+              <text
+                x={x}
+                y="804"
+                textAnchor="middle"
+                fontFamily={O.helv}
+                fontSize="10"
+                letterSpacing="2.2"
+                fill={O.muted}
+              >
+                {String(i + 1).padStart(2, "0")}
+              </text>
+              <text
+                x={x}
+                y="830"
+                textAnchor="middle"
+                fontFamily={O.helv}
+                fontSize="18"
+                fontWeight="500"
+                letterSpacing="-0.2"
+                fill={O.ink}
+              >
+                {it.name}
+              </text>
+              <text
+                x={x}
+                y="856"
+                textAnchor="middle"
+                fontFamily={O.helv}
+                fontSize="12"
+                fontStyle="italic"
+                fill={O.inkSoft}
+              >
+                {gloss}
+              </text>
+            </g>
+          );
+        })}
+
         <line x1="80" y1="890" x2="940" y2="890" stroke={O.rule} strokeWidth="1" />
         <text x="80" y="940" fontFamily={O.helv} fontSize="13" letterSpacing="2.4" fill={O.muted}>
           ~ C · THEMES

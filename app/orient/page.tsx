@@ -6,7 +6,6 @@ import RedDot from "@/components/thusness/RedDot";
 import Wordmark from "@/components/thusness/Wordmark";
 import { getOrientBookletConfig } from "@/lib/data/orient-booklet-config";
 import { getOrientInfographicsBundle } from "@/lib/data/orient-infographics";
-import { getPublishedNoteBySlug } from "@/lib/data/notes-public";
 import { ORIENT_BOOKLET_PAGES } from "@/lib/orient/booklet-pages";
 
 export const dynamic = "force-dynamic";
@@ -20,22 +19,11 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function OrientPage() {
-  const [orientIg, bookletConfig, publishedPages] = await Promise.all([
+  const [orientIg, bookletConfig] = await Promise.all([
     getOrientInfographicsBundle(),
     getOrientBookletConfig(),
-    Promise.all(
-      ORIENT_BOOKLET_PAGES.map(async (p) => ({
-        slug: p.slug,
-        exists: Boolean(await getPublishedNoteBySlug(p.noteSlug)),
-      }))
-    ),
   ]);
-  const publishedSet = new Set(
-    publishedPages.filter((p) => p.exists).map((p) => p.slug)
-  );
-  const visiblePages = ORIENT_BOOKLET_PAGES.filter(
-    (p) => bookletConfig.pagesVisible[p.slug] && publishedSet.has(p.slug)
-  );
+  const visiblePages = ORIENT_BOOKLET_PAGES.filter((p) => bookletConfig.pagesVisible[p.slug]);
   const sections = visiblePages.filter((p) => p.slug !== "nihilism");
   const aside = visiblePages.find((p) => p.slug === "nihilism") ?? null;
 
