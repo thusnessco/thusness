@@ -92,6 +92,17 @@ export const ThusnessOrientDiagram = Node.create({
           return { "data-thusness-orient-patch": encodeOrientPatch(p) };
         },
       },
+      /** Admin node view: when false, diagram block shows a compact bar (drag / cut-friendly). */
+      editorExpanded: {
+        default: true,
+        parseHTML: (element) =>
+          (element as HTMLElement).getAttribute("data-thusness-orient-expanded") !==
+          "false",
+        renderHTML: (attrs) =>
+          attrs.editorExpanded === false
+            ? { "data-thusness-orient-expanded": "false" }
+            : {},
+      },
     };
   },
   parseHTML() {
@@ -103,6 +114,8 @@ export const ThusnessOrientDiagram = Node.create({
           return {
             diagram: coerceDiagram(h.getAttribute("data-thusness-orient-diagram")),
             patch: decodeOrientPatch(h.getAttribute("data-thusness-orient-patch")),
+            editorExpanded:
+              h.getAttribute("data-thusness-orient-expanded") !== "false",
           };
         },
       },
@@ -113,6 +126,8 @@ export const ThusnessOrientDiagram = Node.create({
           return {
             diagram: coerceDiagram(h.getAttribute("data-thusness-orient-diagram")),
             patch: decodeOrientPatch(h.getAttribute("data-thusness-orient-patch")),
+            editorExpanded:
+              h.getAttribute("data-thusness-orient-expanded") !== "false",
           };
         },
       },
@@ -121,6 +136,7 @@ export const ThusnessOrientDiagram = Node.create({
   renderHTML({ HTMLAttributes, node }) {
     const diagram = coerceDiagram(node.attrs.diagram);
     const p = normalizePatch(node.attrs.patch);
+    const collapsed = node.attrs.editorExpanded === false;
     return [
       "figure",
       mergeAttributes(HTMLAttributes, {
@@ -128,6 +144,7 @@ export const ThusnessOrientDiagram = Node.create({
         "data-thusness-orient-diagram": diagram,
         class: "orient-diagram-embed-slot tiptap-thusness-orient-diagram",
         ...(p ? { "data-thusness-orient-patch": encodeOrientPatch(p) } : {}),
+        ...(collapsed ? { "data-thusness-orient-expanded": "false" } : {}),
       }),
     ];
   },

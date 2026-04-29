@@ -9,6 +9,7 @@ import { applyOrientDiagramPatch } from "@/lib/orient-infographics/merge-orient-
 import type { OrientContent } from "@/lib/orient-infographics/types";
 import {
   isOrientDiagramId,
+  ORIENT_DIAGRAM_CHOICES,
   ThusnessOrientDiagram,
   thusnessOrientDiagramName,
   type OrientDiagramId,
@@ -139,31 +140,82 @@ function OrientDiagramNodeViewInner(props: ReactNodeViewProps) {
     up({ ...basePatch(), [key]: { ...prev, ...delta } });
   };
 
+  const diagramChoiceLabel =
+    ORIENT_DIAGRAM_CHOICES.find((o) => o.id === diagram)?.label ?? diagram;
+  const expanded = props.node.attrs.editorExpanded !== false;
+
+  function selectWholeBlock() {
+    const pos = props.getPos();
+    if (typeof pos !== "number") return;
+    props.editor.chain().focus().setNodeSelection(pos).run();
+  }
+
+  function setExpanded(next: boolean) {
+    props.updateAttributes({ editorExpanded: next });
+  }
+
   return (
     <NodeViewWrapper
       as="figure"
       data-thusness-node={thusnessOrientDiagramName}
       data-thusness-orient-diagram={diagram}
-      className="orient-diagram-node-view-inner my-4 max-h-[min(70vh,720px)] overflow-y-auto rounded border border-[var(--thusness-rule)] bg-[var(--thusness-bg)] p-3 shadow-sm"
+      className={`orient-diagram-node-view-inner my-4 rounded border border-[var(--thusness-rule)] bg-[var(--thusness-bg)] p-3 shadow-sm ${
+        expanded ? "max-h-[min(70vh,720px)] overflow-y-auto" : ""
+      }`}
     >
-      <div className="mb-2 flex items-center justify-between gap-2 border-b border-[var(--thusness-rule)] pb-2">
-        <span className="text-[10px] uppercase tracking-[0.18em] text-[var(--thusness-muted)]">
-          Orient diagram · {diagram}
-        </span>
-        <button
-          type="button"
-          className="text-[10px] uppercase tracking-wide text-[var(--thusness-muted)] underline decoration-[var(--thusness-rule)] underline-offset-2 hover:opacity-80"
-          onClick={() => props.deleteNode()}
+      <div className="mb-2 flex flex-wrap items-center gap-2 border-b border-[var(--thusness-rule)] pb-2">
+        <div
+          data-drag-handle=""
+          contentEditable={false}
+          aria-label="Drag to move this block"
+          title="Drag to reorder in the article"
+          className="flex shrink-0 cursor-grab touch-none select-none items-center justify-center rounded border border-[var(--thusness-rule)] bg-[color-mix(in_srgb,var(--thusness-rule)_18%,transparent)] px-1.5 py-1 text-[14px] leading-none text-[var(--thusness-muted)] active:cursor-grabbing"
         >
-          Remove block
-        </button>
+          ⋮⋮
+        </div>
+        <div className="min-w-0 flex-1">
+          <span className="text-[10px] uppercase tracking-[0.18em] text-[var(--thusness-muted)]">
+            Orient diagram · {diagramChoiceLabel}
+          </span>
+          {!expanded ? (
+            <p className="mt-0.5 text-[11px] leading-snug text-[var(--thusness-ink-soft)]">
+              Collapsed — expand to edit copy. Drag the handle to move this block.
+            </p>
+          ) : null}
+        </div>
+        <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+          <button
+            type="button"
+            className="text-[10px] uppercase tracking-wide text-[var(--thusness-muted)] underline decoration-[var(--thusness-rule)] underline-offset-2 hover:opacity-80"
+            onClick={selectWholeBlock}
+          >
+            Select block
+          </button>
+          <button
+            type="button"
+            className="text-[10px] uppercase tracking-wide text-[var(--thusness-muted)] underline decoration-[var(--thusness-rule)] underline-offset-2 hover:opacity-80"
+            onClick={() => setExpanded(!expanded)}
+          >
+            {expanded ? "Collapse" : "Expand"}
+          </button>
+          <button
+            type="button"
+            className="text-[10px] uppercase tracking-wide text-[var(--thusness-muted)] underline decoration-[var(--thusness-rule)] underline-offset-2 hover:opacity-80"
+            onClick={() => props.deleteNode()}
+          >
+            Remove
+          </button>
+        </div>
       </div>
-      <p className="mb-3 text-[10px] leading-snug text-[var(--thusness-muted)]">
-        Overrides copy for this placement only. Empty fields fall back to{" "}
-        <span className="italic">Orient graphics</span> defaults.
-      </p>
+      {expanded ? (
+        <p className="mb-3 text-[10px] leading-snug text-[var(--thusness-muted)]">
+          Overrides copy for this placement only. Empty fields fall back to{" "}
+          <span className="italic">Orient graphics</span> defaults. With the block
+          selected (use Select block), cut or copy and paste like any other block.
+        </p>
+      ) : null}
 
-      {diagram === "stages" ? (
+      {expanded && diagram === "stages" ? (
         <div className="grid gap-2">
           <Row
             label="Kicker"
@@ -228,7 +280,7 @@ function OrientDiagramNodeViewInner(props: ReactNodeViewProps) {
         </div>
       ) : null}
 
-      {diagram === "recognition" ? (
+      {expanded && diagram === "recognition" ? (
         <div className="grid gap-2">
           <Row label="Kicker" value={merged.recognition.kicker} disabled={!props.editor.isEditable} onChange={(v) => up({ ...basePatch(), kicker: v })} />
           <Row label="Title" value={merged.recognition.title} disabled={!props.editor.isEditable} onChange={(v) => up({ ...basePatch(), title: v })} />
@@ -277,7 +329,7 @@ function OrientDiagramNodeViewInner(props: ReactNodeViewProps) {
         </div>
       ) : null}
 
-      {diagram === "pillars" ? (
+      {expanded && diagram === "pillars" ? (
         <div className="grid gap-2">
           <Row label="Kicker" value={merged.pillars.kicker} disabled={!props.editor.isEditable} onChange={(v) => up({ ...basePatch(), kicker: v })} />
           <Row label="Title" value={merged.pillars.title} disabled={!props.editor.isEditable} onChange={(v) => up({ ...basePatch(), title: v })} />
@@ -305,7 +357,7 @@ function OrientDiagramNodeViewInner(props: ReactNodeViewProps) {
         </div>
       ) : null}
 
-      {diagram === "movement" ? (
+      {expanded && diagram === "movement" ? (
         <div className="grid gap-2">
           <Row label="Kicker" value={merged.movement.kicker} disabled={!props.editor.isEditable} onChange={(v) => up({ ...basePatch(), kicker: v })} />
           <Row label="Title" value={merged.movement.title} disabled={!props.editor.isEditable} onChange={(v) => up({ ...basePatch(), title: v })} />
@@ -326,7 +378,7 @@ function OrientDiagramNodeViewInner(props: ReactNodeViewProps) {
         </div>
       ) : null}
 
-      {diagram === "themes" ? (
+      {expanded && diagram === "themes" ? (
         <div className="grid gap-2">
           <Row label="Kicker" value={merged.themes.kicker} disabled={!props.editor.isEditable} onChange={(v) => up({ ...basePatch(), kicker: v })} />
           <Row label="Title" value={merged.themes.title} disabled={!props.editor.isEditable} onChange={(v) => up({ ...basePatch(), title: v })} />
@@ -351,7 +403,7 @@ function OrientDiagramNodeViewInner(props: ReactNodeViewProps) {
         </div>
       ) : null}
 
-      {diagram === "nihilism" ? (
+      {expanded && diagram === "nihilism" ? (
         <div className="grid gap-2">
           <Row label="Kicker" value={merged.nihilism.kicker} disabled={!props.editor.isEditable} onChange={(v) => up({ ...basePatch(), kicker: v })} />
           <Row label="Title" value={merged.nihilism.title} disabled={!props.editor.isEditable} onChange={(v) => up({ ...basePatch(), title: v })} />
@@ -368,7 +420,7 @@ function OrientDiagramNodeViewInner(props: ReactNodeViewProps) {
         </div>
       ) : null}
 
-      {diagram === "giant" ? (
+      {expanded && diagram === "giant" ? (
         <div className="grid gap-2">
           <p className="text-[10px] text-[var(--thusness-muted)]">
             Hero text below; optional overrides for labels used inside the map.
