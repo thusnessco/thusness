@@ -20,6 +20,26 @@ function slugifyHeading(text: string): string {
     .replace(/^-|-$/g, "");
 }
 
+/** TipTap line breaks inside headings are `<br>`; `textContent` omits them and smashes words together. */
+function headingLabelFromElement(el: Element): string {
+  const parts: string[] = [];
+  const walk = (n: Node) => {
+    if (n.nodeType === Node.TEXT_NODE) {
+      parts.push(n.textContent ?? "");
+      return;
+    }
+    if (n.nodeType !== Node.ELEMENT_NODE) return;
+    const tag = (n as Element).tagName;
+    if (tag === "BR") {
+      parts.push(" ");
+      return;
+    }
+    n.childNodes.forEach(walk);
+  };
+  el.childNodes.forEach(walk);
+  return parts.join("").replace(/\s+/g, " ").trim();
+}
+
 export function OrientArticle({ html }: { html: string }) {
   const articleRef = useRef<HTMLDivElement | null>(null);
   const [headings, setHeadings] = useState<HeadingLink[]>([]);
@@ -31,7 +51,7 @@ export function OrientArticle({ html }: { html: string }) {
     const used = new Map<string, number>();
     const found: HeadingLink[] = [];
     const pushHeading = (node: Element, level: 2 | 3) => {
-      const text = node.textContent?.trim() ?? "";
+      const text = headingLabelFromElement(node);
       if (!text) return;
       const base = slugifyHeading(text) || `section-${found.length + 1}`;
       const n = (used.get(base) ?? 0) + 1;
@@ -57,7 +77,7 @@ export function OrientArticle({ html }: { html: string }) {
     if (found.length === 0) {
       const paras = Array.from(root.querySelectorAll("p"));
       for (const p of paras) {
-        const text = p.textContent?.trim() ?? "";
+        const text = headingLabelFromElement(p);
         if (!text) continue;
         // Short standalone title-ish line, not a sentence ending in punctuation.
         if (text.length > 90) continue;
@@ -72,21 +92,24 @@ export function OrientArticle({ html }: { html: string }) {
   }, [html]);
 
   return (
-    <div className="mx-auto grid w-full max-w-[1080px] gap-8 px-6 pb-20 pt-10 lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-10 lg:px-10">
-      <aside className="block">
+    <div className="mx-auto grid w-full max-w-[1080px] gap-8 px-6 pb-20 pt-10 lg:grid-cols-[minmax(0,240px)_minmax(0,1fr)] lg:gap-10 lg:px-10">
+      <aside className="min-w-0">
         {headings.length ? (
           <nav
             aria-label="On this page"
-            className="border-l border-[var(--thusness-rule)] pl-4 text-[11px] uppercase tracking-[2px] text-[var(--thusness-muted)] lg:sticky lg:top-8"
+            className="orient-toc border-l border-[var(--thusness-rule)] pl-4 text-[11px] uppercase tracking-[1px] text-[var(--thusness-muted)] lg:sticky lg:top-8"
+            style={{
+              fontFamily: 'Helvetica, "Helvetica Neue", Arial, sans-serif',
+            }}
           >
-            <p className="mb-3">On this page</p>
-            <ol className="space-y-2">
+            <p className="mb-3.5 leading-snug tracking-[1.5px]">On this page</p>
+            <ol className="m-0 flex list-none flex-col gap-3 p-0">
               {headings.map((h) => (
-                <li key={h.id}>
+                <li key={h.id} className="min-w-0">
                   <a
                     href={`#${h.id}`}
-                    className={`block transition-opacity hover:opacity-70 ${
-                      h.level === 3 ? "pl-3 normal-case tracking-[0.2px] text-[10px]" : ""
+                    className={`block break-words leading-[1.45] transition-opacity hover:opacity-70 ${
+                      h.level === 3 ? "pl-2.5 normal-case tracking-normal text-[10px] leading-[1.5]" : ""
                     }`}
                   >
                     {h.text}
