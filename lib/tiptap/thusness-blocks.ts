@@ -2,6 +2,8 @@ import { mergeAttributes, Node } from "@tiptap/core";
 import type { JSONContent } from "@tiptap/core";
 import { TextSelection } from "@tiptap/pm/state";
 
+import { ThusnessOrientDiagram } from "@/lib/tiptap/orient-diagram-embed";
+
 const sectionMark = "thusnessSectionMark";
 const hero = "thusnessHero";
 const pullQuote = "thusnessPullQuote";
@@ -329,6 +331,7 @@ export const ThusnessProgramCard = Node.create({
 
 export function thusnessBlockExtensions() {
   return [
+    ThusnessOrientDiagram,
     ThusnessSectionMark,
     ThusnessHero,
     ThusnessPullQuote,

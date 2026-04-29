@@ -1,6 +1,11 @@
 "use client";
 
-import { useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { createRoot, type Root } from "react-dom/client";
+
+import { OrientDiagramEmbed } from "@/components/orient/OrientDiagramEmbed";
+import type { OrientContent } from "@/lib/orient-infographics/types";
+import { isOrientDiagramId } from "@/lib/tiptap/orient-diagram-embed";
 
 type HeadingLink = {
   id: string;
@@ -46,14 +51,32 @@ function tocSame(a: HeadingLink[], b: HeadingLink[]): boolean {
   return true;
 }
 
-export function OrientArticle({ html }: { html: string }) {
+export function OrientArticle({
+  html,
+  embedContent,
+}: {
+  html: string;
+  /** When set, `figure[data-thusness-orient-diagram]` nodes hydrate as live diagrams. */
+  embedContent: OrientContent | null;
+}) {
   const articleRef = useRef<HTMLDivElement | null>(null);
   const lastHtmlRef = useRef<string | null>(null);
+  const embedRootsRef = useRef<Root[]>([]);
   const [headings, setHeadings] = useState<HeadingLink[]>([]);
+
+  useEffect(() => {
+    return () => {
+      embedRootsRef.current.forEach((r) => r.unmount());
+      embedRootsRef.current = [];
+    };
+  }, []);
 
   useLayoutEffect(() => {
     const root = articleRef.current;
     if (!root) return;
+
+    embedRootsRef.current.forEach((r) => r.unmount());
+    embedRootsRef.current = [];
 
     if (lastHtmlRef.current !== html) {
       lastHtmlRef.current = html;
@@ -98,7 +121,20 @@ export function OrientArticle({ html }: { html: string }) {
     }
 
     setHeadings((prev) => (tocSame(prev, found) ? prev : found));
-  }, [html]);
+
+    if (!embedContent) return;
+
+    root.querySelectorAll("figure[data-thusness-orient-diagram]").forEach((fig) => {
+      const raw = fig.getAttribute("data-thusness-orient-diagram") ?? "";
+      if (!isOrientDiagramId(raw)) return;
+      (fig as HTMLElement).innerHTML = "";
+      const host = document.createElement("div");
+      fig.appendChild(host);
+      const rr = createRoot(host);
+      rr.render(<OrientDiagramEmbed diagram={raw} content={embedContent} />);
+      embedRootsRef.current.push(rr);
+    });
+  }, [html, embedContent]);
 
   function scrollToHeadingId(id: string) {
     const el = document.getElementById(id);
@@ -147,12 +183,22 @@ export function OrientArticle({ html }: { html: string }) {
 
       <div
         ref={articleRef}
-        className="orient-article tiptap-html mx-auto max-w-[620px] text-[17px] leading-[1.7] text-[var(--thusness-ink-soft)]"
+        className="orient-article tiptap-html min-w-0 text-[17px] leading-[1.7] text-[var(--thusness-ink-soft)]"
         suppressHydrationWarning
       />
       <style jsx global>{`
         html {
           scroll-behavior: smooth;
+        }
+        .orient-article.tiptap-html > *:not(figure.orient-diagram-embed-slot) {
+          max-width: 620px;
+          margin-left: auto;
+          margin-right: auto;
+        }
+        .orient-article.tiptap-html > figure.orient-diagram-embed-slot {
+          max-width: min(100%, 1280px);
+          width: 100%;
+          margin: 2.5rem auto;
         }
         .orient-article h1,
         .orient-article h2,

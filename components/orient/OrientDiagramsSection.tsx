@@ -1,3 +1,5 @@
+"use client";
+
 import type { OrientContent } from "@/lib/orient-infographics/types";
 
 import { GiantMaster } from "./GiantMaster";

@@ -743,3 +743,22 @@ body.thusness ::selection {
     transition: opacity 0.35s ease;
   }
 }
+
+/* Admin: Orient diagram embed placeholder in the note editor */
+.tiptap-editor .ProseMirror figure.tiptap-thusness-orient-diagram {
+  min-height: 88px;
+  margin: 1.25rem 0;
+  border: 1px dashed var(--thusness-rule, #c7c2b0);
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--thusness-bg, #efece1) 92%, var(--thusness-rule, #c7c2b0));
+}
+
+.tiptap-editor .ProseMirror figure.tiptap-thusness-orient-diagram::after {
+  content: "Diagram · " attr(data-thusness-orient-diagram);
+  display: block;
+  padding: 12px 14px;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--thusness-muted, #8a8672);
+}

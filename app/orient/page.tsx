@@ -9,6 +9,7 @@ import Wordmark from "@/components/thusness/Wordmark";
 import { getOrientInfographicsBundle } from "@/lib/data/orient-infographics";
 import { getPublishedNoteBySlug } from "@/lib/data/notes-public";
 import { getOrientNavVisible } from "@/lib/data/orient-nav";
+import { docHasOrientDiagramEmbeds } from "@/lib/tiptap/orient-diagram-embed";
 import { tiptapJsonToHtml } from "@/lib/tiptap/to-html";
 
 export const dynamic = "force-dynamic";
@@ -33,6 +34,7 @@ export default async function OrientPage() {
   ]);
   if (!note) notFound();
   const html = tiptapJsonToHtml(note.content_json);
+  const hasDiagramEmbeds = docHasOrientDiagramEmbeds(note.content_json);
 
   return (
     <div className="min-h-screen bg-[var(--thusness-bg)] font-sans text-[var(--thusness-ink)]">
@@ -59,8 +61,10 @@ export default async function OrientPage() {
         </div>
       </div>
 
-      <OrientArticle html={html} />
-      <OrientDiagramsSection content={orientIg.content} />
+      <OrientArticle html={html} embedContent={orientIg.content} />
+      {!hasDiagramEmbeds ? (
+        <OrientDiagramsSection content={orientIg.content} />
+      ) : null}
       <div className="mx-auto max-w-[1080px] px-6 pb-12 lg:px-10">
         <SiteFooter />
       </div>

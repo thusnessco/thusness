@@ -22,6 +22,11 @@ import {
   THUSNESS_SNIPPET_OPTIONS,
   type ThusnessSnippetKey,
 } from "@/lib/tiptap/thusness-blocks";
+import {
+  makeOrientDiagramFragment,
+  ORIENT_DIAGRAM_CHOICES,
+  type OrientDiagramId,
+} from "@/lib/tiptap/orient-diagram-embed";
 
 export type TiptapEditorFieldHandle = {
   getJSON: () => JSONContent | null;
@@ -33,12 +38,15 @@ function Toolbar({
   onImageUploadMessage,
   variant,
   onTemplateNotice,
+  orientDiagramControls,
 }: {
   editor: Editor | null;
   imageUploadScope?: string;
   onImageUploadMessage?: (msg: string) => void;
   variant?: "default" | "page";
   onTemplateNotice?: (msg: string) => void;
+  /** Orientation note: insert diagram embeds into the body. */
+  orientDiagramControls?: boolean;
 }) {
   const linkDefault =
     imageUploadScope?.startsWith("week/") === true
@@ -260,6 +268,43 @@ function Toolbar({
           >
             Sample page layout
           </button>
+          {orientDiagramControls ? (
+            <>
+              <span
+                className="mx-1 w-px self-stretch bg-[var(--thusness-rule)]"
+                aria-hidden
+              />
+              <label className="flex items-center gap-1.5 text-[var(--thusness-muted)]">
+                <span className="sr-only">Insert Orient diagram</span>
+                <select
+                  className="max-w-[14rem] border border-[var(--thusness-rule)] bg-[var(--thusness-bg)] px-1.5 py-1 text-[11px] text-[var(--thusness-ink-soft)]"
+                  defaultValue=""
+                  onChange={(e) => {
+                    const raw = e.currentTarget.value;
+                    e.currentTarget.value = "";
+                    if (!raw) return;
+                    editor
+                      .chain()
+                      .focus()
+                      .insertContent(
+                        makeOrientDiagramFragment(raw as OrientDiagramId)
+                      )
+                      .run();
+                    onTemplateNotice?.(
+                      "Inserted Orient diagram — drag the block handle to reposition. Copy is edited under Orient graphics."
+                    );
+                  }}
+                >
+                  <option value="">+ Orient diagram…</option>
+                  {ORIENT_DIAGRAM_CHOICES.map((o) => (
+                    <option key={o.id} value={o.id}>
+                      {o.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </>
+          ) : null}
         </>
       ) : null}
     </div>
@@ -280,6 +325,8 @@ type Props = {
   variant?: "default" | "page";
   /** Shown for week page template / snippet actions (e.g. pass the same handler as image upload toasts). */
   onTemplateNotice?: (msg: string) => void;
+  /** When true (orientation note), show toolbar control to embed /orient diagrams in the body. */
+  orientDiagramControls?: boolean;
 };
 
 export const TiptapEditorField = forwardRef<TiptapEditorFieldHandle, Props>(
@@ -293,6 +340,7 @@ export const TiptapEditorField = forwardRef<TiptapEditorFieldHandle, Props>(
       onEditorError,
       variant = "default",
       onTemplateNotice,
+      orientDiagramControls,
     },
     ref
   ) {
@@ -397,6 +445,7 @@ export const TiptapEditorField = forwardRef<TiptapEditorFieldHandle, Props>(
           onImageUploadMessage={onImageUploadMessage}
           variant={variant}
           onTemplateNotice={onTemplateNotice}
+          orientDiagramControls={orientDiagramControls}
         />
         {imageUploadScope ? (
           <p className="text-[10px] leading-relaxed text-[var(--thusness-muted)]">

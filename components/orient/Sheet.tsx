@@ -1,3 +1,5 @@
+"use client";
+
 import Wordmark from "@/components/thusness/Wordmark";
 import RedDot from "@/components/thusness/RedDot";
 

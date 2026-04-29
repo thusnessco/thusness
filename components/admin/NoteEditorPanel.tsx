@@ -285,6 +285,15 @@ export function NoteEditorPanel({
         </span>
       </label>
 
+      {note.slug === "orientation" ? (
+        <p className="mb-3 max-w-2xl text-[11px] leading-relaxed text-[var(--thusness-muted)]">
+          Use <span className="text-[var(--thusness-ink-soft)]">+ Orient diagram…</span>{" "}
+          in the toolbar to place diagrams in the article (drag the handle to reorder).
+          All diagram wording is edited under{" "}
+          <span className="font-medium text-[var(--thusness-ink)]">Hidden pages → Orient graphics</span>{" "}
+          in this admin.
+        </p>
+      ) : null}
       <TiptapEditorField
         ref={noteBodyRef}
         label="Body"
@@ -295,6 +304,7 @@ export function NoteEditorPanel({
         onEditorError={onMessage}
         variant="page"
         onTemplateNotice={onMessage}
+        orientDiagramControls={note.slug === "orientation"}
       />
 
       <div className="mt-10 space-y-4 border-t border-[var(--thusness-rule)] pt-8">

@@ -1,5 +1,6 @@
 export { DiagramFrame } from "./DiagramFrame";
 export { GiantMaster } from "./GiantMaster";
+export { OrientDiagramEmbed } from "./OrientDiagramEmbed";
 export { MovementDiagram } from "./MovementDiagram";
 export { NihilismDiagram } from "./NihilismDiagram";
 export { OrientDiagramsSection } from "./OrientDiagramsSection";
