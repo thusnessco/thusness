@@ -108,6 +108,10 @@ export function AdminEditorHub({
   const [templateSourceId, setTemplateSourceId] = useState("");
   const [noteListFilter, setNoteListFilter] =
     useState<AdminNoteListFilter>("all");
+  /** Long lists start collapsed so the rest of the nav (layouts, tools) stays in reach. */
+  const [notesListExpanded, setNotesListExpanded] = useState(
+    () => notes.length <= 14
+  );
 
   const templateNotes = useMemo(
     () => notes.filter((n) => n.is_template === true),
@@ -177,156 +181,196 @@ export function AdminEditorHub({
           >
             New blank note
           </button>
-          <div className="mb-1 grid grid-cols-2 gap-2">
-            <button
-              type="button"
-              disabled={isPending}
-              className={adminBtnSmall}
-              onClick={() => {
-                startTransition(async () => {
-                  const res = await createDraftNoteFromHomepageTemplate({
-                    template: "simple_contemplation",
-                    fields: simple,
-                  });
-                  if (!res.ok) onMessage(res.message);
-                  else {
-                    onMessage("Draft created from Simple layout fields.");
-                    onCreatedNoteAwaitingRefresh(res.note);
-                    router.refresh();
-                  }
-                });
-              }}
-            >
-              New from Simple
-            </button>
-            <button
-              type="button"
-              disabled={isPending}
-              className={adminBtnSmall}
-              onClick={() => {
-                startTransition(async () => {
-                  const res = await createDraftNoteFromHomepageTemplate({
-                    template: "full_description",
-                    fields: full,
-                  });
-                  if (!res.ok) onMessage(res.message);
-                  else {
-                    onMessage("Draft created from Full layout fields.");
-                    onCreatedNoteAwaitingRefresh(res.note);
-                    router.refresh();
-                  }
-                });
-              }}
-            >
-              New from Full
-            </button>
-          </div>
-          <p className="mb-2 text-[10px] leading-snug text-[var(--thusness-muted)]">
-            From Simple/Full uses the same field values as those layout tabs.
-          </p>
-          <p className="mb-3 text-[10px] leading-snug text-[var(--thusness-muted)]">
-            A blank note is free-form TipTap — use{" "}
-            <span className="text-[var(--thusness-ink-soft)]">+ Layout block…</span>{" "}
-            or <span className="text-[var(--thusness-ink-soft)]">Sample page layout</span>{" "}
-            in the body toolbar.
-          </p>
-          {templateNotes.length > 0 ? (
-            <div className="mb-3 space-y-2">
-              <label className="block space-y-1">
-                <span className={adminFieldLabel}>New from your template</span>
-                <select
-                  className="w-full border border-[var(--thusness-rule)] bg-[var(--thusness-bg)] px-2 py-1.5 text-xs text-[var(--thusness-ink-soft)]"
-                  value={templateSourceId}
-                  disabled={isPending}
-                  onChange={(e) => setTemplateSourceId(e.target.value)}
-                >
-                  <option value="">Choose template…</option>
-                  {templateNotes.map((t) => (
-                    <option key={t.id} value={t.id}>
-                      {t.title?.trim() || t.slug || "Untitled"}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <button
-                type="button"
-                disabled={isPending || !templateSourceId}
-                className={adminBtnSmall}
-                onClick={() => {
-                  const id = templateSourceId;
-                  if (!id) return;
-                  startTransition(async () => {
-                    const res = await createNoteFromTemplate({ sourceId: id });
-                    if (!res.ok) onMessage(res.message);
-                    else {
-                      onMessage("Draft created from your template.");
-                      setTemplateSourceId("");
-                      onCreatedNoteAwaitingRefresh(res.note);
-                      router.refresh();
-                    }
-                  });
-                }}
-              >
-                Create draft from template
-              </button>
-            </div>
-          ) : null}
-          <div className="mb-2 space-y-1.5">
-            <span className={adminFieldLabel}>View</span>
-            <div className="flex flex-wrap gap-1">
-              <button
-                type="button"
-                disabled={isPending}
-                className={adminSegmentBtn(noteListFilter === "all")}
-                onClick={() => setNoteListFilter("all")}
-              >
-                All
-              </button>
-              {NOTE_CATEGORIES.map((c) => (
+          <details className="mb-3 rounded border border-[var(--thusness-rule)] bg-[var(--thusness-bg)]">
+            <summary className="cursor-pointer select-none px-2 py-2 text-[10px] uppercase tracking-[0.18em] text-[var(--thusness-muted)] marker:text-[var(--thusness-muted)]">
+              More ways to create
+            </summary>
+            <div className="space-y-2 border-t border-[var(--thusness-rule)] px-2 pb-3 pt-2">
+              <div className="grid grid-cols-2 gap-2">
                 <button
-                  key={c}
                   type="button"
                   disabled={isPending}
-                  className={adminSegmentBtn(noteListFilter === c)}
-                  onClick={() => setNoteListFilter(c)}
+                  className={adminBtnSmall}
+                  onClick={() => {
+                    startTransition(async () => {
+                      const res = await createDraftNoteFromHomepageTemplate({
+                        template: "simple_contemplation",
+                        fields: simple,
+                      });
+                      if (!res.ok) onMessage(res.message);
+                      else {
+                        onMessage("Draft created from Simple layout fields.");
+                        onCreatedNoteAwaitingRefresh(res.note);
+                        router.refresh();
+                      }
+                    });
+                  }}
                 >
-                  {NOTE_CATEGORY_SHORT[c]}
+                  New from Simple
                 </button>
-              ))}
-              <button
-                type="button"
-                disabled={isPending}
-                className={adminSegmentBtn(noteListFilter === "unsorted")}
-                onClick={() => setNoteListFilter("unsorted")}
-              >
-                Unsorted
-              </button>
+                <button
+                  type="button"
+                  disabled={isPending}
+                  className={adminBtnSmall}
+                  onClick={() => {
+                    startTransition(async () => {
+                      const res = await createDraftNoteFromHomepageTemplate({
+                        template: "full_description",
+                        fields: full,
+                      });
+                      if (!res.ok) onMessage(res.message);
+                      else {
+                        onMessage("Draft created from Full layout fields.");
+                        onCreatedNoteAwaitingRefresh(res.note);
+                        router.refresh();
+                      }
+                    });
+                  }}
+                >
+                  New from Full
+                </button>
+              </div>
+              <p className="text-[10px] leading-snug text-[var(--thusness-muted)]">
+                From Simple/Full uses the same field values as those layout tabs.
+              </p>
+              <p className="text-[10px] leading-snug text-[var(--thusness-muted)]">
+                A blank note is free-form TipTap — use{" "}
+                <span className="text-[var(--thusness-ink-soft)]">+ Layout block…</span>{" "}
+                or <span className="text-[var(--thusness-ink-soft)]">Sample page layout</span>{" "}
+                in the body toolbar.
+              </p>
+              {templateNotes.length > 0 ? (
+                <div className="space-y-2">
+                  <label className="block space-y-1">
+                    <span className={adminFieldLabel}>New from your template</span>
+                    <select
+                      className="w-full border border-[var(--thusness-rule)] bg-[var(--thusness-bg)] px-2 py-1.5 text-xs text-[var(--thusness-ink-soft)]"
+                      value={templateSourceId}
+                      disabled={isPending}
+                      onChange={(e) => setTemplateSourceId(e.target.value)}
+                    >
+                      <option value="">Choose template…</option>
+                      {templateNotes.map((t) => (
+                        <option key={t.id} value={t.id}>
+                          {t.title?.trim() || t.slug || "Untitled"}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <button
+                    type="button"
+                    disabled={isPending || !templateSourceId}
+                    className={adminBtnSmall}
+                    onClick={() => {
+                      const id = templateSourceId;
+                      if (!id) return;
+                      startTransition(async () => {
+                        const res = await createNoteFromTemplate({ sourceId: id });
+                        if (!res.ok) onMessage(res.message);
+                        else {
+                          onMessage("Draft created from your template.");
+                          setTemplateSourceId("");
+                          onCreatedNoteAwaitingRefresh(res.note);
+                          router.refresh();
+                        }
+                      });
+                    }}
+                  >
+                    Create draft from template
+                  </button>
+                </div>
+              ) : null}
             </div>
+          </details>
+
+          <div className="mb-1 flex items-center justify-between gap-2">
+            <span className={adminFieldLabel}>All notes</span>
+            <button
+              type="button"
+              disabled={isPending}
+              className="shrink-0 border border-transparent px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-[var(--thusness-muted)] underline decoration-[var(--thusness-rule)] underline-offset-2 hover:text-[var(--thusness-ink)]"
+              onClick={() => setNotesListExpanded((v) => !v)}
+            >
+              {notesListExpanded ? "Collapse" : `Expand (${notesForNav.length})`}
+            </button>
           </div>
-          {notesForNav.map((n) => {
-            const cat = parseNoteCategory(n.category);
-            return (
-              <button
-                key={n.id}
-                type="button"
-                className={adminNavBtn(contentKey === `n:${n.id}`)}
-                onClick={() => setContentKey(`n:${n.id}`)}
-              >
-                <span className="block truncate">{n.title || "Untitled"}</span>
-                <span className="mt-0.5 flex flex-wrap gap-x-2 text-[10px] uppercase tracking-wider text-[var(--thusness-muted)]">
-                  {!n.published ? <span>Draft</span> : null}
-                  {n.published ? <span>/notes</span> : null}
-                  {cat ? <span>{NOTE_CATEGORY_SHORT[cat]}</span> : null}
-                  {n.is_template ? <span>Template</span> : null}
-                  {isLiveAtRoot(homepagePin, `n:${n.id}`, notes) ? (
-                    <span className="text-[10px] uppercase tracking-wider text-[var(--thusness-red,#c23a2a)]">
-                      Live at /
-                    </span>
-                  ) : null}
-                </span>
-              </button>
-            );
-          })}
+          {!notesListExpanded ? (
+            <div className="mb-3 rounded border border-[var(--thusness-rule)] bg-[var(--thusness-bg)] px-2 py-2">
+              {editingNoteId && selectedNoteForEditor ? (
+                <p className="text-[11px] leading-snug text-[var(--thusness-ink-soft)]">
+                  <span className="text-[var(--thusness-muted)]">Editing:</span>{" "}
+                  <span className="font-medium text-[var(--thusness-ink)]">
+                    {selectedNoteForEditor.title?.trim() || "Untitled"}
+                  </span>
+                </p>
+              ) : (
+                <p className="text-[11px] text-[var(--thusness-muted)]">
+                  Expand the list to open a note.
+                </p>
+              )}
+            </div>
+          ) : (
+            <>
+              <div className="mb-2 space-y-1.5">
+                <span className={adminFieldLabel}>View</span>
+                <div className="flex flex-wrap gap-1">
+                  <button
+                    type="button"
+                    disabled={isPending}
+                    className={adminSegmentBtn(noteListFilter === "all")}
+                    onClick={() => setNoteListFilter("all")}
+                  >
+                    All
+                  </button>
+                  {NOTE_CATEGORIES.map((c) => (
+                    <button
+                      key={c}
+                      type="button"
+                      disabled={isPending}
+                      className={adminSegmentBtn(noteListFilter === c)}
+                      onClick={() => setNoteListFilter(c)}
+                    >
+                      {NOTE_CATEGORY_SHORT[c]}
+                    </button>
+                  ))}
+                  <button
+                    type="button"
+                    disabled={isPending}
+                    className={adminSegmentBtn(noteListFilter === "unsorted")}
+                    onClick={() => setNoteListFilter("unsorted")}
+                  >
+                    Unsorted
+                  </button>
+                </div>
+              </div>
+              <div className="max-h-[min(52vh,26rem)] space-y-1 overflow-y-auto overscroll-contain pr-0.5 [scrollbar-gutter:stable]">
+                {notesForNav.map((n) => {
+                  const cat = parseNoteCategory(n.category);
+                  return (
+                    <button
+                      key={n.id}
+                      type="button"
+                      className={adminNavBtn(contentKey === `n:${n.id}`)}
+                      onClick={() => setContentKey(`n:${n.id}`)}
+                    >
+                      <span className="block truncate">{n.title || "Untitled"}</span>
+                      <span className="mt-0.5 flex flex-wrap gap-x-2 text-[10px] uppercase tracking-wider text-[var(--thusness-muted)]">
+                        {!n.published ? <span>Draft</span> : null}
+                        {n.published ? <span>/notes</span> : null}
+                        {cat ? <span>{NOTE_CATEGORY_SHORT[cat]}</span> : null}
+                        {n.is_template ? <span>Template</span> : null}
+                        {isLiveAtRoot(homepagePin, `n:${n.id}`, notes) ? (
+                          <span className="text-[10px] uppercase tracking-wider text-[var(--thusness-red,#c23a2a)]">
+                            Live at /
+                          </span>
+                        ) : null}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </>
+          )}
 
           <p className="mb-2 mt-8 text-[10px] uppercase tracking-[0.2em] text-[var(--thusness-muted)]">
             Built-in layouts
