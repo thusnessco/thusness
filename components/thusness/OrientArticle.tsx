@@ -1,8 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-
-import { TiptapHtml } from "@/components/TiptapHtml";
+import { useLayoutEffect, useRef, useState } from "react";
 
 type HeadingLink = {
   id: string;
@@ -40,13 +38,27 @@ function headingLabelFromElement(el: Element): string {
   return parts.join("").replace(/\s+/g, " ").trim();
 }
 
+function tocSame(a: HeadingLink[], b: HeadingLink[]): boolean {
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    if (a[i].id !== b[i].id || a[i].text !== b[i].text || a[i].level !== b[i].level) return false;
+  }
+  return true;
+}
+
 export function OrientArticle({ html }: { html: string }) {
   const articleRef = useRef<HTMLDivElement | null>(null);
+  const lastHtmlRef = useRef<string | null>(null);
   const [headings, setHeadings] = useState<HeadingLink[]>([]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const root = articleRef.current;
     if (!root) return;
+
+    if (lastHtmlRef.current !== html) {
+      lastHtmlRef.current = html;
+      root.innerHTML = html.trim() ? html : "";
+    }
 
     const used = new Map<string, number>();
     const found: HeadingLink[] = [];
@@ -61,7 +73,6 @@ export function OrientArticle({ html }: { html: string }) {
       found.push({ id, text, level });
     };
 
-    // Reset any previous auto heading classes/ids before recalculating.
     root
       .querySelectorAll(".orient-auto-heading")
       .forEach((n) => n.classList.remove("orient-auto-heading"));
@@ -73,13 +84,11 @@ export function OrientArticle({ html }: { html: string }) {
       pushHeading(node, level);
     });
 
-    // Fallback: if content uses plain paragraphs as section labels, auto-promote.
     if (found.length === 0) {
       const paras = Array.from(root.querySelectorAll("p"));
       for (const p of paras) {
         const text = headingLabelFromElement(p);
         if (!text) continue;
-        // Short standalone title-ish line, not a sentence ending in punctuation.
         if (text.length > 90) continue;
         if (/[.!?]$/.test(text)) continue;
         if (text.split(/\s+/).length > 12) continue;
@@ -88,8 +97,19 @@ export function OrientArticle({ html }: { html: string }) {
       }
     }
 
-    setHeadings(found);
+    setHeadings((prev) => (tocSame(prev, found) ? prev : found));
   }, [html]);
+
+  function scrollToHeadingId(id: string) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+    try {
+      history.replaceState(null, "", `#${id}`);
+    } catch {
+      /* ignore */
+    }
+  }
 
   return (
     <div className="mx-auto grid w-full max-w-[1080px] gap-8 px-6 pb-20 pt-10 lg:grid-cols-[minmax(0,240px)_minmax(0,1fr)] lg:gap-10 lg:px-10">
@@ -111,6 +131,10 @@ export function OrientArticle({ html }: { html: string }) {
                     className={`block break-words leading-[1.45] transition-opacity hover:opacity-70 ${
                       h.level === 3 ? "pl-2.5 normal-case tracking-normal text-[10px] leading-[1.5]" : ""
                     }`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      scrollToHeadingId(h.id);
+                    }}
                   >
                     {h.text}
                   </a>
@@ -121,16 +145,16 @@ export function OrientArticle({ html }: { html: string }) {
         ) : null}
       </aside>
 
-      <div ref={articleRef}>
-        <TiptapHtml
-          html={html}
-          className="orient-article tiptap-html mx-auto max-w-[620px] text-[17px] leading-[1.7] text-[var(--thusness-ink-soft)]"
-        />
-      </div>
+      <div
+        ref={articleRef}
+        className="orient-article tiptap-html mx-auto max-w-[620px] text-[17px] leading-[1.7] text-[var(--thusness-ink-soft)]"
+        suppressHydrationWarning
+      />
       <style jsx global>{`
         html {
           scroll-behavior: smooth;
         }
+        .orient-article h1,
         .orient-article h2,
         .orient-article h3 {
           scroll-margin-top: 84px;
