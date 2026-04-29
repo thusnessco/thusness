@@ -64,24 +64,15 @@ export default async function OrientPage() {
         </div>
       </div>
 
-      <main className="mx-auto max-w-[1080px] px-6 pb-12 pt-10 lg:px-10">
-        <section className="mx-auto mb-10 max-w-[640px]">
-          <p className="mb-2 text-[11px] uppercase tracking-[2.2px] text-[var(--thusness-muted)]">
-            ~ Orientation
-          </p>
-          <h1 className="text-4xl font-medium tracking-[-0.02em] text-[var(--thusness-ink)]">
-            A map of the practice.
-          </h1>
-          <p className="mt-3 text-[17px] italic leading-[1.55] text-[var(--thusness-ink)]">
-            Recognize, stabilize, and integrate peace — then continue exploring.
-          </p>
-        </section>
-
-        <div className="mx-auto mb-12 w-full max-w-[1100px]">
+      <main className="mx-auto max-w-[1280px] px-4 pb-12 pt-6 sm:px-6 lg:px-10">
+        <div className="mx-auto mb-10 w-full max-w-[1200px]">
           <OrientDiagramEmbed diagram="giant" content={orientIg.content} />
         </div>
 
-        <section className="mx-auto mb-12 max-w-[640px] border-t border-[var(--thusness-rule)] pt-5">
+        <section className="mx-auto mb-12 max-w-[680px] border-t border-[var(--thusness-rule)] pt-5">
+          <p className="mb-2 text-[11px] uppercase tracking-[2.4px] text-[var(--thusness-muted)]">
+            ~ Orientation
+          </p>
           <p className="mb-3 text-[11px] uppercase tracking-[2.2px] text-[var(--thusness-muted)]">
             In sequence
           </p>
