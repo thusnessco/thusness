@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 @import "../design_handoff_thusness/tokens.css";
+@import "../components/orient/orient-booklet.css";
 
 :root {
   --background: var(--thusness-bg);

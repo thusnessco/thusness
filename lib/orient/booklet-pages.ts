@@ -50,7 +50,7 @@ export const ORIENT_BOOKLET_PAGES: OrientBookletPageMeta[] = [
     slug: "nihilism",
     noteSlug: "orient-nihilism",
     index: 6,
-    label: "Aside · Emptiness != non-existence",
+    label: "Emptiness ≠ non-existence",
     diagram: "nihilism",
   },
 ];
