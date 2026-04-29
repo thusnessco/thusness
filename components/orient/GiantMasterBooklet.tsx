@@ -12,7 +12,7 @@ export function GiantMasterBooklet({ content }: { content: OrientContent }) {
   const t = content;
   return (
     <div style={{ maxWidth: 1180, margin: "0 auto", position: "relative" }}>
-      <svg viewBox="0 0 1180 1080" width="100%" height="auto">
+      <svg viewBox="0 0 1180 1180" width="100%" height="auto">
         <defs>
           <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" orient="auto">
             <path d="M 0 0 L 10 5 L 0 10 z" fill={O.muted} />
