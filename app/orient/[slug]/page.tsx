@@ -67,19 +67,7 @@ export default async function OrientSectionPage({
     getPublishedNoteBySlug(page.noteSlug),
   ]);
   if (!cfg.pagesVisible[page.slug]) notFound();
-  if (!note) {
-    return (
-      <div className="min-h-screen bg-[var(--thusness-bg)] px-6 py-10 text-[var(--thusness-ink-soft)] sm:px-10">
-        <div className="mx-auto max-w-[1080px]">
-          <Wordmark size={20} tagline="~ as it is" />
-          <p className="mt-10 text-sm">
-            This page is enabled, but no published note exists for slug{" "}
-            <code>{page.noteSlug}</code>.
-          </p>
-        </div>
-      </div>
-    );
-  }
+  if (!note) notFound();
 
   const html = (
     <TiptapHtml

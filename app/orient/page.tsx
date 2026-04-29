@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
 
-import { OrientArticle } from "@/components/thusness/OrientArticle";
+import { OrientDiagramEmbed } from "@/components/orient/OrientDiagramEmbed";
 import { SiteFooter } from "@/components/thusness/SiteFooter";
 import Wordmark from "@/components/thusness/Wordmark";
 import { getOrientBookletConfig } from "@/lib/data/orient-booklet-config";
@@ -10,31 +9,35 @@ import { getOrientInfographicsBundle } from "@/lib/data/orient-infographics";
 import { getPublishedNoteBySlug } from "@/lib/data/notes-public";
 import { getOrientNavVisible } from "@/lib/data/orient-nav";
 import { ORIENT_BOOKLET_PAGES } from "@/lib/orient/booklet-pages";
-import { tiptapJsonToHtml } from "@/lib/tiptap/to-html";
 
 export const dynamic = "force-dynamic";
 
-const ORIENTATION_SLUG = "orientation";
-
 export async function generateMetadata(): Promise<Metadata> {
-  const note = await getPublishedNoteBySlug(ORIENTATION_SLUG);
-  if (!note) return { title: "Orient" };
   return {
-    title: note.title || "Orient",
-    description: note.excerpt ?? undefined,
+    title: "Orient",
+    description: "A map of the practice.",
     robots: { index: false, follow: false },
   };
 }
 
 export default async function OrientPage() {
-  const [note, orientNavVisible, orientIg, bookletConfig] = await Promise.all([
-    getPublishedNoteBySlug(ORIENTATION_SLUG),
+  const [orientNavVisible, orientIg, bookletConfig, publishedPages] = await Promise.all([
     getOrientNavVisible(),
     getOrientInfographicsBundle(),
     getOrientBookletConfig(),
+    Promise.all(
+      ORIENT_BOOKLET_PAGES.map(async (p) => ({
+        slug: p.slug,
+        exists: Boolean(await getPublishedNoteBySlug(p.noteSlug)),
+      }))
+    ),
   ]);
-  if (!note) notFound();
-  const html = tiptapJsonToHtml(note.content_json);
+  const publishedSet = new Set(
+    publishedPages.filter((p) => p.exists).map((p) => p.slug)
+  );
+  const visiblePages = ORIENT_BOOKLET_PAGES.filter(
+    (p) => bookletConfig.pagesVisible[p.slug] && publishedSet.has(p.slug)
+  );
 
   return (
     <div className="min-h-screen bg-[var(--thusness-bg)] font-sans text-[var(--thusness-ink)]">
@@ -61,29 +64,42 @@ export default async function OrientPage() {
         </div>
       </div>
 
-      <OrientArticle html={html} embedContent={orientIg.content} />
-      <div className="mx-auto max-w-[1080px] px-6 pb-12 lg:px-10">
+      <main className="mx-auto max-w-[1080px] px-6 pb-12 pt-10 lg:px-10">
+        <section className="mx-auto mb-10 max-w-[640px]">
+          <p className="mb-2 text-[11px] uppercase tracking-[2.2px] text-[var(--thusness-muted)]">
+            ~ Orientation
+          </p>
+          <h1 className="text-4xl font-medium tracking-[-0.02em] text-[var(--thusness-ink)]">
+            A map of the practice.
+          </h1>
+          <p className="mt-3 text-[17px] italic leading-[1.55] text-[var(--thusness-ink)]">
+            Recognize, stabilize, and integrate peace — then continue exploring.
+          </p>
+        </section>
+
+        <div className="mx-auto mb-12 w-full max-w-[1100px]">
+          <OrientDiagramEmbed diagram="giant" content={orientIg.content} />
+        </div>
+
         <section className="mx-auto mb-12 max-w-[640px] border-t border-[var(--thusness-rule)] pt-5">
           <p className="mb-3 text-[11px] uppercase tracking-[2.2px] text-[var(--thusness-muted)]">
             In sequence
           </p>
           <ol className="space-y-2">
-            {ORIENT_BOOKLET_PAGES.filter((p) => bookletConfig.pagesVisible[p.slug]).map(
-              (p) => (
-                <li key={p.slug}>
-                  <Link
-                    href={`/orient/${p.slug}`}
-                    className="text-[15px] text-[var(--thusness-ink-soft)] transition-opacity hover:opacity-70"
-                  >
-                    {String(p.index).padStart(2, "0")} · {p.label}
-                  </Link>
-                </li>
-              )
-            )}
+            {visiblePages.map((p) => (
+              <li key={p.slug}>
+                <Link
+                  href={`/orient/${p.slug}`}
+                  className="text-[15px] text-[var(--thusness-ink-soft)] transition-opacity hover:opacity-70"
+                >
+                  {String(p.index).padStart(2, "0")} · {p.label} →
+                </Link>
+              </li>
+            ))}
           </ol>
         </section>
         <SiteFooter />
-      </div>
+      </main>
     </div>
   );
 }
