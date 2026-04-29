@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { OrientDiagramEmbed } from "@/components/orient/OrientDiagramEmbed";
+import { GiantMasterBooklet } from "@/components/orient/GiantMasterBooklet";
 import { SiteFooter } from "@/components/thusness/SiteFooter";
 import Wordmark from "@/components/thusness/Wordmark";
 import { getOrientBookletConfig } from "@/lib/data/orient-booklet-config";
@@ -66,7 +66,7 @@ export default async function OrientPage() {
 
       <main className="mx-auto max-w-[1280px] px-4 pb-12 pt-6 sm:px-6 lg:px-10">
         <div className="mx-auto mb-10 w-full max-w-[1200px]">
-          <OrientDiagramEmbed diagram="giant" content={orientIg.content} />
+          <GiantMasterBooklet content={orientIg.content} />
         </div>
 
         <section className="mx-auto mb-12 max-w-[680px] border-t border-[var(--thusness-rule)] pt-5">
