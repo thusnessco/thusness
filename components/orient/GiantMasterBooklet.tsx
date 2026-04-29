@@ -8,45 +8,6 @@ const O = {
   helv: 'Helvetica, "Helvetica Neue", Arial, sans-serif',
 };
 
-function Wordmark({ size = 16 }: { size?: number }) {
-  return (
-    <div style={{ display: "inline-block", lineHeight: 1 }}>
-      <div
-        style={{
-          fontFamily: O.helv,
-          fontStyle: "italic",
-          fontSize: size,
-          letterSpacing: size * 0.2,
-          color: O.ink,
-          marginBottom: 4,
-        }}
-      >
-        T&nbsp;h&nbsp;u&nbsp;s&nbsp;n&nbsp;e&nbsp;s&nbsp;s
-      </div>
-      <hr
-        style={{
-          width: size * 3.8,
-          height: 1,
-          background: O.muted,
-          opacity: 0.6,
-          margin: "2px 0 6px",
-          border: "none",
-        }}
-      />
-      <div
-        style={{
-          fontFamily: O.helv,
-          fontSize: Math.max(10, size * 0.52),
-          letterSpacing: 2,
-          color: O.muted,
-        }}
-      >
-        ~ as it is
-      </div>
-    </div>
-  );
-}
-
 export function GiantMasterBooklet({ content }: { content: OrientContent }) {
   const t = content;
   return (
@@ -57,13 +18,6 @@ export function GiantMasterBooklet({ content }: { content: OrientContent }) {
             <path d="M 0 0 L 10 5 L 0 10 z" fill={O.muted} />
           </marker>
         </defs>
-
-        <foreignObject x="10" y="16" width="220" height="80">
-          <Wordmark />
-        </foreignObject>
-        <text x="1110" y="38" textAnchor="end" fontFamily={O.helv} fontSize="10" letterSpacing="2.4" fill={O.muted}>
-          ORIENT · 01 OF 07
-        </text>
 
         <text x="590" y="78" textAnchor="middle" fontFamily={O.helv} fontSize="12" letterSpacing="2.6" fill={O.muted}>
           {t.giant.kicker.toUpperCase()}
