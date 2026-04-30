@@ -28,13 +28,15 @@ export function GiantMasterBooklet({ content }: { content: OrientContent }) {
   const themesNames = t.themes.list.slice(0, 8);
 
   return (
-    <div style={{ maxWidth: 1180, margin: "0 auto", position: "relative" }}>
+    <div style={{ width: "100%", maxWidth: "100%", margin: "0 auto", position: "relative" }}>
       <div style={{ marginBottom: 24 }}>
         <div
           style={{
             display: "flex",
+            flexWrap: "wrap",
             alignItems: "baseline",
             justifyContent: "space-between",
+            gap: "8px 20px",
             marginBottom: 10,
           }}
         >
@@ -56,6 +58,8 @@ export function GiantMasterBooklet({ content }: { content: OrientContent }) {
               fontStyle: "italic",
               color: O.muted,
               letterSpacing: 0.4,
+              minWidth: 0,
+              textAlign: "right",
             }}
           >
             when these are welcome, the rest comes easily
@@ -64,7 +68,7 @@ export function GiantMasterBooklet({ content }: { content: OrientContent }) {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
+            gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
             gap: 0,
             border: `1px solid ${O.rule}`,
           }}
@@ -73,7 +77,8 @@ export function GiantMasterBooklet({ content }: { content: OrientContent }) {
             <div
               key={i}
               style={{
-                padding: "20px 28px",
+                padding: "16px 16px 18px",
+                minWidth: 0,
                 borderLeft: i > 0 ? `1px solid ${O.rule}` : "none",
                 display: "flex",
                 flexDirection: "column",
@@ -94,11 +99,12 @@ export function GiantMasterBooklet({ content }: { content: OrientContent }) {
               </div>
               <div
                 style={{
-                  fontSize: 22,
+                  fontSize: 20,
                   fontWeight: 500,
                   letterSpacing: -0.3,
                   lineHeight: 1.15,
                   color: O.ink,
+                  wordBreak: "break-word",
                 }}
               >
                 {p.name}
