@@ -6,7 +6,6 @@ import { DiagramFrame } from "./DiagramFrame";
 import { ORIENT_HELV, orientColors as O } from "./orient-diagram-styles";
 
 const FRAME_W = 1280;
-const FRAME_H = 900;
 
 type Props = { content: OrientContent["recognition"] };
 
@@ -88,17 +87,16 @@ function Cell({
 export function RecognitionDiagram({ content }: Props) {
   const { background, felt, trap } = content;
   return (
-    <DiagramFrame designWidth={FRAME_W} designHeight={FRAME_H}>
+    <DiagramFrame designWidth={FRAME_W} designHeight={560}>
       <div
         className="box-border bg-[var(--thusness-bg)] text-[var(--thusness-ink)] antialiased"
         style={{
           fontFamily: ORIENT_HELV,
           width: FRAME_W,
-          height: FRAME_H,
-          padding: "24px 40px 32px",
+          padding: "20px 40px 28px",
           display: "flex",
           flexDirection: "column",
-          justifyContent: "center",
+          justifyContent: "flex-start",
         }}
       >
         <div
@@ -107,7 +105,7 @@ export function RecognitionDiagram({ content }: Props) {
             gridTemplateColumns: "1fr 1fr",
             gap: 20,
             maxWidth: 940,
-            margin: "0 auto 24px",
+            margin: "0 auto 20px",
           }}
         >
           <Cell
@@ -123,7 +121,7 @@ export function RecognitionDiagram({ content }: Props) {
             textAlign: "center",
             maxWidth: 700,
             margin: "0 auto",
-            padding: "24px 0",
+            padding: "18px 0",
             borderTop: `1px solid ${O.rule}`,
             borderBottom: `1px solid ${O.rule}`,
           }}

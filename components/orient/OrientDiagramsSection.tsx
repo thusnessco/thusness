@@ -19,10 +19,10 @@ type Props = { content: OrientContent };
 export function OrientDiagramsSection({ content }: Props) {
   return (
     <section
-      className="orient-diagrams-root border-t border-[var(--thusness-rule)] bg-[var(--thusness-bg)] px-4 py-16 sm:px-8"
+      className="orient-diagrams-root border-t border-[var(--thusness-rule)] bg-[var(--thusness-bg)] px-4 py-10 sm:px-8"
       aria-label="Orient diagrams"
     >
-      <div className="mx-auto flex max-w-[1280px] flex-col gap-20">
+      <div className="mx-auto flex max-w-[1280px] flex-col gap-12">
         <GiantMaster content={content} />
         <PillarsDiagram content={content.pillars} />
         <StagesOfPeace content={content.stages} />

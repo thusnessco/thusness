@@ -6,7 +6,6 @@ import { DiagramFrame } from "./DiagramFrame";
 import { ORIENT_HELV, orientColors as O } from "./orient-diagram-styles";
 
 const FRAME_W = 1280;
-const FRAME_H = 900;
 
 type Props = { content: OrientContent["pillars"] };
 
@@ -14,17 +13,16 @@ export function PillarsDiagram({ content }: Props) {
   const { items, footer } = content;
   const pillars = items.slice(0, 3);
   return (
-    <DiagramFrame designWidth={FRAME_W} designHeight={FRAME_H}>
+    <DiagramFrame designWidth={FRAME_W} designHeight={440}>
       <div
         className="box-border bg-[var(--thusness-bg)] text-[var(--thusness-ink)] antialiased"
         style={{
           fontFamily: ORIENT_HELV,
           width: FRAME_W,
-          height: FRAME_H,
-          padding: "24px 40px 32px",
+          padding: "20px 40px 28px",
           display: "flex",
           flexDirection: "column",
-          justifyContent: "center",
+          justifyContent: "flex-start",
         }}
       >
         <div

@@ -29,7 +29,7 @@ export function GiantMasterBooklet({ content }: { content: OrientContent }) {
 
   return (
     <div style={{ maxWidth: 1180, margin: "0 auto", position: "relative" }}>
-      <div style={{ marginBottom: 36 }}>
+      <div style={{ marginBottom: 24 }}>
         <div
           style={{
             display: "flex",
