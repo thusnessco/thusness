@@ -3,109 +3,155 @@
 import type { OrientContent } from "@/lib/orient-infographics/types";
 
 import { DiagramFrame } from "./DiagramFrame";
-import { OrientSheet } from "./Sheet";
+import { ORIENT_HELV, orientColors as O } from "./orient-diagram-styles";
 
-const W = 1280;
-const H = 900;
+const FRAME_W = 1280;
+const FRAME_H = 900;
 
-type Props = { content: OrientContent["recognition"]; dateline?: string };
+type Props = { content: OrientContent["recognition"] };
 
-function Column({
+function Cell({
   label,
   title,
   points,
-  x,
+  italicTitle,
 }: {
   label: string;
   title: string;
   points: string[];
-  x: number;
+  italicTitle: boolean;
 }) {
   return (
-    <g transform={`translate(${x}, 0)`}>
-      <rect
-        x={0}
-        y={0}
-        width={420}
-        height={340}
-        fill="none"
-        stroke="var(--thusness-rule, #c7c2b0)"
-        strokeWidth={1}
-      />
-      <text
-        x={24}
-        y={36}
-        fill="var(--thusness-muted, #8a8672)"
-        fontSize={10}
-        letterSpacing={2.4}
-        style={{ textTransform: "uppercase" }}
+    <div
+      style={{
+        border: `1px solid ${O.rule}`,
+        padding: "28px 28px 30px",
+        fontFamily: ORIENT_HELV,
+      }}
+    >
+      <div
+        style={{
+          fontSize: 12,
+          letterSpacing: 2.6,
+          textTransform: "uppercase",
+          color: O.muted,
+          marginBottom: 18,
+        }}
       >
         {label}
-      </text>
-      <text
-        x={24}
-        y={68}
-        fill="var(--thusness-ink, #1a1915)"
-        fontSize={16}
-        fontWeight={500}
+      </div>
+      <div
+        style={{
+          fontSize: 24,
+          fontWeight: 500,
+          color: O.ink,
+          letterSpacing: -0.3,
+          lineHeight: 1.2,
+          marginBottom: 18,
+          fontStyle: italicTitle ? "italic" : "normal",
+        }}
       >
         {title}
-      </text>
-      {points.slice(0, 4).map((p, i) => (
-        <text
-          key={i}
-          x={24}
-          y={104 + i * 44}
-          fill="var(--thusness-ink-soft)"
-          fontSize={12}
-          style={{ fontStyle: "italic" }}
-        >
-          {p.length > 52 ? `${p.slice(0, 50)}…` : p}
-        </text>
-      ))}
-    </g>
+      </div>
+      <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
+        {points.map((p, i) => (
+          <li
+            key={i}
+            style={{
+              display: "flex",
+              gap: 14,
+              padding: "12px 0",
+              borderTop: `1px solid ${O.rule}`,
+              fontSize: 15,
+              lineHeight: 1.55,
+              color: O.inkSoft,
+            }}
+          >
+            <span
+              style={{
+                color: O.muted,
+                fontStyle: "italic",
+                fontSize: 13,
+                minWidth: 18,
+              }}
+            >
+              ~
+            </span>
+            <span>{p}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 
-export function RecognitionDiagram({
-  content,
-  dateline = "Orient · 03 of 07",
-}: Props) {
-  const { kicker, title, sub, background, felt, trap } = content;
+export function RecognitionDiagram({ content }: Props) {
+  const { background, felt, trap } = content;
   return (
-    <DiagramFrame designWidth={W} designHeight={H}>
-      <OrientSheet
-        boardWidth={W}
-        boardHeight={H}
-        kicker={kicker}
-        title={title}
-        sub={sub}
-        dateline={dateline}
+    <DiagramFrame designWidth={FRAME_W} designHeight={FRAME_H}>
+      <div
+        className="box-border bg-[var(--thusness-bg)] text-[var(--thusness-ink)] antialiased"
+        style={{
+          fontFamily: ORIENT_HELV,
+          width: FRAME_W,
+          height: FRAME_H,
+          padding: "24px 40px 32px",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+        }}
       >
-        <svg
-          width={980}
-          height={380}
-          viewBox="0 0 980 380"
-          className="mx-auto block"
-          aria-hidden
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: 20,
+            maxWidth: 940,
+            margin: "0 auto 24px",
+          }}
         >
-          <Column
-            label="Background sense"
+          <Cell
+            label="~ Background sense"
             title={background.title}
             points={background.points}
-            x={20}
+            italicTitle
           />
-          <Column
-            label="Felt peace"
-            title={felt.title}
-            points={felt.points}
-            x={520}
-          />
-        </svg>
-        <p className="mx-auto mt-4 max-w-[720px] whitespace-pre-line text-center text-[12px] italic leading-relaxed text-[var(--thusness-muted)]">
-          {trap}
-        </p>
-      </OrientSheet>
+          <Cell label="~ Felt peace" title={felt.title} points={felt.points} italicTitle={false} />
+        </div>
+        <div
+          style={{
+            textAlign: "center",
+            maxWidth: 700,
+            margin: "0 auto",
+            padding: "24px 0",
+            borderTop: `1px solid ${O.rule}`,
+            borderBottom: `1px solid ${O.rule}`,
+          }}
+        >
+          <div
+            style={{
+              fontSize: 11,
+              letterSpacing: 2.4,
+              textTransform: "uppercase",
+              color: O.muted,
+              marginBottom: 12,
+            }}
+          >
+            ~ The trap
+          </div>
+          <div
+            style={{
+              fontSize: 18,
+              fontStyle: "italic",
+              color: O.ink,
+              lineHeight: 1.5,
+              whiteSpace: "pre-line",
+            }}
+          >
+            {trap}
+          </div>
+        </div>
+      </div>
     </DiagramFrame>
   );
 }

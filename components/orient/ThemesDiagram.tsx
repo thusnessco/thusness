@@ -3,85 +3,92 @@
 import type { OrientContent } from "@/lib/orient-infographics/types";
 
 import { DiagramFrame } from "./DiagramFrame";
-import { OrientSheet } from "./Sheet";
+import { ORIENT_HELV, orientColors as O } from "./orient-diagram-styles";
 
-const W = 1280;
-const H = 900;
+const FRAME_W = 1280;
+const FRAME_H = 900;
 
-/** Even spread on a soft ellipse; max 8 labels. */
-const POSITIONS: { x: number; y: number }[] = [
-  { x: 520, y: 70 },
-  { x: 720, y: 110 },
-  { x: 820, y: 220 },
-  { x: 700, y: 300 },
-  { x: 520, y: 320 },
-  { x: 320, y: 300 },
-  { x: 220, y: 220 },
-  { x: 320, y: 110 },
-];
+type Props = { content: OrientContent["themes"] };
 
-type Props = { content: OrientContent["themes"]; dateline?: string };
+export function ThemesDiagram({ content }: Props) {
+  const { list, footer } = content;
+  const names = list.slice(0, 8);
+  const positions = [
+    { x: 180, y: 110 },
+    { x: 360, y: 70 },
+    { x: 560, y: 100 },
+    { x: 760, y: 60 },
+    { x: 240, y: 240 },
+    { x: 460, y: 220 },
+    { x: 660, y: 260 },
+    { x: 840, y: 220 },
+  ];
+  const themes = names.map((name, i) => ({ name, ...positions[i] }));
+  const links = [[0, 1], [1, 2], [2, 3], [4, 5], [5, 6], [6, 7], [0, 4], [1, 5], [2, 6], [3, 7]].filter(
+    ([a, b]) => a < themes.length && b < themes.length
+  );
 
-export function ThemesDiagram({
-  content,
-  dateline = "Orient · 06 of 07",
-}: Props) {
-  const { kicker, title, sub, list, footer } = content;
-  const labels = list.slice(0, 8);
   return (
-    <DiagramFrame designWidth={W} designHeight={H}>
-      <OrientSheet
-        boardWidth={W}
-        boardHeight={H}
-        kicker={kicker}
-        title={title}
-        sub={sub}
-        dateline={dateline}
+    <DiagramFrame designWidth={FRAME_W} designHeight={FRAME_H}>
+      <div
+        className="box-border bg-[var(--thusness-bg)] text-[var(--thusness-ink)] antialiased"
+        style={{
+          fontFamily: ORIENT_HELV,
+          width: FRAME_W,
+          height: FRAME_H,
+          padding: "24px 40px 32px",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+        }}
       >
-        <svg
-          width={960}
-          height={360}
-          viewBox="0 0 960 360"
-          className="mx-auto block"
-          aria-hidden
-        >
-          <ellipse
-            cx={520}
-            cy={195}
-            rx={280}
-            ry={120}
-            fill="none"
-            stroke="var(--thusness-rule, #c7c2b0)"
-            strokeWidth={1}
-            opacity={0.7}
-          />
-          {labels.map((label, i) => {
-            const p = POSITIONS[i] ?? POSITIONS[0];
-            return (
-              <g key={`${label}-${i}`} transform={`translate(${p.x}, ${p.y})`}>
-                <circle
-                  r={5}
-                  fill="var(--thusness-muted, #8a8672)"
-                  opacity={0.9}
-                />
+        <div style={{ maxWidth: 980, margin: "0 auto" }}>
+          <svg viewBox="0 0 980 320" width="100%" height={320} aria-hidden>
+            {links.map(([a, b], i) => (
+              <line
+                key={i}
+                x1={themes[a].x}
+                y1={themes[a].y}
+                x2={themes[b].x}
+                y2={themes[b].y}
+                stroke={O.rule}
+                strokeWidth="1"
+                strokeDasharray="2 5"
+                opacity="0.7"
+              />
+            ))}
+            {themes.map((th, i) => (
+              <g key={i}>
+                <circle cx={th.x} cy={th.y} r="3.5" fill={O.ink} />
                 <text
-                  x={0}
-                  y={-14}
+                  x={th.x}
+                  y={th.y - 14}
                   textAnchor="middle"
-                  fill="var(--thusness-ink, #1a1915)"
-                  fontSize={13}
-                  fontWeight={500}
+                  fontFamily={ORIENT_HELV}
+                  fontSize="16"
+                  fontStyle="italic"
+                  fill={O.ink}
                 >
-                  {label}
+                  {th.name}
                 </text>
               </g>
-            );
-          })}
-        </svg>
-        <p className="mx-auto mt-4 max-w-[560px] text-center text-[11px] italic text-[var(--thusness-muted)]">
+            ))}
+          </svg>
+        </div>
+        <div
+          style={{
+            textAlign: "center",
+            maxWidth: 640,
+            margin: "12px auto 0",
+            fontSize: 14,
+            fontStyle: "italic",
+            color: O.muted,
+            lineHeight: 1.6,
+          }}
+        >
           {footer}
-        </p>
-      </OrientSheet>
+        </div>
+      </div>
     </DiagramFrame>
   );
 }

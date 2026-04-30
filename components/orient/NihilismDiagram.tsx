@@ -2,57 +2,158 @@
 
 import type { OrientContent } from "@/lib/orient-infographics/types";
 
+import RedDot from "@/components/thusness/RedDot";
+
 import { DiagramFrame } from "./DiagramFrame";
-import { OrientSheet } from "./Sheet";
+import { ORIENT_HELV, orientColors as O } from "./orient-diagram-styles";
 
-const W = 1280;
-const H = 900;
+const FRAME_W = 1280;
+const FRAME_H = 900;
 
-type Props = { content: OrientContent["nihilism"]; dateline?: string };
+type Props = { content: OrientContent["nihilism"] };
 
-export function NihilismDiagram({
-  content,
-  dateline = "Orient · 07 of 07",
-}: Props) {
-  const { kicker, title, sub, trap, view, footer } = content;
+export function NihilismDiagram({ content }: Props) {
+  const { trap, view, footer } = content;
   return (
-    <DiagramFrame designWidth={W} designHeight={H}>
-      <OrientSheet
-        boardWidth={W}
-        boardHeight={H}
-        kicker={kicker}
-        title={title}
-        sub={sub}
-        dateline={dateline}
+    <DiagramFrame designWidth={FRAME_W} designHeight={FRAME_H}>
+      <div
+        className="box-border bg-[var(--thusness-bg)] text-[var(--thusness-ink)] antialiased"
+        style={{
+          fontFamily: ORIENT_HELV,
+          width: FRAME_W,
+          height: FRAME_H,
+          padding: "24px 40px 32px",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+        }}
       >
-        <div className="mx-auto grid max-w-[1040px] grid-cols-1 gap-8 lg:grid-cols-2">
-          <div className="border border-[var(--thusness-rule)] px-6 py-5">
-            <p className="text-[13px] font-medium text-[var(--thusness-ink)]">
+        <div
+          style={{
+            maxWidth: 880,
+            margin: "0 auto",
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: 0,
+          }}
+        >
+          <div
+            style={{
+              border: `1px solid ${O.rule}`,
+              padding: "32px 30px",
+              borderRight: "none",
+              display: "flex",
+              flexDirection: "column",
+              gap: 14,
+              minHeight: 320,
+            }}
+          >
+            <div
+              style={{
+                fontSize: 12,
+                letterSpacing: 2.6,
+                textTransform: "uppercase",
+                color: O.red,
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+              }}
+            >
+              <RedDot size={9} />~ The trap
+            </div>
+            <div
+              style={{
+                fontSize: 24,
+                fontWeight: 500,
+                color: O.ink,
+                letterSpacing: -0.3,
+                lineHeight: 1.2,
+              }}
+            >
               {trap.name}
-            </p>
-            <p className="mt-2 text-[12px] italic leading-relaxed text-[var(--thusness-ink-soft)]">
-              “{trap.quote}”
-            </p>
-            <p className="mt-3 text-[11px] leading-relaxed text-[var(--thusness-muted)]">
+            </div>
+            <div style={{ fontSize: 15, color: O.inkSoft, lineHeight: 1.6, fontStyle: "italic" }}>
+              &ldquo;{trap.quote}&rdquo;
+            </div>
+            <div style={{ flex: 1 }} />
+            <div
+              style={{
+                fontSize: 14,
+                color: O.inkSoft,
+                lineHeight: 1.55,
+                borderTop: `1px solid ${O.rule}`,
+                paddingTop: 12,
+              }}
+            >
               {trap.body}
-            </p>
+            </div>
           </div>
-          <div className="border border-[var(--thusness-rule)] px-6 py-5">
-            <p className="text-[13px] font-medium text-[var(--thusness-ink)]">
+          <div
+            style={{
+              border: `1px solid ${O.rule}`,
+              padding: "32px 30px",
+              display: "flex",
+              flexDirection: "column",
+              gap: 14,
+              minHeight: 320,
+            }}
+          >
+            <div
+              style={{
+                fontSize: 12,
+                letterSpacing: 2.6,
+                textTransform: "uppercase",
+                color: O.muted,
+              }}
+            >
+              ~ The dependent view
+            </div>
+            <div
+              style={{
+                fontSize: 24,
+                fontWeight: 500,
+                color: O.ink,
+                letterSpacing: -0.3,
+                lineHeight: 1.2,
+              }}
+            >
               {view.name}
-            </p>
-            <p className="mt-2 text-[12px] italic leading-relaxed text-[var(--thusness-ink-soft)]">
-              “{view.quote}”
-            </p>
-            <p className="mt-3 text-[11px] leading-relaxed text-[var(--thusness-muted)]">
+            </div>
+            <div style={{ fontSize: 15, color: O.inkSoft, lineHeight: 1.6, fontStyle: "italic" }}>
+              {view.quote}
+            </div>
+            <div style={{ flex: 1 }} />
+            <div
+              style={{
+                fontSize: 14,
+                color: O.inkSoft,
+                lineHeight: 1.55,
+                borderTop: `1px solid ${O.rule}`,
+                paddingTop: 12,
+              }}
+            >
               {view.body}
-            </p>
+            </div>
           </div>
         </div>
-        <p className="mx-auto mt-8 max-w-[560px] whitespace-pre-line text-center text-[11px] italic text-[var(--thusness-muted)]">
+        <div
+          style={{
+            textAlign: "center",
+            maxWidth: 620,
+            margin: "36px auto 0",
+            fontSize: 16,
+            fontStyle: "italic",
+            color: O.ink,
+            lineHeight: 1.55,
+            padding: "22px 0",
+            borderTop: `1px solid ${O.rule}`,
+            borderBottom: `1px solid ${O.rule}`,
+            whiteSpace: "pre-line",
+          }}
+        >
           {footer}
-        </p>
-      </OrientSheet>
+        </div>
+      </div>
     </DiagramFrame>
   );
 }

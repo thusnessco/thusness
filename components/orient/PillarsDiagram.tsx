@@ -3,91 +3,106 @@
 import type { OrientContent } from "@/lib/orient-infographics/types";
 
 import { DiagramFrame } from "./DiagramFrame";
-import { OrientSheet } from "./Sheet";
+import { ORIENT_HELV, orientColors as O } from "./orient-diagram-styles";
 
-const W = 1280;
-const H = 900;
+const FRAME_W = 1280;
+const FRAME_H = 900;
 
-type Props = { content: OrientContent["pillars"]; dateline?: string };
+type Props = { content: OrientContent["pillars"] };
 
-export function PillarsDiagram({
-  content,
-  dateline = "Orient · 04 of 07",
-}: Props) {
-  const { kicker, title, sub, items, footer } = content;
-  const cols = [140, 500, 860];
+export function PillarsDiagram({ content }: Props) {
+  const { items, footer } = content;
+  const pillars = items.slice(0, 3);
   return (
-    <DiagramFrame designWidth={W} designHeight={H}>
-      <OrientSheet
-        boardWidth={W}
-        boardHeight={H}
-        kicker={kicker}
-        title={title}
-        sub={sub}
-        dateline={dateline}
+    <DiagramFrame designWidth={FRAME_W} designHeight={FRAME_H}>
+      <div
+        className="box-border bg-[var(--thusness-bg)] text-[var(--thusness-ink)] antialiased"
+        style={{
+          fontFamily: ORIENT_HELV,
+          width: FRAME_W,
+          height: FRAME_H,
+          padding: "24px 40px 32px",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+        }}
       >
-        <svg
-          width={1080}
-          height={320}
-          viewBox="0 0 1080 320"
-          className="mx-auto block"
-          aria-hidden
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(3, 1fr)",
+            gap: 0,
+            maxWidth: 960,
+            margin: "0 auto",
+            position: "relative",
+          }}
         >
-          {cols.map((cx) => (
-            <line
-              key={cx}
-              x1={cx}
-              y1={32}
-              x2={cx}
-              y2={300}
-              stroke="var(--thusness-rule, #c7c2b0)"
-              strokeWidth={1}
-            />
+          {pillars.map((p, i) => (
+            <div
+              key={i}
+              style={{
+                padding: "36px 32px 40px",
+                borderLeft: i === 0 ? `1px solid ${O.rule}` : "none",
+                borderRight: `1px solid ${O.rule}`,
+                borderTop: `1px solid ${O.rule}`,
+                borderBottom: `1px solid ${O.rule}`,
+                display: "flex",
+                flexDirection: "column",
+                gap: 16,
+                minHeight: 320,
+              }}
+            >
+              <div
+                style={{
+                  fontFamily: ORIENT_HELV,
+                  fontStyle: "italic",
+                  fontSize: 13,
+                  letterSpacing: 1.6,
+                  color: O.muted,
+                }}
+              >
+                ~ Pillar 0{i + 1}
+              </div>
+              <div
+                style={{
+                  fontSize: 28,
+                  fontWeight: 500,
+                  color: O.ink,
+                  letterSpacing: -0.4,
+                  lineHeight: 1.1,
+                }}
+              >
+                {p.name}
+              </div>
+              <div
+                style={{
+                  fontSize: 15,
+                  fontStyle: "italic",
+                  color: O.inkSoft,
+                  marginTop: -4,
+                  lineHeight: 1.45,
+                }}
+              >
+                {p.sub}
+              </div>
+              <div style={{ fontSize: 14, color: O.inkSoft, lineHeight: 1.6, marginTop: 4 }}>
+                {p.gloss}
+              </div>
+            </div>
           ))}
-          {items.map((it, i) => {
-            const cx = cols[i] ?? 140;
-            return (
-              <g key={i} transform={`translate(${cx - 120}, 0)`}>
-                <text
-                  x={120}
-                  y={72}
-                  textAnchor="middle"
-                  fill="var(--thusness-ink, #1a1915)"
-                  fontSize={15}
-                  fontWeight={500}
-                >
-                  {it.name.length > 22 ? `${it.name.slice(0, 20)}…` : it.name}
-                </text>
-                <text
-                  x={120}
-                  y={100}
-                  textAnchor="middle"
-                  fill="var(--thusness-muted, #8a8672)"
-                  fontSize={11}
-                  fontStyle="italic"
-                >
-                  {it.sub.length > 34 ? `${it.sub.slice(0, 32)}…` : it.sub}
-                </text>
-                <text
-                  x={120}
-                  y={140}
-                  textAnchor="middle"
-                  fill="var(--thusness-ink-soft)"
-                  fontSize={11}
-                  style={{ fontStyle: "italic" }}
-                >
-                  {it.gloss.length > 56
-                    ? `${it.gloss.slice(0, 54)}…`
-                    : it.gloss}
-                </text>
-              </g>
-            );
-          })}
-        </svg>
-        <p className="mx-auto mt-3 max-w-[640px] text-center text-[11px] italic leading-relaxed text-[var(--thusness-muted)]">
+        </div>
+        <div
+          style={{
+            textAlign: "center",
+            marginTop: 28,
+            fontSize: 13,
+            fontStyle: "italic",
+            color: O.muted,
+          }}
+        >
           {footer}
-        </p>
-      </OrientSheet>
+        </div>
+      </div>
     </DiagramFrame>
   );
 }
