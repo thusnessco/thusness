@@ -41,18 +41,18 @@ export default async function OrientPage() {
         </header>
         <main>
         <header className="orient-index-hero">
-          <div className="orient-kicker">~ Orientation</div>
-          <h1 className="orient-h1">A map of the practice.</h1>
+          <div className="orient-kicker">{bookletConfig.copy.indexKicker}</div>
+          <h1 className="orient-h1">{bookletConfig.copy.indexTitle}</h1>
           <p className="orient-intro">
-            Three pillars first—what you bring—then stages of peace and the rest of the map. Read in order, or out of it.
+            {bookletConfig.copy.indexIntro}
           </p>
         </header>
         <div className="orient-diagram-frame">
           <GiantMasterBooklet content={orientIg.content} />
         </div>
-        <OrientDiagramSheetFooter />
+        <OrientDiagramSheetFooter label={bookletConfig.copy.diagramFooterLabel} />
         <nav className="orient-toc">
-          <div className="orient-toc-divider">── In sequence ──</div>
+          <div className="orient-toc-divider">── {bookletConfig.copy.tocSequenceLabel} ──</div>
           {sections.map((p) => (
             <Link key={p.slug} href={`/orient/${p.slug}`} className="orient-toc-row">
               <span className="orient-toc-num">{String(p.index).padStart(2, "0")}</span>
@@ -62,7 +62,7 @@ export default async function OrientPage() {
           ))}
           {aside ? (
             <>
-              <div className="orient-toc-divider orient-toc-divider--aside">── Aside ──</div>
+              <div className="orient-toc-divider orient-toc-divider--aside">── {bookletConfig.copy.tocAsideLabel} ──</div>
               <Link href={`/orient/${aside.slug}`} className="orient-toc-row">
                 <span className="orient-toc-num">{String(aside.index).padStart(2, "0")}</span>
                 <span className="orient-toc-label">{aside.label}</span>
@@ -79,7 +79,7 @@ export default async function OrientPage() {
           {bookletConfig.footerNotes ? <Link href="/notes" className="site-footer-link">~ notes</Link> : null}
         </nav>
         <div className="orient-signature orient-signature--text-only">
-          <span>thusness.co</span>
+          <span>{bookletConfig.copy.signatureLabel}</span>
         </div>
         </main>
       </div>

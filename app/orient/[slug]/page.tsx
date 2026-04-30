@@ -25,14 +25,14 @@ function neighbors(slug: string) {
   }
   const prev =
     i === 0
-      ? { href: "/orient", label: "back to the map" }
+      ? { href: "/orient", label: null }
       : {
           href: `/orient/${ORIENT_BOOKLET_PAGES[i - 1].slug}`,
           label: ORIENT_BOOKLET_PAGES[i - 1].label,
         };
   const next =
     i === ORIENT_BOOKLET_PAGES.length - 1
-      ? { href: "/orient", label: "back to the map" }
+      ? { href: "/orient", label: null }
       : {
           href: `/orient/${ORIENT_BOOKLET_PAGES[i + 1].slug}`,
           label: ORIENT_BOOKLET_PAGES[i + 1].label,
@@ -71,12 +71,20 @@ export default async function OrientSectionPage({
   if (!cfg.pagesVisible[page.slug]) notFound();
 
   const noteHtml = note ? tiptapJsonToHtml(note.content_json).trim() : "";
-  const proseBody =
-    note && noteHtml ? (
-      <TiptapHtml html={noteHtml} className="" />
-    ) : (
-      getDefaultOrientBookletProse(page.slug).map((b, i) => <p key={i}>{b.text}</p>)
-    );
+  const proseOverride = cfg.copy.proseOverrides[page.slug].trim();
+  const proseBody = proseOverride
+    ? proseOverride
+        .split(/\n\s*\n/)
+        .map((p) => p.trim())
+        .filter(Boolean)
+        .map((p, i) => <p key={i}>{p}</p>)
+    : note && noteHtml
+      ? (
+          <TiptapHtml html={noteHtml} className="" />
+        )
+      : (
+          getDefaultOrientBookletProse(page.slug).map((b, i) => <p key={i}>{b.text}</p>)
+        );
 
   const nav = neighbors(page.slug);
   const sheetHead = infographicHeadForDiagram(page.diagram, infographics.content);
@@ -89,14 +97,14 @@ export default async function OrientSectionPage({
             <Wordmark size={20} tagline="~ as it is" />
           </Link>
           <div className="orient-sheet-index" aria-label="Position in orient booklet">
-            Orient · {String(page.index).padStart(2, "0")} of 06
+            {cfg.copy.sectionSheetIndexPrefix} · {String(page.index).padStart(2, "0")} of 06
           </div>
         </header>
 
         <div className="orient-context">
-          part of{" "}
+          {cfg.copy.sectionContextPrefix}{" "}
           <Link href="/orient" className="underline underline-offset-2">
-            the orientation
+            {cfg.copy.sectionContextLinkLabel}
           </Link>
           {" · "}
           {String(page.index).padStart(2, "0")} of 06
@@ -113,21 +121,21 @@ export default async function OrientSectionPage({
         <div className="orient-diagram-frame">
           <OrientDiagramEmbed diagram={page.diagram} content={infographics.content} />
         </div>
-        <OrientDiagramSheetFooter />
+        <OrientDiagramSheetFooter label={cfg.copy.diagramFooterLabel} />
 
         <section className="orient-prose">{proseBody}</section>
 
         <nav className="orient-prevnext" aria-label="Booklet navigation">
           <div>
-            <span className="orient-prevnext-kicker">← previous</span>
+            <span className="orient-prevnext-kicker">← {cfg.copy.prevKicker}</span>
             <Link href={nav.prev?.href ?? "/orient"} className="orient-prevnext-link">
-              {nav.prev?.label ?? "back to the map"}
+              {nav.prev?.label ?? cfg.copy.backToMapLabel}
             </Link>
           </div>
           <div className="text-right">
-            <span className="orient-prevnext-kicker">next →</span>
+            <span className="orient-prevnext-kicker">{cfg.copy.nextKicker} →</span>
             <Link href={nav.next?.href ?? "/orient"} className="orient-prevnext-link">
-              {nav.next?.label ?? "back to the map"}
+              {nav.next?.label ?? cfg.copy.backToMapLabel}
             </Link>
           </div>
         </nav>
@@ -142,7 +150,7 @@ export default async function OrientSectionPage({
           </nav>
         ) : null}
         <div className="orient-signature orient-signature--text-only">
-          <span>thusness.co</span>
+          <span>{cfg.copy.signatureLabel}</span>
         </div>
       </div>
     </div>

@@ -8,7 +8,7 @@ import {
   type OrientBookletConfig,
 } from "@/lib/orient/booklet-config";
 
-import { adminBtnPrimary } from "./admin-ui";
+import { adminBtnPrimary, adminFieldInput, adminFieldLabel } from "./admin-ui";
 
 const LABELS: Record<(typeof ORIENT_BOOKLET_SLUGS)[number], string> = {
   pillars: "01 · Three pillars",
@@ -119,6 +119,234 @@ export function OrientBookletPanel({
             </span>
           </label>
         ))}
+      </div>
+
+      <div className="space-y-2 border-t border-[var(--thusness-rule)] pt-4">
+        <p className="text-[11px] uppercase tracking-[0.16em] text-[var(--thusness-muted)]">
+          Page copy
+        </p>
+        <label className="block space-y-1">
+          <span className={adminFieldLabel}>Index kicker</span>
+          <input
+            className={`${adminFieldInput} w-full`}
+            value={config.copy.indexKicker}
+            disabled={isPending}
+            onChange={(e) =>
+              setConfig((prev) => ({
+                ...prev,
+                copy: { ...prev.copy, indexKicker: e.target.value },
+              }))
+            }
+          />
+        </label>
+        <label className="block space-y-1">
+          <span className={adminFieldLabel}>Index title</span>
+          <input
+            className={`${adminFieldInput} w-full`}
+            value={config.copy.indexTitle}
+            disabled={isPending}
+            onChange={(e) =>
+              setConfig((prev) => ({
+                ...prev,
+                copy: { ...prev.copy, indexTitle: e.target.value },
+              }))
+            }
+          />
+        </label>
+        <label className="block space-y-1">
+          <span className={adminFieldLabel}>Index intro</span>
+          <textarea
+            className={`${adminFieldInput} min-h-[72px] w-full resize-y`}
+            value={config.copy.indexIntro}
+            disabled={isPending}
+            onChange={(e) =>
+              setConfig((prev) => ({
+                ...prev,
+                copy: { ...prev.copy, indexIntro: e.target.value },
+              }))
+            }
+          />
+        </label>
+        <div className="grid gap-2 sm:grid-cols-2">
+          <label className="block space-y-1">
+            <span className={adminFieldLabel}>TOC sequence label</span>
+            <input
+              className={`${adminFieldInput} w-full`}
+              value={config.copy.tocSequenceLabel}
+              disabled={isPending}
+              onChange={(e) =>
+                setConfig((prev) => ({
+                  ...prev,
+                  copy: { ...prev.copy, tocSequenceLabel: e.target.value },
+                }))
+              }
+            />
+          </label>
+          <label className="block space-y-1">
+            <span className={adminFieldLabel}>TOC aside label</span>
+            <input
+              className={`${adminFieldInput} w-full`}
+              value={config.copy.tocAsideLabel}
+              disabled={isPending}
+              onChange={(e) =>
+                setConfig((prev) => ({
+                  ...prev,
+                  copy: { ...prev.copy, tocAsideLabel: e.target.value },
+                }))
+              }
+            />
+          </label>
+        </div>
+        <div className="grid gap-2 sm:grid-cols-2">
+          <label className="block space-y-1">
+            <span className={adminFieldLabel}>Section sheet prefix</span>
+            <input
+              className={`${adminFieldInput} w-full`}
+              value={config.copy.sectionSheetIndexPrefix}
+              disabled={isPending}
+              onChange={(e) =>
+                setConfig((prev) => ({
+                  ...prev,
+                  copy: { ...prev.copy, sectionSheetIndexPrefix: e.target.value },
+                }))
+              }
+            />
+          </label>
+          <label className="block space-y-1">
+            <span className={adminFieldLabel}>Section context prefix</span>
+            <input
+              className={`${adminFieldInput} w-full`}
+              value={config.copy.sectionContextPrefix}
+              disabled={isPending}
+              onChange={(e) =>
+                setConfig((prev) => ({
+                  ...prev,
+                  copy: { ...prev.copy, sectionContextPrefix: e.target.value },
+                }))
+              }
+            />
+          </label>
+        </div>
+        <div className="grid gap-2 sm:grid-cols-2">
+          <label className="block space-y-1">
+            <span className={adminFieldLabel}>Section context link label</span>
+            <input
+              className={`${adminFieldInput} w-full`}
+              value={config.copy.sectionContextLinkLabel}
+              disabled={isPending}
+              onChange={(e) =>
+                setConfig((prev) => ({
+                  ...prev,
+                  copy: { ...prev.copy, sectionContextLinkLabel: e.target.value },
+                }))
+              }
+            />
+          </label>
+          <label className="block space-y-1">
+            <span className={adminFieldLabel}>Diagram footer label</span>
+            <input
+              className={`${adminFieldInput} w-full`}
+              value={config.copy.diagramFooterLabel}
+              disabled={isPending}
+              onChange={(e) =>
+                setConfig((prev) => ({
+                  ...prev,
+                  copy: { ...prev.copy, diagramFooterLabel: e.target.value },
+                }))
+              }
+            />
+          </label>
+        </div>
+        <div className="grid gap-2 sm:grid-cols-3">
+          <label className="block space-y-1">
+            <span className={adminFieldLabel}>Previous kicker</span>
+            <input
+              className={`${adminFieldInput} w-full`}
+              value={config.copy.prevKicker}
+              disabled={isPending}
+              onChange={(e) =>
+                setConfig((prev) => ({
+                  ...prev,
+                  copy: { ...prev.copy, prevKicker: e.target.value },
+                }))
+              }
+            />
+          </label>
+          <label className="block space-y-1">
+            <span className={adminFieldLabel}>Next kicker</span>
+            <input
+              className={`${adminFieldInput} w-full`}
+              value={config.copy.nextKicker}
+              disabled={isPending}
+              onChange={(e) =>
+                setConfig((prev) => ({
+                  ...prev,
+                  copy: { ...prev.copy, nextKicker: e.target.value },
+                }))
+              }
+            />
+          </label>
+          <label className="block space-y-1">
+            <span className={adminFieldLabel}>Back-to-map label</span>
+            <input
+              className={`${adminFieldInput} w-full`}
+              value={config.copy.backToMapLabel}
+              disabled={isPending}
+              onChange={(e) =>
+                setConfig((prev) => ({
+                  ...prev,
+                  copy: { ...prev.copy, backToMapLabel: e.target.value },
+                }))
+              }
+            />
+          </label>
+        </div>
+        <label className="block space-y-1">
+          <span className={adminFieldLabel}>Signature label</span>
+          <input
+            className={`${adminFieldInput} w-full`}
+            value={config.copy.signatureLabel}
+            disabled={isPending}
+            onChange={(e) =>
+              setConfig((prev) => ({
+                ...prev,
+                copy: { ...prev.copy, signatureLabel: e.target.value },
+              }))
+            }
+          />
+        </label>
+
+        <div className="space-y-2 border-t border-[var(--thusness-rule)] pt-3">
+          <p className="text-[11px] uppercase tracking-[0.16em] text-[var(--thusness-muted)]">
+            Section long-form overrides
+          </p>
+          <p className="text-[11px] text-[var(--thusness-muted)]">
+            Optional plain-text prose shown below each diagram. Leave blank to keep using
+            published note content/default prose. Separate paragraphs with a blank line.
+          </p>
+          {ORIENT_BOOKLET_SLUGS.map((slug) => (
+            <label key={`prose-${slug}`} className="block space-y-1">
+              <span className={adminFieldLabel}>{LABELS[slug]}</span>
+              <textarea
+                className={`${adminFieldInput} min-h-[110px] w-full resize-y`}
+                value={config.copy.proseOverrides[slug]}
+                disabled={isPending}
+                onChange={(e) =>
+                  setConfig((prev) => ({
+                    ...prev,
+                    copy: {
+                      ...prev.copy,
+                      proseOverrides: {
+                        ...prev.copy.proseOverrides,
+                        [slug]: e.target.value,
+                      },
+                    },
+                  }))
+                }
+              />
+            </label>
+          ))}
+        </div>
       </div>
 
       <button
