@@ -7,7 +7,15 @@ import type { OrientContent } from "@/lib/orient-infographics/types";
 import { ORIENT_HELV, orientColors as O } from "./orient-diagram-styles";
 
 /** Giant orient map + pillars strip — matches `prototype/site/orient.jsx` `GiantMaster` inner (no OSheet). */
-export function GiantMasterBooklet({ content }: { content: OrientContent }) {
+export function GiantMasterBooklet({
+  content,
+  pillarsKicker,
+  pillarsHint,
+}: {
+  content: OrientContent;
+  pillarsKicker: string;
+  pillarsHint: string;
+}) {
   const t = content;
   const mid = useId().replace(/:/g, "");
   const markerId = `arr-gm-${mid}`;
@@ -49,7 +57,7 @@ export function GiantMasterBooklet({ content }: { content: OrientContent }) {
               textTransform: "uppercase",
             }}
           >
-            ~ Three pillars · welcome throughout
+            {pillarsKicker}
           </div>
           <div
             style={{
@@ -62,7 +70,7 @@ export function GiantMasterBooklet({ content }: { content: OrientContent }) {
               textAlign: "right",
             }}
           >
-            when these are welcome, the rest comes easily
+            {pillarsHint}
           </div>
         </div>
         <div

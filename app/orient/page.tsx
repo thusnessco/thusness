@@ -48,7 +48,11 @@ export default async function OrientPage() {
           </p>
         </header>
         <div className="orient-diagram-frame">
-          <GiantMasterBooklet content={orientIg.content} />
+          <GiantMasterBooklet
+            content={orientIg.content}
+            pillarsKicker={bookletConfig.copy.mapPillarsKicker}
+            pillarsHint={bookletConfig.copy.mapPillarsHint}
+          />
         </div>
         <OrientDiagramSheetFooter label={bookletConfig.copy.diagramFooterLabel} />
         <nav className="orient-toc">

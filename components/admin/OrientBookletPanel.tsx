@@ -169,6 +169,36 @@ export function OrientBookletPanel({
         </label>
         <div className="grid gap-2 sm:grid-cols-2">
           <label className="block space-y-1">
+            <span className={adminFieldLabel}>Map pillars kicker (left)</span>
+            <input
+              className={`${adminFieldInput} w-full`}
+              value={config.copy.mapPillarsKicker}
+              disabled={isPending}
+              onChange={(e) =>
+                setConfig((prev) => ({
+                  ...prev,
+                  copy: { ...prev.copy, mapPillarsKicker: e.target.value },
+                }))
+              }
+            />
+          </label>
+          <label className="block space-y-1">
+            <span className={adminFieldLabel}>Map pillars hint (right)</span>
+            <input
+              className={`${adminFieldInput} w-full`}
+              value={config.copy.mapPillarsHint}
+              disabled={isPending}
+              onChange={(e) =>
+                setConfig((prev) => ({
+                  ...prev,
+                  copy: { ...prev.copy, mapPillarsHint: e.target.value },
+                }))
+              }
+            />
+          </label>
+        </div>
+        <div className="grid gap-2 sm:grid-cols-2">
+          <label className="block space-y-1">
             <span className={adminFieldLabel}>TOC sequence label</span>
             <input
               className={`${adminFieldInput} w-full`}

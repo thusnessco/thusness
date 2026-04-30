@@ -21,6 +21,8 @@ export type OrientBookletConfig = {
     indexKicker: string;
     indexTitle: string;
     indexIntro: string;
+    mapPillarsKicker: string;
+    mapPillarsHint: string;
     tocSequenceLabel: string;
     tocAsideLabel: string;
     sectionSheetIndexPrefix: string;
@@ -58,6 +60,8 @@ export function defaultOrientBookletConfig(): OrientBookletConfig {
       indexTitle: "A map of the practice.",
       indexIntro:
         "Three pillars first-what you bring-then stages of peace and the rest of the map. Read in order, or out of it.",
+      mapPillarsKicker: "~ Three pillars · welcome throughout",
+      mapPillarsHint: "when these are welcome, the rest comes easily",
       tocSequenceLabel: "In sequence",
       tocAsideLabel: "Aside",
       sectionSheetIndexPrefix: "Orient",
@@ -111,6 +115,14 @@ export function parseOrientBookletConfig(raw: unknown): OrientBookletConfig {
       typeof copyRaw.indexIntro === "string"
         ? copyRaw.indexIntro
         : d.copy.indexIntro,
+    mapPillarsKicker:
+      typeof copyRaw.mapPillarsKicker === "string"
+        ? copyRaw.mapPillarsKicker
+        : d.copy.mapPillarsKicker,
+    mapPillarsHint:
+      typeof copyRaw.mapPillarsHint === "string"
+        ? copyRaw.mapPillarsHint
+        : d.copy.mapPillarsHint,
     tocSequenceLabel:
       typeof copyRaw.tocSequenceLabel === "string"
         ? copyRaw.tocSequenceLabel
