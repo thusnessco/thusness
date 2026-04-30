@@ -108,10 +108,8 @@ export function AdminEditorHub({
   const [templateSourceId, setTemplateSourceId] = useState("");
   const [noteListFilter, setNoteListFilter] =
     useState<AdminNoteListFilter>("all");
-  /** Long lists start collapsed so the rest of the nav (layouts, tools) stays in reach. */
-  const [notesListExpanded, setNotesListExpanded] = useState(
-    () => notes.length <= 14
-  );
+  /** Folder starts collapsed when there are many notes so layouts/tools stay visible. */
+  const [notesFolderOpen, setNotesFolderOpen] = useState(() => notes.length <= 14);
 
   const templateNotes = useMemo(
     () => notes.filter((n) => n.is_template === true),
@@ -170,9 +168,6 @@ export function AdminEditorHub({
           aria-label="Choose what to edit"
           className="space-y-1 border-b border-[var(--thusness-rule)] pb-8 lg:border-b-0 lg:border-r lg:border-[var(--thusness-rule)] lg:pb-0 lg:pr-8"
         >
-          <p className="mb-2 text-[10px] uppercase tracking-[0.2em] text-[var(--thusness-muted)]">
-            Notes
-          </p>
           <button
             type="button"
             disabled={isPending}
@@ -181,11 +176,49 @@ export function AdminEditorHub({
           >
             New blank note
           </button>
-          <details className="mb-3 rounded border border-[var(--thusness-rule)] bg-[var(--thusness-bg)]">
-            <summary className="cursor-pointer select-none px-2 py-2 text-[10px] uppercase tracking-[0.18em] text-[var(--thusness-muted)] marker:text-[var(--thusness-muted)]">
-              More ways to create
+
+          <details
+            open={notesFolderOpen}
+            className="mb-3 rounded border border-[var(--thusness-rule)] bg-[var(--thusness-bg)]"
+          >
+            <summary
+              className="cursor-pointer select-none list-none px-2 py-2 marker:content-none [&::-webkit-details-marker]:hidden"
+              aria-expanded={notesFolderOpen}
+              onClick={(e) => {
+                e.preventDefault();
+                setNotesFolderOpen((v) => !v);
+              }}
+            >
+              <div className="flex items-start gap-2">
+                <span
+                  className="mt-0.5 shrink-0 font-mono text-[10px] text-[var(--thusness-muted)]"
+                  aria-hidden
+                >
+                  {notesFolderOpen ? "\u2212" : "+"}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-baseline justify-between gap-2">
+                    <span className={adminFieldLabel}>All notes</span>
+                    <span className="shrink-0 text-[10px] tabular-nums text-[var(--thusness-muted)]">
+                      {notesForNav.length}
+                    </span>
+                  </div>
+                  {!notesFolderOpen && editingNoteId && selectedNoteForEditor ? (
+                    <p className="mt-1 truncate text-[11px] font-normal normal-case tracking-normal text-[var(--thusness-ink-soft)]">
+                      <span className="text-[var(--thusness-muted)]">Open:</span>{" "}
+                      {selectedNoteForEditor.title?.trim() || "Untitled"}
+                    </p>
+                  ) : null}
+                </div>
+              </div>
             </summary>
+
             <div className="space-y-2 border-t border-[var(--thusness-rule)] px-2 pb-3 pt-2">
+              <details className="rounded border border-[var(--thusness-rule)] bg-[var(--thusness-bg)]">
+                <summary className="cursor-pointer select-none px-2 py-2 text-[10px] uppercase tracking-[0.18em] text-[var(--thusness-muted)] marker:text-[var(--thusness-muted)]">
+                  More ways to create
+                </summary>
+                <div className="space-y-2 border-t border-[var(--thusness-rule)] px-2 pb-3 pt-2">
               <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
@@ -280,37 +313,9 @@ export function AdminEditorHub({
                   </button>
                 </div>
               ) : null}
-            </div>
-          </details>
+                </div>
+              </details>
 
-          <div className="mb-1 flex items-center justify-between gap-2">
-            <span className={adminFieldLabel}>All notes</span>
-            <button
-              type="button"
-              disabled={isPending}
-              className="shrink-0 border border-transparent px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-[var(--thusness-muted)] underline decoration-[var(--thusness-rule)] underline-offset-2 hover:text-[var(--thusness-ink)]"
-              onClick={() => setNotesListExpanded((v) => !v)}
-            >
-              {notesListExpanded ? "Collapse" : `Expand (${notesForNav.length})`}
-            </button>
-          </div>
-          {!notesListExpanded ? (
-            <div className="mb-3 rounded border border-[var(--thusness-rule)] bg-[var(--thusness-bg)] px-2 py-2">
-              {editingNoteId && selectedNoteForEditor ? (
-                <p className="text-[11px] leading-snug text-[var(--thusness-ink-soft)]">
-                  <span className="text-[var(--thusness-muted)]">Editing:</span>{" "}
-                  <span className="font-medium text-[var(--thusness-ink)]">
-                    {selectedNoteForEditor.title?.trim() || "Untitled"}
-                  </span>
-                </p>
-              ) : (
-                <p className="text-[11px] text-[var(--thusness-muted)]">
-                  Expand the list to open a note.
-                </p>
-              )}
-            </div>
-          ) : (
-            <>
               <div className="mb-2 space-y-1.5">
                 <span className={adminFieldLabel}>View</span>
                 <div className="flex flex-wrap gap-1">
@@ -369,8 +374,8 @@ export function AdminEditorHub({
                   );
                 })}
               </div>
-            </>
-          )}
+            </div>
+          </details>
 
           <p className="mb-2 mt-8 text-[10px] uppercase tracking-[0.2em] text-[var(--thusness-muted)]">
             Built-in layouts
