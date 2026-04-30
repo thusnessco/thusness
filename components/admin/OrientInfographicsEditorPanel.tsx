@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { saveOrientInfographics } from "@/app/admin/actions";
@@ -66,12 +66,19 @@ export function OrientInfographicsEditorPanel({
   const [c, setC] = useState<OrientContent>(() =>
     structuredClone(initialContent)
   );
+  const knownUpdatedAtRef = useRef<string | null>(updatedAt);
+
+  useEffect(() => {
+    setC(structuredClone(initialContent));
+    knownUpdatedAtRef.current = updatedAt;
+  }, [initialContent, updatedAt]);
 
   function save() {
     startTransition(async () => {
-      const res = await saveOrientInfographics(c);
+      const res = await saveOrientInfographics(c, knownUpdatedAtRef.current);
       if (!res.ok) onMessage(res.message);
       else {
+        knownUpdatedAtRef.current = res.updated_at;
         onMessage("Orient infographics saved.");
         router.refresh();
       }

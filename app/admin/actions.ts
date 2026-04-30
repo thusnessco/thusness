@@ -227,11 +227,28 @@ export async function saveOrientNavVisible(
 
 /** Persist Orient diagram copy (`site_content` JSON, not TipTap). */
 export async function saveOrientInfographics(
-  input: OrientContent
+  input: OrientContent,
+  expectedUpdatedAt?: string | null
 ): Promise<
   { ok: true; updated_at: string } | { ok: false; message: string }
 > {
   const supabase = await createServerSupabase();
+  const { data: current, error: currentErr } = await supabase
+    .from("site_content")
+    .select("updated_at")
+    .eq("key", ORIENT_INFOGRAPHICS_SITE_KEY)
+    .maybeSingle();
+  if (currentErr) return { ok: false as const, message: currentErr.message };
+  const currentUpdatedAt = (current?.updated_at as string | null) ?? null;
+  const expected = expectedUpdatedAt ?? null;
+  if (expected !== currentUpdatedAt) {
+    return {
+      ok: false as const,
+      message:
+        "Orient infographics changed in another tab/session. Refresh admin, review latest copy, then save again.",
+    };
+  }
+
   const normalized = parseOrientInfographics(input);
   const payload = JSON.parse(JSON.stringify(normalized)) as Record<
     string,
