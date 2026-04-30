@@ -29,14 +29,6 @@
   text-decoration: none;
 }
 
-.orient-dateline {
-  font-size: 11px;
-  letter-spacing: 2.4px;
-  text-transform: uppercase;
-  color: var(--thusness-muted);
-  text-align: right;
-}
-
 .orient-context {
   text-align: center;
   font-size: 12px;

@@ -9,7 +9,8 @@ type Props = {
   kicker?: string;
   title?: string;
   sub?: string;
-  dateline: string;
+  /** Optional top-right line (e.g. sheet index). Omit for no right header. */
+  dateline?: string;
   sheetFooter?: string;
   children: React.ReactNode;
 };
@@ -35,12 +36,14 @@ export function OrientSheet({
     >
       <header className="mb-6 flex shrink-0 items-start justify-between gap-6">
         <Wordmark size={16} tagline="~ as it is" />
-        <div
-          className="max-w-[220px] text-right text-[10px] uppercase leading-relaxed tracking-[2.2px] text-[var(--thusness-muted)]"
-          style={{ fontFamily: 'Helvetica, "Helvetica Neue", Arial, sans-serif' }}
-        >
-          {dateline}
-        </div>
+        {dateline?.trim() ? (
+          <div
+            className="max-w-[220px] text-right text-[10px] uppercase leading-relaxed tracking-[2.2px] text-[var(--thusness-muted)]"
+            style={{ fontFamily: 'Helvetica, "Helvetica Neue", Arial, sans-serif' }}
+          >
+            {dateline}
+          </div>
+        ) : null}
       </header>
       <div className="mx-auto mb-6 w-full max-w-[720px] shrink-0 text-center">
         {kicker ? (

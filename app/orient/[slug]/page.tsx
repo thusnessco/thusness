@@ -86,7 +86,6 @@ export default async function OrientSectionPage({
           <Link href="/" className="orient-wordmark-link inline-block transition-opacity hover:opacity-70">
             <Wordmark size={20} tagline="~ as it is" />
           </Link>
-          <div className="orient-dateline">WK 03 OF 08 · APR 2026</div>
         </header>
 
         <div className="orient-context">

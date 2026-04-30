@@ -38,7 +38,6 @@ export default async function OrientPage() {
           >
             <Wordmark size={20} tagline="~ as it is" />
           </Link>
-          <div className="orient-dateline">WK 03 OF 08 · APR 2026</div>
         </header>
         <main>
         <header className="orient-index-hero">

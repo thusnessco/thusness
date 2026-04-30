@@ -8,12 +8,9 @@ import { OrientSheet } from "./Sheet";
 const W = 1280;
 const H = 1280;
 
-type Props = { content: OrientContent; dateline?: string };
+type Props = { content: OrientContent };
 
-export function GiantMaster({
-  content,
-  dateline = "Orient · 01 of 07",
-}: Props) {
+export function GiantMaster({ content }: Props) {
   const { giant, stages, movement, pillars, themes } = content;
   const themeDots = themes.list.slice(0, 8);
   return (
@@ -24,7 +21,6 @@ export function GiantMaster({
         kicker={giant.kicker}
         title={giant.title}
         sub={giant.sub}
-        dateline={dateline}
         sheetFooter={giant.footer}
       >
         <div className="mx-auto flex w-full max-w-[1080px] flex-col gap-5">
