@@ -294,6 +294,9 @@ export function OrientBookletPanel({
                 }))
               }
             />
+            <span className="text-[10px] text-[var(--thusness-muted)]">
+              Blank hides the whole row (including the rule above it and the red dot).
+            </span>
           </label>
         </div>
         <div className="grid gap-2 sm:grid-cols-3">
@@ -363,7 +366,9 @@ export function OrientBookletPanel({
             Plain text shown <span className="font-medium text-[var(--thusness-ink-soft)]">below the diagram</span> on
             that section page (above prev/next). Leave blank to use the published note
             body instead (<code className="text-[10px]">orient-…</code> slugs) or the built-in
-            default prose. Separate paragraphs with a blank line.
+            default prose. If the note body is effectively empty, this block is omitted so
+            prev/next does not sit under two rules. Separate override paragraphs with a blank
+            line.
           </p>
           {ORIENT_BOOKLET_SLUGS.map((slug) => (
             <label key={`prose-${slug}`} className="block space-y-1">

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -11,6 +12,7 @@ import { getOrientInfographicsBundle } from "@/lib/data/orient-infographics";
 import { getPublishedNoteBySlug } from "@/lib/data/notes-public";
 import { getBookletPage, ORIENT_BOOKLET_PAGES } from "@/lib/orient/booklet-pages";
 import { infographicHeadForDiagram } from "@/lib/orient/infographic-head";
+import { htmlHasMeaningfulText } from "@/lib/html/html-meaningful-text";
 import { getDefaultOrientBookletProse } from "@/lib/orient/orient-booklet-default-prose";
 import { tiptapJsonToHtml } from "@/lib/tiptap/to-html";
 
@@ -72,19 +74,35 @@ export default async function OrientSectionPage({
 
   const noteHtml = note ? tiptapJsonToHtml(note.content_json).trim() : "";
   const proseOverride = cfg.copy.proseOverrides[page.slug].trim();
-  const proseBody = proseOverride
-    ? proseOverride
-        .split(/\n\s*\n/)
-        .map((p) => p.trim())
-        .filter(Boolean)
-        .map((p, i) => <p key={i}>{p}</p>)
-    : note && noteHtml
-      ? (
-          <TiptapHtml html={noteHtml} className="" />
-        )
-      : (
-          getDefaultOrientBookletProse(page.slug).map((b, i) => <p key={i}>{b.text}</p>)
-        );
+  const footerLabel = cfg.copy.diagramFooterLabel.trim();
+  const showDiagramFooter = footerLabel.length > 0;
+
+  let hasProse = false;
+  let proseBody: ReactNode = null;
+
+  if (proseOverride) {
+    const paras = proseOverride
+      .split(/\n\s*\n/)
+      .map((p) => p.trim())
+      .filter(Boolean);
+    if (paras.length > 0) {
+      hasProse = true;
+      proseBody = paras.map((p, i) => <p key={i}>{p}</p>);
+    }
+  }
+  if (!hasProse && note && noteHtml && htmlHasMeaningfulText(noteHtml)) {
+    hasProse = true;
+    proseBody = <TiptapHtml html={noteHtml} className="" />;
+  }
+  if (!hasProse) {
+    const blocks = getDefaultOrientBookletProse(page.slug).filter((b) => b.text.trim());
+    if (blocks.length > 0) {
+      hasProse = true;
+      proseBody = blocks.map((b, i) => <p key={i}>{b.text}</p>);
+    }
+  }
+
+  const prevNextNoTopRule = !hasProse && showDiagramFooter;
 
   const nav = neighbors(page.slug);
   const sheetHead = infographicHeadForDiagram(page.diagram, infographics.content);
@@ -121,11 +139,18 @@ export default async function OrientSectionPage({
         <div className="orient-diagram-frame">
           <OrientDiagramEmbed diagram={page.diagram} content={infographics.content} />
         </div>
-        <OrientDiagramSheetFooter label={cfg.copy.diagramFooterLabel} />
+        {showDiagramFooter ? <OrientDiagramSheetFooter label={footerLabel} /> : null}
 
-        <section className="orient-prose">{proseBody}</section>
+        {hasProse ? <section className="orient-prose">{proseBody}</section> : null}
 
-        <nav className="orient-prevnext" aria-label="Booklet navigation">
+        <nav
+          className={
+            prevNextNoTopRule
+              ? "orient-prevnext orient-prevnext--no-top-rule"
+              : "orient-prevnext"
+          }
+          aria-label="Booklet navigation"
+        >
           <div>
             <span className="orient-prevnext-kicker">← {cfg.copy.prevKicker}</span>
             <Link href={nav.prev?.href ?? "/orient"} className="orient-prevnext-link">

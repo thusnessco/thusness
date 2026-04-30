@@ -154,6 +154,13 @@
   margin-top: 32px;
 }
 
+/* Sheet footer already has a rule above the label; skip a second line when there is no prose. */
+.orient-prevnext--no-top-rule {
+  border-top: none;
+  padding-top: 0;
+  margin-top: 40px;
+}
+
 .orient-prevnext-kicker {
   display: block;
   margin-bottom: 4px;
