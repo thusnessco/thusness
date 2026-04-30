@@ -29,6 +29,51 @@
   text-decoration: none;
 }
 
+/* Section sheet index — top right, matches prototype (not week-of-program). */
+.orient-sheet-index {
+  flex-shrink: 0;
+  max-width: 200px;
+  text-align: right;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 2.2px;
+  line-height: 1.35;
+  text-transform: uppercase;
+  color: var(--thusness-muted);
+}
+
+/* Infographic hero (kicker / title / sub) — same role as prototype `OSheet` above diagram art. */
+.orient-infographic-hero {
+  text-align: center;
+  max-width: 720px;
+  margin: 0 auto 28px;
+}
+
+.orient-infographic-hero-kicker {
+  font-size: 11px;
+  letter-spacing: 2.6px;
+  text-transform: uppercase;
+  color: var(--thusness-muted);
+  margin: 0 0 16px;
+}
+
+.orient-infographic-hero-title {
+  font-size: 34px;
+  font-weight: 500;
+  letter-spacing: -0.45px;
+  line-height: 1.08;
+  color: var(--thusness-ink);
+  margin: 0 0 12px;
+}
+
+.orient-infographic-hero-sub {
+  margin: 0;
+  font-size: 14px;
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--thusness-muted);
+}
+
 .orient-context {
   text-align: center;
   font-size: 12px;
@@ -41,24 +86,6 @@
   color: var(--thusness-muted);
   text-decoration: underline;
   text-decoration-color: var(--thusness-rule);
-}
-
-.orient-section-mark {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  margin: 0 auto 20px;
-  max-width: 980px;
-  font-size: 11px;
-  letter-spacing: 2.4px;
-  text-transform: uppercase;
-  color: var(--thusness-muted);
-}
-
-.orient-section-mark-rule {
-  flex: 1;
-  height: 1px;
-  background: var(--thusness-rule);
 }
 
 .orient-diagram-frame {

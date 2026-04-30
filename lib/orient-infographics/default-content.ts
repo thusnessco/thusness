@@ -83,16 +83,25 @@ export function defaultOrientInfographics(): OrientContent {
       footer: "Carried through Recognition, Perpetuation, Integration — and beyond.",
     },
     movement: {
-      kicker: "~ Movement & progression",
-      title: "A second arc, after recognition stabilizes.",
-      sub: "a subtle shift in the center of gravity, and unfolding begins",
+      kicker: "~ With sustained peaceful stability",
+      title: "Precise seeing is possible.",
+      sub: "as perception opens, a subtle shift is invited",
       items: [
-        { name: "Deconstruction", gloss: "experience is taken apart" },
-        { name: "Reconstruction", gloss: "pieces re-form into a working whole" },
-        { name: "Fluidity & Synthesis", gloss: "movement, flexibility, a single fabric" },
+        {
+          name: "Seeing through",
+          gloss: "assumptions about self, reality, experience",
+        },
+        {
+          name: "What was assumed",
+          gloss: "isn't found when looked at closely",
+        },
+        {
+          name: "Dependent nature",
+          gloss: "the relational fabric becomes obvious",
+        },
       ],
       footer:
-        "Each phase unfolds differently for everyone. Noticing details and reflecting on them gives context — and deepens what is happening.",
+        "These unfoldings vary from person to person, though some common patterns appear.",
     },
     themes: {
       kicker: "~ Themes",

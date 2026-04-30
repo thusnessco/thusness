@@ -10,6 +10,7 @@ import { getOrientBookletConfig } from "@/lib/data/orient-booklet-config";
 import { getOrientInfographicsBundle } from "@/lib/data/orient-infographics";
 import { getPublishedNoteBySlug } from "@/lib/data/notes-public";
 import { getBookletPage, ORIENT_BOOKLET_PAGES } from "@/lib/orient/booklet-pages";
+import { infographicHeadForDiagram } from "@/lib/orient/infographic-head";
 import { getDefaultOrientBookletProse } from "@/lib/orient/orient-booklet-default-prose";
 import { tiptapJsonToHtml } from "@/lib/tiptap/to-html";
 
@@ -78,6 +79,7 @@ export default async function OrientSectionPage({
     );
 
   const nav = neighbors(page.slug);
+  const sheetHead = infographicHeadForDiagram(page.diagram, infographics.content);
 
   return (
     <div className="orient-page">
@@ -86,6 +88,9 @@ export default async function OrientSectionPage({
           <Link href="/" className="orient-wordmark-link inline-block transition-opacity hover:opacity-70">
             <Wordmark size={20} tagline="~ as it is" />
           </Link>
+          <div className="orient-sheet-index" aria-label="Position in orient booklet">
+            Orient · {String(page.index).padStart(2, "0")} of 06
+          </div>
         </header>
 
         <div className="orient-context">
@@ -97,13 +102,13 @@ export default async function OrientSectionPage({
           {String(page.index).padStart(2, "0")} of 06
         </div>
 
-        <div className="orient-section-mark">
-          <span className="orient-section-mark-rule" aria-hidden />
-          <span>
-            ~ {String(page.index).padStart(2, "0")} of 06 · {page.label}
-          </span>
-          <span className="orient-section-mark-rule" aria-hidden />
-        </div>
+        {sheetHead ? (
+          <header className="orient-infographic-hero">
+            <p className="orient-infographic-hero-kicker">{sheetHead.kicker}</p>
+            <h1 className="orient-infographic-hero-title">{sheetHead.title}</h1>
+            <p className="orient-infographic-hero-sub">{sheetHead.sub}</p>
+          </header>
+        ) : null}
 
         <div className="orient-diagram-frame">
           <OrientDiagramEmbed diagram={page.diagram} content={infographics.content} />
