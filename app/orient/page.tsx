@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { GiantMasterBooklet } from "@/components/orient/GiantMasterBooklet";
-import RedDot from "@/components/thusness/RedDot";
+import { OrientDiagramSheetFooter } from "@/components/orient/OrientDiagramSheetFooter";
 import Wordmark from "@/components/thusness/Wordmark";
 import { getOrientBookletConfig } from "@/lib/data/orient-booklet-config";
 import { getOrientInfographicsBundle } from "@/lib/data/orient-infographics";
@@ -50,6 +50,7 @@ export default async function OrientPage() {
         <div className="orient-diagram-frame">
           <GiantMasterBooklet content={orientIg.content} />
         </div>
+        <OrientDiagramSheetFooter />
         <nav className="orient-toc">
           <div className="orient-toc-divider">── In sequence ──</div>
           {sections.map((p) => (
@@ -77,8 +78,7 @@ export default async function OrientPage() {
           {bookletConfig.footerReadings && bookletConfig.footerNotes ? <span className="site-footer-sep">·</span> : null}
           {bookletConfig.footerNotes ? <Link href="/notes" className="site-footer-link">~ notes</Link> : null}
         </nav>
-        <div className="orient-signature">
-          <RedDot />
+        <div className="orient-signature orient-signature--text-only">
           <span>thusness.co</span>
         </div>
         </main>

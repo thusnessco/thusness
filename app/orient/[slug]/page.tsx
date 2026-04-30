@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 
 import { TiptapHtml } from "@/components/TiptapHtml";
 import { OrientDiagramEmbed } from "@/components/orient/OrientDiagramEmbed";
-import RedDot from "@/components/thusness/RedDot";
+import { OrientDiagramSheetFooter } from "@/components/orient/OrientDiagramSheetFooter";
 import Wordmark from "@/components/thusness/Wordmark";
 import { getOrientBookletConfig } from "@/lib/data/orient-booklet-config";
 import { getOrientInfographicsBundle } from "@/lib/data/orient-infographics";
@@ -113,6 +113,7 @@ export default async function OrientSectionPage({
         <div className="orient-diagram-frame">
           <OrientDiagramEmbed diagram={page.diagram} content={infographics.content} />
         </div>
+        <OrientDiagramSheetFooter />
 
         <section className="orient-prose">{proseBody}</section>
 
@@ -140,8 +141,7 @@ export default async function OrientSectionPage({
             {cfg.footerNotes ? <Link href="/notes" className="site-footer-link">~ notes</Link> : null}
           </nav>
         ) : null}
-        <div className="orient-signature">
-          <RedDot />
+        <div className="orient-signature orient-signature--text-only">
           <span>thusness.co</span>
         </div>
       </div>
