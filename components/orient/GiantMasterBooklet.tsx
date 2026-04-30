@@ -77,12 +77,12 @@ export function GiantMasterBooklet({ content }: { content: OrientContent }) {
             <div
               key={i}
               style={{
-                padding: "16px 16px 18px",
+                padding: "clamp(10px, 1.8vw, 16px) clamp(10px, 1.8vw, 16px) clamp(12px, 2vw, 18px)",
                 minWidth: 0,
                 borderLeft: i > 0 ? `1px solid ${O.rule}` : "none",
                 display: "flex",
                 flexDirection: "column",
-                gap: 6,
+                gap: 4,
               }}
             >
               <div
@@ -99,17 +99,26 @@ export function GiantMasterBooklet({ content }: { content: OrientContent }) {
               </div>
               <div
                 style={{
-                  fontSize: 20,
+                  fontSize: "clamp(14px, 2vw, 20px)",
                   fontWeight: 500,
                   letterSpacing: -0.3,
-                  lineHeight: 1.15,
+                  lineHeight: 1.1,
                   color: O.ink,
-                  wordBreak: "break-word",
+                  wordBreak: "normal",
+                  overflowWrap: "normal",
+                  hyphens: "none",
                 }}
               >
                 {p.name}
               </div>
-              <div style={{ fontStyle: "italic", fontSize: 13, color: O.inkSoft, lineHeight: 1.4 }}>
+              <div
+                style={{
+                  fontStyle: "italic",
+                  fontSize: "clamp(11px, 1.7vw, 13px)",
+                  color: O.inkSoft,
+                  lineHeight: 1.35,
+                }}
+              >
                 {p.sub}
               </div>
             </div>

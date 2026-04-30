@@ -2,10 +2,7 @@
 
 import type { OrientContent } from "@/lib/orient-infographics/types";
 
-import { DiagramFrame } from "./DiagramFrame";
 import { ORIENT_HELV, orientColors as O } from "./orient-diagram-styles";
-
-const FRAME_W = 1280;
 
 type Props = { content: OrientContent["movement"] };
 
@@ -23,19 +20,11 @@ export function MovementDiagram({ content }: Props) {
   ];
 
   return (
-    <DiagramFrame designWidth={FRAME_W} designHeight={420}>
-      <div
-        className="box-border bg-[var(--thusness-bg)] text-[var(--thusness-ink)] antialiased"
-        style={{
-          fontFamily: ORIENT_HELV,
-          width: FRAME_W,
-          padding: "20px 40px 28px",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "flex-start",
-        }}
-      >
-        <div style={{ maxWidth: 980, margin: "0 auto" }}>
+    <div
+      className="box-border bg-[var(--thusness-bg)] px-4 pb-7 pt-5 text-[var(--thusness-ink)] antialiased sm:px-6"
+      style={{ fontFamily: ORIENT_HELV }}
+    >
+      <div style={{ maxWidth: 980, margin: "0 auto" }}>
           <svg viewBox="0 0 980 320" width="100%" height={320} aria-hidden>
             <text
               x="160"
@@ -191,7 +180,6 @@ export function MovementDiagram({ content }: Props) {
               </g>
             ))}
           </svg>
-        </div>
         <div
           style={{
             textAlign: "center",
@@ -206,6 +194,6 @@ export function MovementDiagram({ content }: Props) {
           {footer}
         </div>
       </div>
-    </DiagramFrame>
+    </div>
   );
 }
