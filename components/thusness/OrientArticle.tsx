@@ -151,10 +151,15 @@ export function OrientArticle({
     }
   }
 
+  const shellClass =
+    headings.length > 0
+      ? "mx-auto grid w-full max-w-[1080px] gap-8 px-6 pb-20 pt-10 lg:grid-cols-[minmax(0,220px)_minmax(0,1fr)] lg:gap-10 lg:px-10"
+      : "mx-auto w-full max-w-[1080px] px-6 pb-20 pt-10 lg:px-10";
+
   return (
-    <div className="mx-auto grid w-full max-w-[1080px] gap-8 px-6 pb-20 pt-10 lg:grid-cols-[minmax(0,240px)_minmax(0,1fr)] lg:gap-10 lg:px-10">
-      <aside className="min-w-0">
-        {headings.length ? (
+    <div className={shellClass}>
+      {headings.length > 0 ? (
+        <aside className="min-w-0">
           <nav
             aria-label="On this page"
             className="orient-toc border-l border-[var(--thusness-rule)] pl-4 text-[11px] uppercase tracking-[1px] text-[var(--thusness-muted)] lg:sticky lg:top-8"
@@ -182,8 +187,8 @@ export function OrientArticle({
               ))}
             </ol>
           </nav>
-        ) : null}
-      </aside>
+        </aside>
+      ) : null}
 
       <div
         ref={articleRef}

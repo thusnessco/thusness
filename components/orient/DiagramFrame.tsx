@@ -49,8 +49,9 @@ export function DiagramFrame({ designWidth, designHeight = 480, children }: Prop
   return (
     <div
       ref={wrapRef}
-      className="orient-diagram-frame w-full max-w-[1280px] overflow-hidden"
+      className="orient-diagram-frame w-full max-w-[1280px] min-w-0 overflow-hidden"
       style={{
+        width: "100%",
         height: scaledH != null && scaledH > 0 ? scaledH : fallbackH,
       }}
     >

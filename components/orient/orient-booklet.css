@@ -11,6 +11,12 @@
   padding: 28px 32px 44px;
 }
 
+@media (min-width: 1280px) {
+  .orient-shell {
+    max-width: min(1180px, calc(100vw - 48px));
+  }
+}
+
 @media (max-width: 640px) {
   .orient-shell {
     padding: 22px 20px 36px;
