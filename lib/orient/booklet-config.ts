@@ -1,9 +1,9 @@
 export const ORIENT_BOOKLET_CONFIG_KEY = "orient_booklet_config";
 
 export const ORIENT_BOOKLET_SLUGS = [
+  "pillars",
   "stages",
   "recognition",
-  "pillars",
   "movement",
   "themes",
   "nihilism",
@@ -21,9 +21,9 @@ export type OrientBookletConfig = {
 
 function defaultPagesVisible(): Record<OrientBookletSlug, boolean> {
   return {
+    pillars: true,
     stages: true,
     recognition: true,
-    pillars: true,
     movement: true,
     themes: true,
     nihilism: true,

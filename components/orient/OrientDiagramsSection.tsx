@@ -24,9 +24,9 @@ export function OrientDiagramsSection({ content }: Props) {
     >
       <div className="mx-auto flex max-w-[1280px] flex-col gap-20">
         <GiantMaster content={content} />
+        <PillarsDiagram content={content.pillars} />
         <StagesOfPeace content={content.stages} />
         <RecognitionDiagram content={content.recognition} />
-        <PillarsDiagram content={content.pillars} />
         <MovementDiagram content={content.movement} />
         <ThemesDiagram content={content.themes} />
         <NihilismDiagram content={content.nihilism} />

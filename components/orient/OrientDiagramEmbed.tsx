@@ -26,12 +26,12 @@ export function OrientDiagramEmbed({
   switch (diagram) {
     case "giant":
       return <GiantMaster content={merged} />;
+    case "pillars":
+      return <PillarsDiagram content={merged.pillars} />;
     case "stages":
       return <StagesOfPeace content={merged.stages} />;
     case "recognition":
       return <RecognitionDiagram content={merged.recognition} />;
-    case "pillars":
-      return <PillarsDiagram content={merged.pillars} />;
     case "movement":
       return <MovementDiagram content={merged.movement} />;
     case "themes":

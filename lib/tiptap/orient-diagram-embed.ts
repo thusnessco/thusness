@@ -7,9 +7,9 @@ export const thusnessOrientDiagramName = "thusnessOrientDiagram" as const;
 
 export const ORIENT_DIAGRAM_IDS = [
   "giant",
+  "pillars",
   "stages",
   "recognition",
-  "pillars",
   "movement",
   "themes",
   "nihilism",
@@ -23,9 +23,9 @@ export function isOrientDiagramId(s: string): s is OrientDiagramId {
 
 export const ORIENT_DIAGRAM_CHOICES: { id: OrientDiagramId; label: string }[] = [
   { id: "giant", label: "Giant master map" },
+  { id: "pillars", label: "Three pillars" },
   { id: "stages", label: "Stages of peace" },
   { id: "recognition", label: "Recognition" },
-  { id: "pillars", label: "Pillars of success" },
   { id: "movement", label: "Movement & progression" },
   { id: "themes", label: "Themes" },
   { id: "nihilism", label: "Nihilism / dependent view" },

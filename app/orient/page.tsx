@@ -45,7 +45,7 @@ export default async function OrientPage() {
           <div className="orient-kicker">~ Orientation</div>
           <h1 className="orient-h1">A map of the practice.</h1>
           <p className="orient-intro">
-            Stages of peace, three pillars, the seeing that follows. Read in order, or out of it.
+            Three pillars first—what you bring—then stages of peace and the rest of the map. Read in order, or out of it.
           </p>
         </header>
         <div className="orient-diagram-frame">

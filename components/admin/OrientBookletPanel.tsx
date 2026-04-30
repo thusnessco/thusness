@@ -11,9 +11,9 @@ import {
 import { adminBtnPrimary } from "./admin-ui";
 
 const LABELS: Record<(typeof ORIENT_BOOKLET_SLUGS)[number], string> = {
-  stages: "01 · Stages of peace",
-  recognition: "02 · Two kinds of peace",
-  pillars: "03 · Three pillars",
+  pillars: "01 · Three pillars",
+  stages: "02 · Stages of peace",
+  recognition: "03 · Two kinds of peace",
   movement: "04 · Movement & progression",
   themes: "05 · Aspects of exploration",
   nihilism: "06 · Emptiness ≠ non-existence",
@@ -46,8 +46,8 @@ export function OrientBookletPanel({
         </p>
         <p className="text-[11px] text-[var(--thusness-muted)]">
           Optional prose overrides: publish notes with slugs{" "}
-          <code>orient-stages</code>, <code>orient-recognition</code>,{" "}
-          <code>orient-pillars</code>, <code>orient-movement</code>,{" "}
+          <code>orient-pillars</code>, <code>orient-stages</code>,{" "}
+          <code>orient-recognition</code>, <code>orient-movement</code>,{" "}
           <code>orient-themes</code>, <code>orient-nihilism</code>. If a note is
           missing or unpublished, the public page still loads with default booklet
           copy.

@@ -112,6 +112,37 @@ export function OrientInfographicsEditorPanel({
 
       <details className="rounded border border-[var(--thusness-rule)] p-4">
         <summary className="cursor-pointer text-sm font-medium text-[var(--thusness-ink)]">
+          Pillars
+        </summary>
+        <div className="mt-4 space-y-3">
+          <Field label="Kicker" value={c.pillars.kicker} disabled={isPending} onChange={(v) => setC((x) => ({ ...x, pillars: { ...x.pillars, kicker: v } }))} />
+          <Field label="Title" value={c.pillars.title} disabled={isPending} onChange={(v) => setC((x) => ({ ...x, pillars: { ...x.pillars, title: v } }))} />
+          <Field label="Sub" value={c.pillars.sub} disabled={isPending} multiline onChange={(v) => setC((x) => ({ ...x, pillars: { ...x.pillars, sub: v } }))} />
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="rounded p-3 ring-1 ring-[var(--thusness-rule)]">
+              <p className="mb-2 text-[10px] uppercase text-[var(--thusness-muted)]">Pillar {i + 1}</p>
+              <div className="grid gap-2">
+                <Field label="Name" value={c.pillars.items[i]?.name ?? ""} disabled={isPending} onChange={(v) => setC((x) => {
+                  const items = x.pillars.items.map((it, j) => (j === i ? { ...it, name: v } : it));
+                  return { ...x, pillars: { ...x.pillars, items } };
+                })} />
+                <Field label="Sub" value={c.pillars.items[i]?.sub ?? ""} disabled={isPending} onChange={(v) => setC((x) => {
+                  const items = x.pillars.items.map((it, j) => (j === i ? { ...it, sub: v } : it));
+                  return { ...x, pillars: { ...x.pillars, items } };
+                })} />
+                <Field label="Gloss" value={c.pillars.items[i]?.gloss ?? ""} disabled={isPending} multiline onChange={(v) => setC((x) => {
+                  const items = x.pillars.items.map((it, j) => (j === i ? { ...it, gloss: v } : it));
+                  return { ...x, pillars: { ...x.pillars, items } };
+                })} />
+              </div>
+            </div>
+          ))}
+          <Field label="Footer" value={c.pillars.footer} disabled={isPending} multiline onChange={(v) => setC((x) => ({ ...x, pillars: { ...x.pillars, footer: v } }))} />
+        </div>
+      </details>
+
+      <details className="rounded border border-[var(--thusness-rule)] p-4">
+        <summary className="cursor-pointer text-sm font-medium text-[var(--thusness-ink)]">
           Stages of peace
         </summary>
         <div className="mt-4 space-y-3">
@@ -199,37 +230,6 @@ export function OrientInfographicsEditorPanel({
             />
           ))}
           <Field label="Trap line" value={c.recognition.trap} disabled={isPending} multiline onChange={(v) => setC((x) => ({ ...x, recognition: { ...x.recognition, trap: v } }))} />
-        </div>
-      </details>
-
-      <details className="rounded border border-[var(--thusness-rule)] p-4">
-        <summary className="cursor-pointer text-sm font-medium text-[var(--thusness-ink)]">
-          Pillars
-        </summary>
-        <div className="mt-4 space-y-3">
-          <Field label="Kicker" value={c.pillars.kicker} disabled={isPending} onChange={(v) => setC((x) => ({ ...x, pillars: { ...x.pillars, kicker: v } }))} />
-          <Field label="Title" value={c.pillars.title} disabled={isPending} onChange={(v) => setC((x) => ({ ...x, pillars: { ...x.pillars, title: v } }))} />
-          <Field label="Sub" value={c.pillars.sub} disabled={isPending} multiline onChange={(v) => setC((x) => ({ ...x, pillars: { ...x.pillars, sub: v } }))} />
-          {[0, 1, 2].map((i) => (
-            <div key={i} className="rounded p-3 ring-1 ring-[var(--thusness-rule)]">
-              <p className="mb-2 text-[10px] uppercase text-[var(--thusness-muted)]">Pillar {i + 1}</p>
-              <div className="grid gap-2">
-                <Field label="Name" value={c.pillars.items[i]?.name ?? ""} disabled={isPending} onChange={(v) => setC((x) => {
-                  const items = x.pillars.items.map((it, j) => (j === i ? { ...it, name: v } : it));
-                  return { ...x, pillars: { ...x.pillars, items } };
-                })} />
-                <Field label="Sub" value={c.pillars.items[i]?.sub ?? ""} disabled={isPending} onChange={(v) => setC((x) => {
-                  const items = x.pillars.items.map((it, j) => (j === i ? { ...it, sub: v } : it));
-                  return { ...x, pillars: { ...x.pillars, items } };
-                })} />
-                <Field label="Gloss" value={c.pillars.items[i]?.gloss ?? ""} disabled={isPending} multiline onChange={(v) => setC((x) => {
-                  const items = x.pillars.items.map((it, j) => (j === i ? { ...it, gloss: v } : it));
-                  return { ...x, pillars: { ...x.pillars, items } };
-                })} />
-              </div>
-            </div>
-          ))}
-          <Field label="Footer" value={c.pillars.footer} disabled={isPending} multiline onChange={(v) => setC((x) => ({ ...x, pillars: { ...x.pillars, footer: v } }))} />
         </div>
       </details>
 
