@@ -1,6 +1,6 @@
 import type { OrientBookletSlug } from "@/lib/orient/booklet-config";
 
-/** Seed prose when a booklet note is not yet created or published (handoff `orient-prose.json`). */
+/** Reference seed copy only (not rendered on the site). Section pages use admin long-form overrides. */
 export type OrientBookletProseBlock = { kind: "lead" | "p"; text: string };
 
 const DEFAULTS: Record<OrientBookletSlug, OrientBookletProseBlock[]> = {

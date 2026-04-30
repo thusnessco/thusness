@@ -3,18 +3,13 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { TiptapHtml } from "@/components/TiptapHtml";
 import { OrientDiagramEmbed } from "@/components/orient/OrientDiagramEmbed";
 import { OrientDiagramSheetFooter } from "@/components/orient/OrientDiagramSheetFooter";
 import Wordmark from "@/components/thusness/Wordmark";
 import { getOrientBookletConfig } from "@/lib/data/orient-booklet-config";
 import { getOrientInfographicsBundle } from "@/lib/data/orient-infographics";
-import { getPublishedNoteBySlug } from "@/lib/data/notes-public";
 import { getBookletPage, ORIENT_BOOKLET_PAGES } from "@/lib/orient/booklet-pages";
 import { infographicHeadForDiagram } from "@/lib/orient/infographic-head";
-import { htmlHasMeaningfulText } from "@/lib/html/html-meaningful-text";
-import { getDefaultOrientBookletProse } from "@/lib/orient/orient-booklet-default-prose";
-import { tiptapJsonToHtml } from "@/lib/tiptap/to-html";
 
 type Params = { slug: string };
 
@@ -65,43 +60,24 @@ export default async function OrientSectionPage({
   const page = getBookletPage(slug);
   if (!page) notFound();
 
-  const [cfg, infographics, note] = await Promise.all([
+  const [cfg, infographics] = await Promise.all([
     getOrientBookletConfig(),
     getOrientInfographicsBundle(),
-    getPublishedNoteBySlug(page.noteSlug),
   ]);
   if (!cfg.pagesVisible[page.slug]) notFound();
 
-  const noteHtml = note ? tiptapJsonToHtml(note.content_json).trim() : "";
   const proseOverride = cfg.copy.proseOverrides[page.slug].trim();
+  const proseParas = proseOverride
+    .split(/\n\s*\n/)
+    .map((p) => p.trim())
+    .filter(Boolean);
+  const hasProse = proseParas.length > 0;
+  const proseBody: ReactNode = hasProse
+    ? proseParas.map((p, i) => <p key={i}>{p}</p>)
+    : null;
+
   const footerLabel = cfg.copy.diagramFooterLabel.trim();
   const showDiagramFooter = footerLabel.length > 0;
-
-  let hasProse = false;
-  let proseBody: ReactNode = null;
-
-  if (proseOverride) {
-    const paras = proseOverride
-      .split(/\n\s*\n/)
-      .map((p) => p.trim())
-      .filter(Boolean);
-    if (paras.length > 0) {
-      hasProse = true;
-      proseBody = paras.map((p, i) => <p key={i}>{p}</p>);
-    }
-  }
-  if (!hasProse && note && noteHtml && htmlHasMeaningfulText(noteHtml)) {
-    hasProse = true;
-    proseBody = <TiptapHtml html={noteHtml} className="" />;
-  }
-  if (!hasProse) {
-    const blocks = getDefaultOrientBookletProse(page.slug).filter((b) => b.text.trim());
-    if (blocks.length > 0) {
-      hasProse = true;
-      proseBody = blocks.map((b, i) => <p key={i}>{b.text}</p>);
-    }
-  }
-
   const prevNextNoTopRule = !hasProse && showDiagramFooter;
 
   const nav = neighbors(page.slug);

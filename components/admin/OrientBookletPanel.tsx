@@ -54,12 +54,9 @@ export function OrientBookletPanel({
           you work on backend content.
         </p>
         <p className="text-[11px] text-[var(--thusness-muted)]">
-          Optional prose overrides: publish notes with slugs{" "}
-          <code>orient-pillars</code>, <code>orient-stages</code>,{" "}
-          <code>orient-recognition</code>, <code>orient-movement</code>,{" "}
-          <code>orient-themes</code>, <code>orient-nihilism</code>. If a note is
-          missing or unpublished, the public page still loads with default booklet
-          copy.
+          Long-form copy under each diagram is only what you enter below (section
+          long-form overrides). Published <code>orient-…</code> notes are not shown on
+          these routes.
         </p>
       </header>
 
@@ -364,11 +361,8 @@ export function OrientBookletPanel({
           </p>
           <p className="text-[11px] text-[var(--thusness-muted)]">
             Plain text shown <span className="font-medium text-[var(--thusness-ink-soft)]">below the diagram</span> on
-            that section page (above prev/next). Leave blank to use the published note
-            body instead (<code className="text-[10px]">orient-…</code> slugs) or the built-in
-            default prose. If the note body is effectively empty, this block is omitted so
-            prev/next does not sit under two rules. Separate override paragraphs with a blank
-            line.
+            that section page (above prev/next). Blank means no long-form block there (nothing
+            from notes or defaults). Separate paragraphs with a blank line.
           </p>
           {ORIENT_BOOKLET_SLUGS.map((slug) => (
             <label key={`prose-${slug}`} className="block space-y-1">
