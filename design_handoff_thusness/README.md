@@ -4,6 +4,8 @@ This bundle contains everything needed to implement the Thusness visual identity
 
 **Requesting new pages from Claude (or another agent):** use **`HANDOFF_REQUEST_TEMPLATE.md`** — copy the fenced block into a new chat so the output is structured (`content.json`, runnable prototype, `INTEGRATION.md`, token discipline) and stays flexible as copy and blocks evolve.
 
+**Claude Design export (2026-04-29):** `handoff_2026-04-29/` (`README_HANDOFF.md`, `INTEGRATION.md`, `content/home.json`) plus **`Orient - fix list.md`** — diagram parity checklist vs `prototype/site/orient.jsx`. The full HTML/JSX prototypes from that export live under your machine’s **`/Users/colin/Downloads/thusness/project/`** (e.g. `Orient pages.html`, `design_handoff_thusness/prototype/`, `site/orient.jsx`); copy those in if you want them under version control here.
+
 ## About the design files
 
 The files in this bundle are **design references** — an HTML/React prototype showing the intended look and behavior, plus production-ready CSS and assets. The prototype uses inline styles for iteration speed; for shipping, prefer the tokenized CSS in `tokens.css` and the component pattern in `components/`.

@@ -1,0 +1,99 @@
+{
+  "_comment": "Drives /. Every visible string on the home page lives here. Authors edit this file to advance the week.",
+
+  "blocks": [
+    { "id": "header",    "type": "header",    "visible": true },
+    { "id": "hero",      "type": "hero",      "visible": true },
+    { "id": "schedule",  "type": "schedule",  "visible": true },
+    { "id": "theme",     "type": "theme",     "visible": true },
+    { "id": "pullquote", "type": "pullquote", "visible": true },
+    { "id": "benefits",  "type": "list",      "visible": true },
+    { "id": "itinerary", "type": "list",      "visible": true },
+    { "id": "pillar",    "type": "pillar",    "visible": true },
+    { "id": "sit",       "type": "sessions",  "visible": true },
+    { "id": "orient_teaser", "type": "teaser", "visible": true },
+    { "id": "footer",    "type": "footer",    "visible": true }
+  ],
+
+  "header": {
+    "datelineLine1": "Week of April 24, 2026",
+    "datelineLine2": "Theme XVII"
+  },
+
+  "hero": {
+    "question": "Is any effort necessary for experience to be?",
+    "subLabel": "— a question to sit with —"
+  },
+
+  "schedule": {
+    "kicker": "~ In progress",
+    "title": "An 8-week deepening is underway.",
+    "progress": "week 3 of 8",
+    "upcoming": [
+      { "when": "Next session", "day": "Wed · Apr 29", "title": "Guided Deepening" },
+      { "when": "Then",         "day": "Fri · May 01", "title": "Open Sitting & Sharing" },
+      { "when": "Week 4",       "day": "Wed · May 06", "title": "Effort, finer textures" },
+      { "when": "Week 4",       "day": "Fri · May 08", "title": "Resting in what remains" }
+    ],
+    "footnote": "All sessions 09:00 — 10:00 Pacific · on Zoom"
+  },
+
+  "theme": {
+    "label": "~ Theme · Noticing Effort",
+    "paragraphs": [
+      "Previously we explored *resistance* — a sense of *no* regarding what's happening. Effort is a little more subtle, and might show up as a sense that something needs to be done: adjusting, reaching, trying to get it right, *I need to*, or holding things in place. A subtle doing, or a sense of something added onto what's here. Striving and trying are its amplified versions.",
+      "Qualities of effort may appear in the body, the mind, or both. If effort isn't present, what's left over may be relaxation, ease, openness, or a feeling that nothing needs to change."
+    ]
+  },
+
+  "pullquote": "What happens as we become more curious\nand aware of effort in each moment?",
+
+  "benefits": {
+    "label": "~ Benefits & Goals",
+    "items": [
+      "Practice noticing experience as it is",
+      "Increase sensitivity to the details of effort",
+      "Effort becomes more visible and optional"
+    ]
+  },
+
+  "itinerary": {
+    "label": "~ Itinerary",
+    "items": [
+      "Notice where attention goes",
+      "Noticing gentle curiosity",
+      "Introductory exploration of effort",
+      "Notice any aspects of experience and how effort might relate",
+      "Integration exercise",
+      "Home integration instructions",
+      "Group sharing"
+    ]
+  },
+
+  "pillar": {
+    "label": "Pillar of success",
+    "statement": "Gentle curiosity."
+  },
+
+  "sit": {
+    "label": "~ Sit together",
+    "sub": "A quiet hour of guided noticing, with space for sharing. Held on Zoom.",
+    "cards": [
+      { "marker": "~ I",  "day": "Wednesday", "time": "09:00 — 10:00", "tz": "Pacific Time" },
+      { "marker": "~ II", "day": "Friday",    "time": "09:00 — 10:00", "tz": "Pacific Time" }
+    ],
+    "zoomUrl": "https://zoom.us/j/97461285343",
+    "zoomLabel": "zoom.us/j/97461285343",
+    "welcome": "All are welcome."
+  },
+
+  "orient_teaser": {
+    "kicker": "~ Orientation",
+    "linkLabel": "→ a map of the practice",
+    "linkHref": "/orient"
+  },
+
+  "footer": {
+    "domain": "thusness.co"
+  }
+}
