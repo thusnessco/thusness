@@ -9,6 +9,7 @@ import {
   resetHomepagePinToDefaultLayout,
   saveNote,
   setHomepagePinToNoteSlug,
+  toggleNoteOnReadingsIndex,
 } from "@/app/admin/actions";
 import type { HomepagePin } from "@/lib/homepage/homepage-pin";
 import {
@@ -46,6 +47,7 @@ export function NoteEditorPanel({
   onMessage,
   onNoteBodySaved,
   orientSiteDefaults,
+  onReadingsList = false,
 }: {
   note: NoteRow;
   homepagePin: HomepagePin;
@@ -61,6 +63,8 @@ export function NoteEditorPanel({
   ) => void;
   /** Site Orient infographics (merged with per-embed patches in the orientation note editor). */
   orientSiteDefaults?: OrientContent;
+  /** Whether this note id appears on the curated /readings list. */
+  onReadingsList?: boolean;
 }) {
   const [slug, setSlug] = useState(note.slug);
   const [title, setTitle] = useState(note.title);
@@ -229,6 +233,48 @@ export function NoteEditorPanel({
               listed on the public <span className="italic">/notes</span> index
               (you can still pin one to <span className="italic">/</span>). Save to
               apply.
+            </span>
+          </span>
+        </label>
+      </fieldset>
+
+      <fieldset className="space-y-4 border border-[var(--thusness-rule)] px-4 py-4">
+        <legend className={`px-1 ${adminFieldLabel}`}>Readings</legend>
+        <label className={checkRow}>
+          <input
+            type="checkbox"
+            className="mt-1 border-[var(--thusness-rule)] accent-[var(--thusness-ink)]"
+            checked={onReadingsList}
+            disabled={isPending}
+            onChange={(e) => {
+              const on = e.target.checked;
+              startTransition(async () => {
+                const res = await toggleNoteOnReadingsIndex({
+                  noteId: note.id,
+                  on,
+                });
+                if (!res.ok) onMessage(res.message);
+                else {
+                  onMessage(
+                    on
+                      ? "This note is on /readings (order in Admin → Readings)."
+                      : "Removed from /readings."
+                  );
+                  router.refresh();
+                }
+              });
+            }}
+          />
+          <span>
+            <span className="font-medium text-[var(--thusness-ink)]">
+              Listed on /readings
+            </span>
+            <span className={`mt-1 block ${checkHint}`}>
+              Curated list on the public readings page. Reorder or add links under{" "}
+              <span className="font-medium text-[var(--thusness-ink-soft)]">
+                Hidden pages → Readings
+              </span>
+              . Only published notes appear to visitors.
             </span>
           </span>
         </label>

@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 
 import { createNote, signOut } from "@/app/admin/actions";
 import type { HomepagePin } from "@/lib/homepage/homepage-pin";
+import type { ReadingsIndexConfig } from "@/lib/readings/readings-index";
 import type { OrientBookletConfig } from "@/lib/orient/booklet-config";
 import type { OrientContent } from "@/lib/orient-infographics/types";
 import type { SinkInConfigV1 } from "@/lib/sinkin/config";
@@ -37,6 +38,8 @@ type Props = {
   orientBookletConfig: OrientBookletConfig;
   orientInfographics: OrientContent;
   orientInfographicsUpdatedAt: string | null;
+  readingsIndex: ReadingsIndexConfig;
+  readingsUpdatedAt: string | null;
 };
 
 type NoteBodyOverride = { doc: JSONContent; key: string };
@@ -50,6 +53,8 @@ export function AdminDashboard({
   orientBookletConfig,
   orientInfographics,
   orientInfographicsUpdatedAt,
+  readingsIndex,
+  readingsUpdatedAt,
 }: Props) {
   const router = useRouter();
   const [contentKey, setContentKey] = useState<ContentKey>(() =>
@@ -167,6 +172,8 @@ export function AdminDashboard({
         orientBookletConfig={orientBookletConfig}
         orientInfographics={orientInfographics}
         orientInfographicsUpdatedAt={orientInfographicsUpdatedAt}
+        readingsIndex={readingsIndex}
+        readingsUpdatedAt={readingsUpdatedAt}
         contentKey={contentKey}
         setContentKey={setContentKey}
         onMessage={flash}

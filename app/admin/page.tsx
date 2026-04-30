@@ -3,6 +3,7 @@ import { unstable_noStore as noStore } from "next/cache";
 import { AdminDashboard } from "@/components/admin/AdminDashboard";
 import { getHomepagePinForAdmin } from "@/lib/data/homepage-source";
 import { getOrientBookletConfigForAdmin } from "@/lib/data/orient-booklet-config";
+import { getReadingsIndexBundleForAdmin } from "@/lib/data/readings-index";
 import { getOrientInfographicsBundleForAdmin } from "@/lib/data/orient-infographics";
 import { getOrientNavVisibleForAdmin } from "@/lib/data/orient-nav";
 import { getSinkInConfigBundle } from "@/lib/data/sinkin-config";
@@ -42,6 +43,7 @@ export default async function AdminPage() {
     orientNavVisible,
     orientBookletConfig,
     orientIg,
+    readingsBundle,
   ] =
     await Promise.all([
       getAllNotesForAdmin(),
@@ -50,6 +52,7 @@ export default async function AdminPage() {
       getOrientNavVisibleForAdmin(),
       getOrientBookletConfigForAdmin(),
       getOrientInfographicsBundleForAdmin(),
+      getReadingsIndexBundleForAdmin(),
     ]);
 
   return (
@@ -62,6 +65,8 @@ export default async function AdminPage() {
       orientBookletConfig={orientBookletConfig}
       orientInfographics={orientIg.content}
       orientInfographicsUpdatedAt={orientIg.updatedAt}
+      readingsIndex={readingsBundle.config}
+      readingsUpdatedAt={readingsBundle.updatedAt}
     />
   );
 }

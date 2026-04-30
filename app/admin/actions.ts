@@ -36,6 +36,13 @@ import {
 } from "@/lib/orient/booklet-config";
 import { parseOrientInfographics } from "@/lib/orient-infographics/parse";
 import type { OrientContent } from "@/lib/orient-infographics/types";
+import {
+  parseReadingsIndex,
+  READINGS_INDEX_SITE_KEY,
+  type ReadingsIndexConfig,
+  withNoteToggledOnReadings,
+  withoutNoteOnReadings,
+} from "@/lib/readings/readings-index";
 import { countTiptapImages } from "@/lib/tiptap/count-tiptap-images";
 import { emptyDoc } from "@/lib/tiptap/empty-doc";
 
@@ -315,6 +322,60 @@ export async function saveOrientBookletConfig(
   return { ok: true as const };
 }
 
+export async function saveReadingsIndex(
+  input: ReadingsIndexConfig
+): Promise<{ ok: true } | { ok: false; message: string }> {
+  const supabase = await createServerSupabase();
+  const payload = JSON.parse(
+    JSON.stringify(parseReadingsIndex(input))
+  ) as Record<string, unknown>;
+  const { error } = await supabase.from("site_content").upsert(
+    {
+      key: READINGS_INDEX_SITE_KEY,
+      title: "Readings index",
+      content_json: payload,
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: "key" }
+  );
+  if (error) return { ok: false as const, message: error.message };
+
+  revalidatePath("/readings");
+  revalidatePath("/admin");
+  return { ok: true as const };
+}
+
+export async function toggleNoteOnReadingsIndex(input: {
+  noteId: string;
+  on: boolean;
+}): Promise<{ ok: true } | { ok: false; message: string }> {
+  const supabase = await createServerSupabase();
+  const { data: row, error: readErr } = await supabase
+    .from("site_content")
+    .select("content_json")
+    .eq("key", READINGS_INDEX_SITE_KEY)
+    .maybeSingle();
+  if (readErr) return { ok: false as const, message: readErr.message };
+
+  const current = parseReadingsIndex(row?.content_json);
+  const next = withNoteToggledOnReadings(current, input.noteId, input.on);
+  const payload = JSON.parse(JSON.stringify(next)) as Record<string, unknown>;
+  const { error } = await supabase.from("site_content").upsert(
+    {
+      key: READINGS_INDEX_SITE_KEY,
+      title: "Readings index",
+      content_json: payload,
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: "key" }
+  );
+  if (error) return { ok: false as const, message: error.message };
+
+  revalidatePath("/readings");
+  revalidatePath("/admin");
+  return { ok: true as const };
+}
+
 export async function saveNote(input: {
   id: string;
   slug: string;
@@ -439,6 +500,7 @@ export async function saveNote(input: {
 
   revalidatePath("/");
   revalidatePath("/notes");
+  revalidatePath("/readings");
   revalidatePath("/admin");
   revalidatePath(`/notes/${newSlug}`);
   return {
@@ -624,6 +686,29 @@ export async function deleteNote(input: {
       fields: d.fields,
     });
     revalidatePath("/");
+  }
+
+  const { data: readingsRow } = await supabase
+    .from("site_content")
+    .select("content_json")
+    .eq("key", READINGS_INDEX_SITE_KEY)
+    .maybeSingle();
+  const readingsCfg = parseReadingsIndex(readingsRow?.content_json);
+  const readingsNext = withoutNoteOnReadings(readingsCfg, input.id);
+  if (readingsNext.items.length !== readingsCfg.items.length) {
+    await supabase.from("site_content").upsert(
+      {
+        key: READINGS_INDEX_SITE_KEY,
+        title: "Readings index",
+        content_json: JSON.parse(JSON.stringify(readingsNext)) as Record<
+          string,
+          unknown
+        >,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "key" }
+    );
+    revalidatePath("/readings");
   }
 
   revalidatePath("/notes");

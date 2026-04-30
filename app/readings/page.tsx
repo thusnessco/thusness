@@ -1,27 +1,131 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
 import { SiteFooter } from "@/components/thusness/SiteFooter";
-import Wordmark from "@/components/thusness/Wordmark";
+import { ThusnessPageShell } from "@/components/thusness/ThusnessPageShell";
+import { getReadingsPublicRows } from "@/lib/data/readings-public";
+import { getOrientNavVisible } from "@/lib/data/orient-nav";
+import { formatPublishedDate } from "@/lib/data/notes-public";
+
+export const metadata: Metadata = {
+  title: "Readings",
+  description: "Curated readings and links.",
+  robots: { index: false, follow: false },
+};
 
 export const dynamic = "force-dynamic";
 
-export default function ReadingsPage() {
+export default async function ReadingsPage() {
+  const [rows, orientNavVisible] = await Promise.all([
+    getReadingsPublicRows(),
+    getOrientNavVisible(),
+  ]);
+
   return (
-    <div className="min-h-screen bg-[var(--thusness-bg)] px-6 py-6 sm:px-10">
-      <div className="mx-auto max-w-[880px]">
-        <header className="mb-10">
-          <Link href="/" className="inline-block transition-opacity hover:opacity-70">
-            <Wordmark size={20} tagline="~ as it is" />
-          </Link>
-        </header>
-        <main className="mx-auto max-w-[620px]">
-          <h1 className="text-2xl text-[var(--thusness-ink)]">Readings</h1>
-          <p className="mt-3 text-[17px] leading-[1.7] text-[var(--thusness-ink-soft)]">
-            Readings return soon.
+    <main className="min-h-screen bg-[var(--thusness-bg)] font-sans text-[var(--thusness-ink)]">
+      <ThusnessPageShell
+        headerAside={
+          <nav className="flex items-center justify-end gap-4" aria-label="Top navigation">
+            <Link href="/notes" className="transition-opacity hover:opacity-70">
+              Notes
+            </Link>
+            {orientNavVisible ? (
+              <Link href="/orient" className="transition-opacity hover:opacity-70">
+                Orient
+              </Link>
+            ) : null}
+          </nav>
+        }
+      >
+        <h1 className="mt-1 text-[22px] font-medium tracking-tight text-[var(--thusness-ink)]">
+          Readings
+        </h1>
+
+        <section className="mt-14">
+          <p className="text-[11px] uppercase tracking-[2.4px] text-[var(--thusness-muted)]">
+            ~ curated
           </p>
-        </main>
+          {rows.length === 0 ? (
+            <p className="mt-6 max-w-[620px] text-base italic leading-relaxed text-[var(--thusness-muted)]">
+              Nothing here yet. In Admin, use{" "}
+              <span className="not-italic text-[var(--thusness-ink-soft)]">
+                Hidden pages → Readings
+              </span>{" "}
+              or{" "}
+              <span className="not-italic text-[var(--thusness-ink-soft)]">
+                Listed on /readings
+              </span>{" "}
+              on a note.
+            </p>
+          ) : (
+            <ol className="m-0 mt-8 max-w-[620px] list-none p-0">
+              {rows.map((row, i) => (
+                <li
+                  key={
+                    row.kind === "note"
+                      ? `n-${row.slug}-${i}`
+                      : `l-${row.href}-${i}`
+                  }
+                  className="border-t border-[var(--thusness-rule)] py-6 last:border-b last:border-[var(--thusness-rule)]"
+                >
+                  {row.kind === "note" ? (
+                    <Link
+                      href={`/notes/${row.slug}`}
+                      className="block text-[var(--thusness-ink)] transition-opacity hover:opacity-70 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-[var(--thusness-ink)]"
+                    >
+                      <span className="text-[11px] uppercase tracking-[2px] text-[var(--thusness-muted)]">
+                        {formatPublishedDate(row.published_at)}
+                      </span>
+                      <span className="mt-2 block text-[22px] font-medium leading-tight text-[var(--thusness-ink)]">
+                        {row.title || "Untitled"}
+                      </span>
+                      {row.excerpt ? (
+                        <span className="mt-2 block text-base italic leading-snug text-[var(--thusness-ink-soft)]">
+                          {row.excerpt}
+                        </span>
+                      ) : null}
+                    </Link>
+                  ) : row.href.startsWith("/") ? (
+                    <Link
+                      href={row.href}
+                      className="block text-[var(--thusness-ink)] transition-opacity hover:opacity-70 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-[var(--thusness-ink)]"
+                    >
+                      <span className="text-[11px] uppercase tracking-[2px] text-[var(--thusness-muted)]">
+                        Link
+                      </span>
+                      <span className="mt-2 block text-[22px] font-medium leading-tight text-[var(--thusness-ink)]">
+                        {row.label}
+                      </span>
+                      <span className="mt-2 block text-sm text-[var(--thusness-ink-soft)]">
+                        {row.href}
+                      </span>
+                    </Link>
+                  ) : (
+                    <a
+                      href={row.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block text-[var(--thusness-ink)] transition-opacity hover:opacity-70 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-[var(--thusness-ink)]"
+                    >
+                      <span className="text-[11px] uppercase tracking-[2px] text-[var(--thusness-muted)]">
+                        External
+                      </span>
+                      <span className="mt-2 block text-[22px] font-medium leading-tight text-[var(--thusness-ink)]">
+                        {row.label}
+                      </span>
+                      <span className="mt-2 block text-sm text-[var(--thusness-ink-soft)]">
+                        {row.href}
+                      </span>
+                    </a>
+                  )}
+                </li>
+              ))}
+            </ol>
+          )}
+        </section>
+
         <SiteFooter />
-      </div>
-    </div>
+      </ThusnessPageShell>
+    </main>
   );
 }

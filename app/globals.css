@@ -394,6 +394,74 @@ body.thusness ::selection {
   color: var(--thusness-muted);
 }
 
+/* Session card: calendar download tucks away until hover / focus-within */
+.tiptap-thusness-session-card--has-ics {
+  position: relative;
+}
+
+.tiptap-thusness-session-card--has-ics:focus-visible {
+  outline: 1px solid var(--thusness-rule);
+  outline-offset: 3px;
+}
+
+.tiptap-thusness-session-card__ics {
+  margin-top: auto;
+  padding-top: 10px;
+  opacity: 0;
+  transform: translateY(6px);
+  transition:
+    opacity 0.22s ease,
+    transform 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+
+.tiptap-thusness-session-card--has-ics:hover .tiptap-thusness-session-card__ics,
+.tiptap-thusness-session-card--has-ics:focus-within .tiptap-thusness-session-card__ics {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.tiptap-thusness-session-ics-link {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--thusness-muted);
+  border-bottom: 1px solid transparent;
+  transition:
+    color 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.tiptap-thusness-session-card--has-ics:hover .tiptap-thusness-session-ics-link,
+.tiptap-thusness-session-card--has-ics:focus-within .tiptap-thusness-session-ics-link {
+  color: var(--thusness-ink-soft);
+}
+
+.tiptap-thusness-session-ics-link:hover,
+.tiptap-thusness-session-ics-link:focus-visible {
+  color: var(--thusness-ink);
+  border-bottom-color: var(--thusness-rule);
+  outline: none;
+}
+
+/* Touch / coarse pointer: keep affordance visible without requiring hover */
+@media (hover: none), (pointer: coarse) {
+  .tiptap-thusness-session-card__ics {
+    opacity: 0.55;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  .tiptap-thusness-session-card--has-ics:active .tiptap-thusness-session-card__ics,
+  .tiptap-thusness-session-card--has-ics:focus-within .tiptap-thusness-session-card__ics {
+    opacity: 1;
+  }
+}
+
 .tiptap-thusness-zoom-block {
   max-width: 620px;
   margin: 0 auto;

@@ -19,6 +19,7 @@ import {
   parseNoteCategory,
   type NoteCategory,
 } from "@/lib/notes/category";
+import type { ReadingsIndexConfig } from "@/lib/readings/readings-index";
 import type { SinkInConfigV1 } from "@/lib/sinkin/config";
 import type { NoteRow } from "@/lib/supabase/public-server";
 import type {
@@ -47,6 +48,7 @@ import { RootStatusStrip } from "./RootStatusStrip";
 import { SimpleLayoutForm } from "./SimpleLayoutForm";
 import { OrientInfographicsEditorPanel } from "./OrientInfographicsEditorPanel";
 import { OrientBookletPanel } from "./OrientBookletPanel";
+import { ReadingsIndexPanel } from "./ReadingsIndexPanel";
 import { SinkInEditorPanel } from "./SinkInEditorPanel";
 import { SwitchRootToNote } from "./SwitchRootToNote";
 import type { TiptapEditorFieldHandle } from "./TiptapEditorField";
@@ -62,6 +64,8 @@ type Props = {
   orientBookletConfig: OrientBookletConfig;
   orientInfographics: OrientContent;
   orientInfographicsUpdatedAt: string | null;
+  readingsIndex: ReadingsIndexConfig;
+  readingsUpdatedAt: string | null;
   contentKey: ContentKey;
   setContentKey: (k: ContentKey) => void;
   onMessage: (msg: string) => void;
@@ -88,6 +92,8 @@ export function AdminEditorHub({
   orientBookletConfig,
   orientInfographics,
   orientInfographicsUpdatedAt,
+  readingsIndex,
+  readingsUpdatedAt,
   contentKey,
   setContentKey,
   onMessage,
@@ -442,6 +448,16 @@ export function AdminEditorHub({
               /orient/* visibility
             </span>
           </button>
+          <button
+            type="button"
+            className={adminNavBtn(contentKey === "readings")}
+            onClick={() => setContentKey("readings")}
+          >
+            <span className="block truncate">Readings</span>
+            <span className="mt-0.5 block text-[10px] uppercase tracking-wider text-[var(--thusness-muted)]">
+              /readings
+            </span>
+          </button>
           <label className="mt-3 flex items-start gap-2 text-sm text-[var(--thusness-ink-soft)]">
             <input
               type="checkbox"
@@ -502,6 +518,9 @@ export function AdminEditorHub({
               onMessage={onMessage}
               onNoteBodySaved={onNoteBodySaved}
               orientSiteDefaults={orientInfographics}
+              onReadingsList={readingsIndex.items.some(
+                (i) => i.type === "note" && i.note_id === selectedNoteForEditor.id
+              )}
             />
           ) : editingNoteId ? (
             <p className="text-sm text-[var(--thusness-muted)]">
@@ -556,6 +575,17 @@ export function AdminEditorHub({
           {contentKey === "orient_booklet" ? (
             <OrientBookletPanel
               initialConfig={orientBookletConfig}
+              isPending={isPending}
+              startTransition={startTransition}
+              onMessage={onMessage}
+            />
+          ) : null}
+          {contentKey === "readings" ? (
+            <ReadingsIndexPanel
+              key={readingsUpdatedAt ?? "readings"}
+              initialConfig={readingsIndex}
+              readingsUpdatedAt={readingsUpdatedAt}
+              notes={notes}
               isPending={isPending}
               startTransition={startTransition}
               onMessage={onMessage}

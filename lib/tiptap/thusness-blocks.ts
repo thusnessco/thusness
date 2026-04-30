@@ -2,6 +2,7 @@ import { mergeAttributes, Node } from "@tiptap/core";
 import type { JSONContent } from "@tiptap/core";
 import { TextSelection } from "@tiptap/pm/state";
 
+import { buildSessionCardIcsDataHref } from "@/lib/calendar/ics";
 import { ThusnessOrientDiagram } from "@/lib/tiptap/orient-diagram-embed";
 
 const sectionMark = "thusnessSectionMark";
@@ -228,17 +229,111 @@ export const ThusnessSessionCard = Node.create({
   group: "block",
   content: "paragraph paragraph paragraph paragraph",
   defining: true,
-  parseHTML() {
-    return [{ tag: `div[data-thusness-node="${sessionCard}"]` }];
+
+  addAttributes() {
+    return {
+      icsStart: {
+        default: null,
+        parseHTML: (el) =>
+          el instanceof HTMLElement ? el.getAttribute("data-ics-start") : null,
+        renderHTML: (attrs) => {
+          const v = attrs.icsStart;
+          if (!v) return {};
+          return { "data-ics-start": String(v) };
+        },
+      },
+      icsEnd: {
+        default: null,
+        parseHTML: (el) =>
+          el instanceof HTMLElement ? el.getAttribute("data-ics-end") : null,
+        renderHTML: (attrs) => {
+          const v = attrs.icsEnd;
+          if (!v) return {};
+          return { "data-ics-end": String(v) };
+        },
+      },
+      icsLocation: {
+        default: null,
+        parseHTML: (el) =>
+          el instanceof HTMLElement ? el.getAttribute("data-ics-location") : null,
+        renderHTML: (attrs) => {
+          const v = attrs.icsLocation;
+          if (!v) return {};
+          return { "data-ics-location": String(v) };
+        },
+      },
+    };
   },
-  renderHTML({ HTMLAttributes }) {
+
+  parseHTML() {
+    return [
+      {
+        tag: `div[data-thusness-node="${sessionCard}"]`,
+        getAttrs: (el) => {
+          if (!(el instanceof HTMLElement)) return false;
+          return {
+            icsStart: el.getAttribute("data-ics-start"),
+            icsEnd: el.getAttribute("data-ics-end"),
+            icsLocation: el.getAttribute("data-ics-location"),
+          };
+        },
+      },
+    ];
+  },
+
+  renderHTML({ HTMLAttributes, node }) {
+    const icsStart = typeof node.attrs.icsStart === "string" ? node.attrs.icsStart.trim() : "";
+    const icsEnd = typeof node.attrs.icsEnd === "string" ? node.attrs.icsEnd.trim() : "";
+    const icsLocationRaw = node.attrs.icsLocation;
+    const icsLocation =
+      typeof icsLocationRaw === "string" && icsLocationRaw.trim()
+        ? icsLocationRaw.trim()
+        : null;
+
+    const hasIcs = Boolean(icsStart && icsEnd);
+    const baseClass = "tiptap-thusness-session-card";
+    const cardClass = hasIcs
+      ? `${baseClass} tiptap-thusness-session-card--has-ics`
+      : baseClass;
+
+    const wrapAttrs = mergeAttributes(HTMLAttributes, {
+      "data-thusness-node": sessionCard,
+      class: cardClass,
+      ...(hasIcs ? { tabIndex: 0 } : {}),
+    });
+
+    const payload = hasIcs
+      ? buildSessionCardIcsDataHref({
+          icsStart,
+          icsEnd,
+          icsLocation,
+          summary: node.textContent,
+        })
+      : null;
+
+    if (!payload) {
+      return ["div", wrapAttrs, 0];
+    }
+
     return [
       "div",
-      mergeAttributes(HTMLAttributes, {
-        "data-thusness-node": sessionCard,
-        class: "tiptap-thusness-session-card",
-      }),
+      wrapAttrs,
       0,
+      [
+        "div",
+        { class: "tiptap-thusness-session-card__ics" },
+        [
+          "a",
+          {
+            href: payload.href,
+            download: payload.filename,
+            class: "tiptap-thusness-session-ics-link",
+            type: "text/calendar",
+            "aria-label": "Download calendar entry (.ics)",
+          },
+          "Add to calendar",
+        ],
+      ],
     ];
   },
 });

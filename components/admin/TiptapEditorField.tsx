@@ -34,6 +34,7 @@ import {
   OrientDiagramSiteProvider,
   orientDiagramWithReactNodeView,
 } from "./orient-diagram-node-view";
+import { SessionCardIcsToolbar } from "./SessionCardIcsToolbar";
 
 export type TiptapEditorFieldHandle = {
   getJSON: () => JSONContent | null;
@@ -275,6 +276,12 @@ function Toolbar({
           >
             Sample page layout
           </button>
+          <SessionCardIcsToolbar
+            editor={editor}
+            onNotice={onTemplateNotice}
+            btnClass={btn}
+            idleClass={idle}
+          />
           {orientDiagramControls ? (
             <>
               <span
