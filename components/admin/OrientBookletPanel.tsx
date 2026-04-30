@@ -19,6 +19,15 @@ const LABELS: Record<(typeof ORIENT_BOOKLET_SLUGS)[number], string> = {
   nihilism: "06 · Emptiness ≠ non-existence",
 };
 
+const PROSE_ROUTE: Record<(typeof ORIENT_BOOKLET_SLUGS)[number], string> = {
+  pillars: "/orient/pillars",
+  stages: "/orient/stages",
+  recognition: "/orient/recognition",
+  movement: "/orient/movement",
+  themes: "/orient/themes",
+  nihilism: "/orient/nihilism",
+};
+
 export function OrientBookletPanel({
   initialConfig,
   isPending,
@@ -351,12 +360,16 @@ export function OrientBookletPanel({
             Section long-form overrides
           </p>
           <p className="text-[11px] text-[var(--thusness-muted)]">
-            Optional plain-text prose shown below each diagram. Leave blank to keep using
-            published note content/default prose. Separate paragraphs with a blank line.
+            Plain text shown <span className="font-medium text-[var(--thusness-ink-soft)]">below the diagram</span> on
+            that section page (above prev/next). Leave blank to use the published note
+            body instead (<code className="text-[10px]">orient-…</code> slugs) or the built-in
+            default prose. Separate paragraphs with a blank line.
           </p>
           {ORIENT_BOOKLET_SLUGS.map((slug) => (
             <label key={`prose-${slug}`} className="block space-y-1">
-              <span className={adminFieldLabel}>{LABELS[slug]}</span>
+              <span className={adminFieldLabel}>
+                {LABELS[slug]} <span className="font-normal text-[var(--thusness-muted)]">({PROSE_ROUTE[slug]})</span>
+              </span>
               <textarea
                 className={`${adminFieldInput} min-h-[110px] w-full resize-y`}
                 value={config.copy.proseOverrides[slug]}
