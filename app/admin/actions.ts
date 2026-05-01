@@ -47,6 +47,7 @@ import {
 } from "@/lib/readings/readings-index";
 import { countTiptapImages } from "@/lib/tiptap/count-tiptap-images";
 import { emptyDoc } from "@/lib/tiptap/empty-doc";
+import { NOTE_PAGES_BASE, notePageHref } from "@/lib/site/note-pages";
 
 const UPLOAD_ALLOWED_TYPES = new Set([
   "image/jpeg",
@@ -227,7 +228,7 @@ export async function saveOrientNavVisible(
   if (error) return { ok: false as const, message: error.message };
 
   revalidatePath("/");
-  revalidatePath("/notes");
+  revalidatePath(NOTE_PAGES_BASE);
   revalidatePath("/orient");
   revalidatePath("/orientation");
   revalidatePath("/admin");
@@ -496,15 +497,15 @@ export async function saveNote(input: {
         slug: newSlug,
       });
       revalidatePath("/");
-      revalidatePath(`/notes/${prevSlug}`);
+      revalidatePath(notePageHref(prevSlug));
     }
   }
 
   revalidatePath("/");
-  revalidatePath("/notes");
+  revalidatePath(NOTE_PAGES_BASE);
   revalidatePath("/readings");
   revalidatePath("/admin");
-  revalidatePath(`/notes/${newSlug}`);
+  revalidatePath(notePageHref(newSlug));
   return {
     ok: true as const,
     content_json: stored,
@@ -567,8 +568,8 @@ export async function setHomepagePinToNoteSlug(
 
   revalidatePath("/");
   revalidatePath("/admin");
-  revalidatePath("/notes");
-  revalidatePath(`/notes/${trimmed}`);
+  revalidatePath(NOTE_PAGES_BASE);
+  revalidatePath(notePageHref(trimmed));
   return { ok: true as const };
 }
 
@@ -587,7 +588,7 @@ export async function resetHomepagePinToDefaultLayout(): Promise<
 
   revalidatePath("/");
   revalidatePath("/admin");
-  revalidatePath("/notes");
+  revalidatePath(NOTE_PAGES_BASE);
   return { ok: true as const };
 }
 
@@ -631,7 +632,7 @@ export async function createDraftNoteFromHomepageTemplate(input: {
     };
   }
   revalidatePath("/admin");
-  revalidatePath("/notes");
+  revalidatePath(NOTE_PAGES_BASE);
   return { ok: true as const, note: data as NoteRow };
 }
 
@@ -650,7 +651,7 @@ export async function saveHomepageSiteTemplate(
 
   revalidatePath("/");
   revalidatePath("/admin");
-  revalidatePath("/notes");
+  revalidatePath(NOTE_PAGES_BASE);
   return { ok: true as const };
 }
 
@@ -713,9 +714,9 @@ export async function deleteNote(input: {
     revalidatePath("/readings");
   }
 
-  revalidatePath("/notes");
+  revalidatePath(NOTE_PAGES_BASE);
   revalidatePath("/admin");
-  revalidatePath(`/notes/${input.slug.trim()}`);
+  revalidatePath(notePageHref(input.slug.trim()));
   return { ok: true as const };
 }
 
@@ -769,7 +770,7 @@ export async function restoreResistanceNoteFromSeed(
   }
 
   revalidatePath("/admin");
-  revalidatePath(`/notes/${RESISTANCE_NOTE_SLUG}`);
+  revalidatePath(notePageHref(RESISTANCE_NOTE_SLUG));
   return { ok: true, updated_at: data.updated_at as string };
 }
 
@@ -793,7 +794,7 @@ export async function createNote(): Promise<
   if (error) return { ok: false, message: error.message };
   if (!data?.id) return { ok: false, message: "Insert did not return the new note." };
   revalidatePath("/admin");
-  revalidatePath("/notes");
+  revalidatePath(NOTE_PAGES_BASE);
   return { ok: true, note: data as NoteRow };
 }
 
@@ -848,7 +849,7 @@ export async function createNoteFromTemplate(input: {
     return { ok: false as const, message: "Insert did not return the new note." };
   }
   revalidatePath("/admin");
-  revalidatePath("/notes");
+  revalidatePath(NOTE_PAGES_BASE);
   return { ok: true as const, note: data as NoteRow };
 }
 

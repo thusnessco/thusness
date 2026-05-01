@@ -13,6 +13,7 @@ import {
   NOTE_CATEGORY_LABELS,
   parseNoteCategory,
 } from "@/lib/notes/category";
+import { NOTE_PAGES_BASE } from "@/lib/site/note-pages";
 
 export const metadata: Metadata = {
   title: "Notes",
@@ -24,7 +25,7 @@ export const dynamic = "force-dynamic";
 
 type PageProps = { searchParams: Promise<{ category?: string }> };
 
-export default async function NotesIndexPage({ searchParams }: PageProps) {
+export default async function Notes2IndexPage({ searchParams }: PageProps) {
   const sp = await searchParams;
   const categoryFilter = parseNoteCategory(
     typeof sp.category === "string" ? sp.category : undefined
@@ -38,16 +39,13 @@ export default async function NotesIndexPage({ searchParams }: PageProps) {
     <main className="min-h-screen bg-[var(--thusness-bg)] font-sans text-[var(--thusness-ink)]">
       <ThusnessPageShell
         headerAside={
-          <nav className="flex items-center justify-end gap-4" aria-label="Top navigation">
-            <Link href="/notes" className="transition-opacity hover:opacity-70">
-              Notes
-            </Link>
-            {orientNavVisible ? (
+          orientNavVisible ? (
+            <nav className="flex items-center justify-end gap-4" aria-label="Top navigation">
               <Link href="/orient" className="transition-opacity hover:opacity-70">
                 Orient
               </Link>
-            ) : null}
-          </nav>
+            </nav>
+          ) : null
         }
       >
         <h1 className="mt-1 text-[22px] font-medium tracking-tight text-[var(--thusness-ink)]">
@@ -63,7 +61,7 @@ export default async function NotesIndexPage({ searchParams }: PageProps) {
             className="mt-6 flex flex-wrap gap-x-5 gap-y-2 border-b border-[var(--thusness-rule)] pb-5 text-[11px] uppercase tracking-[2px]"
           >
             <Link
-              href="/notes"
+              href={NOTE_PAGES_BASE}
               className={
                 !categoryFilter
                   ? "text-[var(--thusness-ink)]"
@@ -75,7 +73,7 @@ export default async function NotesIndexPage({ searchParams }: PageProps) {
             {NOTE_CATEGORIES.map((c) => (
               <Link
                 key={c}
-                href={`/notes?category=${c}`}
+                href={`${NOTE_PAGES_BASE}?category=${c}`}
                 className={
                   categoryFilter === c
                     ? "text-[var(--thusness-ink)]"
@@ -102,7 +100,7 @@ export default async function NotesIndexPage({ searchParams }: PageProps) {
                     className="border-t border-[var(--thusness-rule)] py-6 last:border-b last:border-[var(--thusness-rule)]"
                   >
                     <Link
-                      href={`/notes/${n.slug}`}
+                      href={`${NOTE_PAGES_BASE}/${n.slug}`}
                       className="block text-[var(--thusness-ink)] transition-opacity hover:opacity-70 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-[var(--thusness-ink)]"
                     >
                       <span className="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-[11px] uppercase tracking-[2px] text-[var(--thusness-muted)]">

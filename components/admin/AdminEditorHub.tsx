@@ -19,6 +19,7 @@ import {
   parseNoteCategory,
   type NoteCategory,
 } from "@/lib/notes/category";
+import { NOTE_PAGES_BASE } from "@/lib/site/note-pages";
 import type { ReadingsIndexConfig } from "@/lib/readings/readings-index";
 import type { SinkInConfigV1 } from "@/lib/sinkin/config";
 import type { NoteRow } from "@/lib/supabase/public-server";
@@ -367,7 +368,9 @@ export function AdminEditorHub({
                       <span className="block truncate">{n.title || "Untitled"}</span>
                       <span className="mt-0.5 flex flex-wrap gap-x-2 text-[10px] uppercase tracking-wider text-[var(--thusness-muted)]">
                         {!n.published ? <span>Draft</span> : null}
-                        {n.published ? <span>/notes</span> : null}
+                        {n.published ? (
+                          <span className="text-[var(--thusness-muted)]">{NOTE_PAGES_BASE}</span>
+                        ) : null}
                         {cat ? <span>{NOTE_CATEGORY_SHORT[cat]}</span> : null}
                         {n.is_template ? <span>Template</span> : null}
                         {isLiveAtRoot(homepagePin, `n:${n.id}`, notes) ? (

@@ -1,4 +1,5 @@
 import type { HomepagePin } from "@/lib/homepage/homepage-pin";
+import { NOTE_PAGES_BASE } from "@/lib/site/note-pages";
 import type { NoteRow } from "@/lib/supabase/public-server";
 
 export type ContentKey =
@@ -60,9 +61,9 @@ export function describeLiveHomepage(hp: HomepagePin, notes: NoteRow[]): string 
     const n = notes.find((x) => slugMatchesPin(x.slug, hp.slug));
     if (n) {
       const t = (n.title || "").trim() || n.slug;
-      return `“${t}” · /notes/${n.slug}`;
+      return `“${t}” · ${NOTE_PAGES_BASE}/${n.slug}`;
     }
-    return `Published note · /notes/${hp.slug}`;
+    return `Published note · ${NOTE_PAGES_BASE}/${hp.slug}`;
   }
   if (hp.source === "site_template") {
     return hp.template === "simple_contemplation"

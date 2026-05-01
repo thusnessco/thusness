@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 import { HomePageFromTipTap } from "@/components/thusness/HomePageFromTipTap";
 import { getHomepageTipTapDoc } from "@/lib/data/homepage-body";
 import { getOrientNavVisible } from "@/lib/data/orient-nav";
@@ -35,12 +33,6 @@ export default async function Home() {
         <span className="italic">Admin</span> to set a homepage layout or publish
         a note and pin it to <span className="italic">/</span>.
       </p>
-      <Link
-        href="/notes"
-        className="text-xs uppercase tracking-[2px] text-[var(--thusness-muted)] underline decoration-[var(--thusness-ink)] decoration-1 underline-offset-4"
-      >
-        Notes
-      </Link>
     </main>
   );
 }

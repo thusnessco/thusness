@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   async redirects() {
     // Legacy MDX-era redirects removed: they hijacked real TipTap slugs (e.g.
-    // /notes/resistance → /notes), which broke note links from /notes.
+    // Legacy redirects removed (they hijacked real TipTap slugs).
     return [];
   },
 

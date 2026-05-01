@@ -80,7 +80,7 @@ export async function getPublishedNoteBySlug(
     row = await fetchOne(normalized.toLowerCase());
   }
   if (!row) return null;
-  /** Published template notes are hidden from `/notes` but reachable at `/notes/[slug]` (unlisted pages). */
+  /** Published template notes are hidden from `/notes2` but reachable at `/notes2/[slug]` (unlisted pages). */
   return row;
 }
 

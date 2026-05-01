@@ -6,6 +6,7 @@ import { ThusnessPageShell } from "@/components/thusness/ThusnessPageShell";
 import { getReadingsPublicRows } from "@/lib/data/readings-public";
 import { getOrientNavVisible } from "@/lib/data/orient-nav";
 import { formatPublishedDate } from "@/lib/data/notes-public";
+import { notePageHref } from "@/lib/site/note-pages";
 
 export const metadata: Metadata = {
   title: "Readings",
@@ -25,16 +26,13 @@ export default async function ReadingsPage() {
     <main className="min-h-screen bg-[var(--thusness-bg)] font-sans text-[var(--thusness-ink)]">
       <ThusnessPageShell
         headerAside={
-          <nav className="flex items-center justify-end gap-4" aria-label="Top navigation">
-            <Link href="/notes" className="transition-opacity hover:opacity-70">
-              Notes
-            </Link>
-            {orientNavVisible ? (
+          orientNavVisible ? (
+            <nav className="flex items-center justify-end gap-4" aria-label="Top navigation">
               <Link href="/orient" className="transition-opacity hover:opacity-70">
                 Orient
               </Link>
-            ) : null}
-          </nav>
+            </nav>
+          ) : null
         }
       >
         <h1 className="mt-1 text-[22px] font-medium tracking-tight text-[var(--thusness-ink)]">
@@ -70,7 +68,7 @@ export default async function ReadingsPage() {
                 >
                   {row.kind === "note" ? (
                     <Link
-                      href={`/notes/${row.slug}`}
+                      href={notePageHref(row.slug)}
                       className="block text-[var(--thusness-ink)] transition-opacity hover:opacity-70 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-[var(--thusness-ink)]"
                     >
                       <span className="text-[11px] uppercase tracking-[2px] text-[var(--thusness-muted)]">

@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function NotePage({ params }: Props) {
+export default async function Note2Page({ params }: Props) {
   const { slug } = await params;
 
   const [note, orientNavVisible] = await Promise.all([
@@ -37,20 +37,17 @@ export default async function NotePage({ params }: Props) {
     <div>
       <div className="border-b border-[var(--thusness-rule)] bg-[var(--thusness-bg)] px-6 py-4 sm:px-10">
         <div className="mx-auto flex max-w-[880px] justify-end">
-          <nav
-            aria-label="Top navigation"
-            className="flex items-center gap-4 text-[11px] uppercase tracking-[2.4px] text-[var(--thusness-muted)]"
-            style={{ fontFamily: 'Helvetica, "Helvetica Neue", Arial, sans-serif' }}
-          >
-            <Link href="/notes" className="transition-opacity hover:opacity-70">
-              Notes
-            </Link>
-            {orientNavVisible ? (
+          {orientNavVisible ? (
+            <nav
+              aria-label="Top navigation"
+              className="flex items-center gap-4 text-[11px] uppercase tracking-[2.4px] text-[var(--thusness-muted)]"
+              style={{ fontFamily: 'Helvetica, "Helvetica Neue", Arial, sans-serif' }}
+            >
               <Link href="/orient" className="transition-opacity hover:opacity-70">
                 Orient
               </Link>
-            ) : null}
-          </nav>
+            </nav>
+          ) : null}
         </div>
       </div>
       <HomePageFromTipTap

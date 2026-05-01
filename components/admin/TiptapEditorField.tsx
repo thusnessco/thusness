@@ -4,6 +4,7 @@ import {
   forwardRef,
   useEffect,
   useImperativeHandle,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -12,6 +13,7 @@ import { EditorContent, useEditor, type Editor } from "@tiptap/react";
 import type { JSONContent } from "@tiptap/core";
 
 import { uploadEditorImage } from "@/app/admin/actions";
+import { NOTE_PAGES_BASE } from "@/lib/site/note-pages";
 import { countTiptapImages } from "@/lib/tiptap/count-tiptap-images";
 import { getTiptapExtensions } from "@/lib/tiptap/extensions";
 import { jsonContentEqual } from "@/lib/tiptap/json-content-equal";
@@ -61,7 +63,7 @@ function Toolbar({
       ? "https://"
       : imageUploadScope?.startsWith("site/") === true ||
           imageUploadScope?.startsWith("note/") === true
-        ? "/notes/"
+        ? `${NOTE_PAGES_BASE}/`
         : "https://";
   const [, tick] = useState(0);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -187,8 +189,8 @@ function Toolbar({
               };
               const prev = attrs.href ?? "";
               const url = window.prompt(
-                "Link when this image is clicked (e.g. /notes/your-slug). Leave empty to remove.",
-                prev || "/notes/"
+                `Link when this image is clicked (e.g. ${NOTE_PAGES_BASE}/your-slug). Leave empty to remove.`,
+                prev || `${NOTE_PAGES_BASE}/`
               );
               if (url === null) return;
               const trimmed = url.trim();
@@ -210,7 +212,7 @@ function Toolbar({
         onClick={() => {
           const prev = editor.getAttributes("link").href as string | undefined;
           const url = window.prompt(
-            "Link URL — use for selected text (e.g. /notes/your-slug or https://…)",
+            `Link URL — use for selected text (e.g. ${NOTE_PAGES_BASE}/your-slug or https://…)`,
             prev ?? linkDefault
           );
           if (url === null) return;
@@ -411,7 +413,9 @@ export const TiptapEditorField = forwardRef<TiptapEditorFieldHandle, Props>(
       fingerprint: string | null;
     }>({ editor: null, syncKey: null, fingerprint: null });
 
-    useEffect(() => {
+    // useLayoutEffect: apply server/seed JSON before paint so the body is not a
+    // blank ProseMirror frame on first open (useEffect ran too late in practice).
+    useLayoutEffect(() => {
       if (!editor || editor.isDestroyed) return;
       const next = initialDocRef.current;
       const current = editor.getJSON();
@@ -477,7 +481,7 @@ export const TiptapEditorField = forwardRef<TiptapEditorFieldHandle, Props>(
             <span className="text-[var(--thusness-ink-soft)]">Link</span> (select
             text first). Use paths like{" "}
             <code className="border border-[var(--thusness-rule)] px-1 text-[var(--thusness-muted)]">
-              /notes/your-slug
+              {`${NOTE_PAGES_BASE}/your-slug`}
             </code>
             .
           </p>

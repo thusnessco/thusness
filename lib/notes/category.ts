@@ -1,4 +1,4 @@
-/** Single bucket per note — used in Admin and optional /notes filtering. */
+/** Single bucket per note — used in Admin and optional /notes2 filtering. */
 
 export const NOTE_CATEGORIES = [
   "session_helpers",

@@ -25,6 +25,8 @@ import resistanceSeedDoc from "@/lib/notes/resistance-seed-doc.json";
 import type { NoteRow } from "@/lib/supabase/public-server";
 import { emptyDoc } from "@/lib/tiptap/empty-doc";
 import { jsonContentEqual } from "@/lib/tiptap/json-content-equal";
+import { tiptapDocHasNonWhitespaceText } from "@/lib/tiptap/tiptap-doc-text";
+import { NOTE_PAGES_BASE, notePageHref } from "@/lib/site/note-pages";
 
 import {
   adminBtnGhost,
@@ -61,6 +63,12 @@ function looksLikeBlankResistanceBody(doc: JSONContent): boolean {
   };
   if (blocks.length === 1 && onlyEmptyParagraph(blocks[0]!)) return true;
   return false;
+}
+
+/** DB body is empty, invalid, or whitespace-only — load packaged TipTap JSON in Admin. */
+function shouldUseResistanceSeedPackagedBody(doc: JSONContent): boolean {
+  if (looksLikeBlankResistanceBody(doc)) return true;
+  return !tiptapDocHasNonWhitespaceText(doc);
 }
 
 export function NoteEditorPanel({
@@ -124,14 +132,25 @@ export function NoteEditorPanel({
   const liveOnRoot = noteDrivesRoot(homepagePin, note);
   const canPinToRoot = published && !slugDirty;
 
+  const resistanceUsesPackagedSeed = useMemo(() => {
+    if (note.slug !== RESISTANCE_NOTE_SLUG) return false;
+    const raw = (note.content_json ?? emptyDoc()) as JSONContent;
+    return shouldUseResistanceSeedPackagedBody(raw);
+  }, [note.id, note.slug, note.updated_at, note.content_json]);
+
   const editorInitialDoc = useMemo(() => {
     const raw = (note.content_json ?? emptyDoc()) as JSONContent;
     if (note.slug !== RESISTANCE_NOTE_SLUG) return raw;
-    if (looksLikeBlankResistanceBody(raw)) {
+    if (shouldUseResistanceSeedPackagedBody(raw)) {
       return resistanceSeedDoc as JSONContent;
     }
     return raw;
   }, [note.id, note.slug, note.updated_at, note.content_json]);
+
+  const noteBodyEditorKey =
+    note.slug === RESISTANCE_NOTE_SLUG
+      ? `${note.id}-${note.updated_at}-${resistanceUsesPackagedSeed ? "seed" : "stored"}`
+      : `${note.id}-${note.updated_at}`;
 
   return (
     <>
@@ -165,7 +184,7 @@ export function NoteEditorPanel({
           />
           <span>
             <span className="font-medium text-[var(--thusness-ink)]">
-              Listed on /notes
+              Listed on {NOTE_PAGES_BASE}
             </span>
             <span className={`mt-1 block ${checkHint}`}>
               Public index for this slug. Save the note to apply.
@@ -181,7 +200,7 @@ export function NoteEditorPanel({
             disabled={isPending || (!liveOnRoot && !canPinToRoot)}
             title={
               !published
-                ? "Publish first (listed on /notes)."
+                ? `Publish first (listed on ${NOTE_PAGES_BASE}).`
                 : slugDirty
                   ? "Save slug changes before changing the homepage."
                   : undefined
@@ -265,7 +284,7 @@ export function NoteEditorPanel({
               <span className="font-medium text-[var(--thusness-ink-soft)]">
                 not
               </span>{" "}
-              listed on the public <span className="italic">/notes</span> index
+              listed on the public <span className="italic">{NOTE_PAGES_BASE}</span> index
               (you can still pin one to <span className="italic">/</span>). Save to
               apply.
             </span>
@@ -366,7 +385,7 @@ export function NoteEditorPanel({
         </select>
         <span className={`block ${checkHint}`}>
           Filters the note list in Admin and optional views on{" "}
-          <span className="italic">/notes</span>. Save to apply.
+          <span className="italic">{NOTE_PAGES_BASE}</span>. Save to apply.
         </span>
       </label>
 
@@ -381,9 +400,20 @@ export function NoteEditorPanel({
       ) : null}
       {note.slug === RESISTANCE_NOTE_SLUG ? (
         <div className="mb-3 max-w-2xl space-y-2 rounded border border-[var(--thusness-rule)] bg-[var(--thusness-bg)] px-3 py-2.5 text-[11px] leading-relaxed text-[var(--thusness-muted)]">
+          {!note.published ? (
+            <p className="rounded border border-amber-700/40 bg-amber-950/20 px-2 py-1.5 text-[var(--thusness-ink)]">
+              <span className="font-medium text-amber-200/95">Not published on the server yet.</span>{" "}
+              The public link returns 404 until{" "}
+              <span className="font-medium text-[var(--thusness-ink-soft)]">
+                Listed on {NOTE_PAGES_BASE}
+              </span>{" "}
+              is checked and you click <span className="font-medium">Save note</span>{" "}
+              (saved state, not just the checkbox).
+            </p>
+          ) : null}
           <p>
             <Link
-              href={`/notes/${RESISTANCE_NOTE_SLUG}`}
+              href={notePageHref(RESISTANCE_NOTE_SLUG)}
               target="_blank"
               rel="noopener noreferrer"
               className="font-medium text-[var(--thusness-ink)] underline decoration-[var(--thusness-rule)] underline-offset-2 hover:decoration-[var(--thusness-ink-soft)]"
@@ -392,9 +422,10 @@ export function NoteEditorPanel({
             </Link>
             <span className="text-[var(--thusness-muted)]"> — </span>
             <code className="rounded bg-[color-mix(in_srgb,var(--thusness-rule)_35%,transparent)] px-1 py-0.5 text-[10px] text-[var(--thusness-ink-soft)]">
-              /notes/working-with-resistance
+              {NOTE_PAGES_BASE}/working-with-resistance
             </code>
-            . Template notes are omitted from the public <span className="italic">/notes</span> list;
+            . Template notes are omitted from the public{" "}
+            <span className="italic">{NOTE_PAGES_BASE}</span> list;
             add this note to <span className="italic">/readings</span> in Admin if you want it linked there.
           </p>
           <p>
@@ -433,6 +464,7 @@ export function NoteEditorPanel({
         </div>
       ) : null}
       <TiptapEditorField
+        key={noteBodyEditorKey}
         ref={noteBodyRef}
         label="Body"
         contentSyncKey={note.updated_at}

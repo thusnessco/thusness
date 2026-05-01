@@ -30,7 +30,7 @@ export type NoteRow = {
   updated_at: string;
   /** Thin decorative circle behind the body on public note pages (and / when pinned). */
   show_background_circle?: boolean;
-  /** Reusable layout: spawn drafts from Admin; hidden from public /notes index. */
+  /** Reusable layout: spawn drafts from Admin; hidden from public /notes2 index. */
   is_template?: boolean;
   /** Optional archive grouping (see `lib/notes/category.ts`). */
   category?: NoteCategory | null;

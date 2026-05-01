@@ -77,10 +77,10 @@ export default async function OrientPage() {
         </nav>
         <nav className="site-footer-nav" aria-label="Site sections">
           {bookletConfig.footerOrient ? <Link href="/orient" className="site-footer-link">~ orient</Link> : null}
-          {bookletConfig.footerOrient && (bookletConfig.footerReadings || bookletConfig.footerNotes) ? <span className="site-footer-sep">·</span> : null}
+          {bookletConfig.footerOrient && bookletConfig.footerReadings ? (
+            <span className="site-footer-sep">·</span>
+          ) : null}
           {bookletConfig.footerReadings ? <Link href="/readings" className="site-footer-link">~ readings</Link> : null}
-          {bookletConfig.footerReadings && bookletConfig.footerNotes ? <span className="site-footer-sep">·</span> : null}
-          {bookletConfig.footerNotes ? <Link href="/notes" className="site-footer-link">~ notes</Link> : null}
         </nav>
         <div className="orient-signature orient-signature--text-only">
           <span>{bookletConfig.copy.signatureLabel}</span>

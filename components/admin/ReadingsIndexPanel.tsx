@@ -10,6 +10,7 @@ import {
   type ReadingsIndexConfig,
 } from "@/lib/readings/readings-index";
 import type { NoteRow } from "@/lib/supabase/public-server";
+import { NOTE_PAGES_BASE } from "@/lib/site/note-pages";
 
 import {
   adminBtnGhost,
@@ -159,7 +160,7 @@ export function ReadingsIndexPanel({
                         </p>
                       ) : n ? (
                         <p className="mt-0.5 text-[11px] text-[var(--thusness-muted)]">
-                          /notes/{n.slug}
+                          {`${NOTE_PAGES_BASE}/${n.slug}`}
                         </p>
                       ) : (
                         <p className="mt-0.5 text-[11px] text-[var(--thusness-red,#c23a2a)]">
