@@ -1,0 +1,107 @@
+{
+  "_comment": "Drives /resistance. All visible strings live here — edit copy without touching the component.",
+
+  "eyebrow": "Facilitator field notes",
+  "datelineSecond": "On working with resistance",
+  "kicker": "~ A field guide",
+  "title": "What to do when there's tension.",
+  "sub": "for the person sitting beside it",
+
+  "premise": {
+    "label": "~ The premise",
+    "paragraphs": [
+      "You aren't trying to *remove* tension, *fix* it, or *analyze* it. You're getting curious about it, and that quietly changes the relationship.",
+      "Resistance is a quiet *no* to what's already here. Don't fight the no. *Include* it, or *widen* around it."
+    ],
+    "pull": "Never fight resistance.\nAlways include or expand."
+  },
+
+  "coreScript": {
+    "label": "~ Core mini-script",
+    "text": "Okay… just gently notice that tension… with a bit of curiosity… where is it, if anywhere… is it in one place, or changing… what's the quality of it… tight… heavy… moving… still… does it need to be different right now… or could it be included, just as part of the experience… and if you're with it… just seeing what happens on its own…"
+  },
+
+  "strategiesLabel": "~ Five moves",
+  "strategies": [
+    {
+      "num": "01",
+      "glyph": "include",
+      "name": "Include it",
+      "when": "Contraction, discomfort, this feels bad. The default move.",
+      "script": "Just noticing that resistance… with a bit of gentle curiosity… where do you feel it… is it okay for it to be here, just for now… can it be part of the experience…",
+      "why": "Resistance is pushing away. You quietly remove the push."
+    },
+    {
+      "num": "02",
+      "glyph": "widen",
+      "name": "Widen around it",
+      "when": "Stuck inside it. Overwhelmed. Narrowed to one point.",
+      "script": "Just notice the tension… gently… now also notice sounds in the room… sensations elsewhere in the body… letting everything be included… being a little curious about the whole field…",
+      "why": "Breaks narrow fixation. The tension stops being the whole world."
+    },
+    {
+      "num": "03",
+      "glyph": "appreciation",
+      "name": "Appreciation softener",
+      "when": "Sticky resistance, subtle frustration, mental looping.",
+      "script": "Is there anything about this you don't mind… or even slightly appreciate… just gently curious… even just noticing that it's here…",
+      "why": "Replaces force with openness. The grip loosens on its own."
+    },
+    {
+      "num": "04",
+      "glyph": "turning",
+      "name": "Turning",
+      "when": "Strong contraction, repetitive pattern, deeper inquiry possible. Advanced. Only when stable.",
+      "script": "Just notice the tension… gently… and just see, with a bit of curiosity… what's noticing it… can both be noticed together…",
+      "why": "Collapses the subject / object split. The one resisting and the resistance arrive together."
+    },
+    {
+      "num": "05",
+      "glyph": "pair",
+      "name": "Hold it next to peace",
+      "wide": true,
+      "when": "Once things have softened. Let resistance stay where it is, and notice the quiet that's already in the room.",
+      "script": "Just notice the resistance… and, gently, also notice the peace that's already here… letting one be held next to the other… and seeing what happens on its own…",
+      "why": "Don't pick one. Don't replace one with the other. Often, one quietly invites the other in."
+    }
+  ],
+
+  "rules": {
+    "label": "~ Clean rules",
+    "rows": [
+      {
+        "label": "~ Avoid",
+        "body": "Don't say [avoid]\"relax it,\"[/avoid] [avoid]\"let it go,\"[/avoid] or [avoid]\"release it.\"[/avoid] They're all instructions to push. They create more resistance."
+      },
+      {
+        "label": "~ Always",
+        "body": "Include, or widen. With *gentle curiosity*. Never force."
+      },
+      {
+        "label": "~ Fallback",
+        "body": "If you blank out: *\"Just notice it… with a bit of gentle curiosity… and let it be part of what's here…\"*"
+      }
+    ]
+  },
+
+  "decisionTree": {
+    "label": "~ Decision tree",
+    "steps": [
+      { "q": "Are they overwhelmed?",      "yes": "Widen",        "tag": "Strategy 2" },
+      { "q": "Are they resisting it?",     "yes": "Include",      "tag": "Strategy 1" },
+      { "q": "Are they stuck or looping?", "yes": "Appreciation", "tag": "Strategy 3" },
+      { "q": "Are they stable enough?",    "yes": "Turning",      "tag": "Bonus" }
+    ]
+  },
+
+  "pair": {
+    "label": "~ Holding both",
+    "left":  { "label": "~ Here",      "word": "resistance", "sub": "tight, narrow, pushing away" },
+    "right": { "label": "~ Also here", "word": "peace",      "sub": "open, quiet, already present" },
+    "invitation": "Don't pick one. Don't replace one with the other. Hold them side by side, and see what happens on its own."
+  },
+
+  "footer": {
+    "credit": "thusness.co · field notes"
+  }
+}

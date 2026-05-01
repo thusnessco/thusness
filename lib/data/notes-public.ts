@@ -2,7 +2,7 @@ import type { NoteCategory } from "@/lib/notes/category";
 import { createPublicSupabase, type NoteRow } from "@/lib/supabase/public-server";
 
 export type GetPublishedNoteOptions = {
-  /** When true, a note marked `is_template` may be returned (e.g. homepage pin). */
+  /** @deprecated No longer used; published templates are always returned when slug matches. */
   allowTemplate?: boolean;
 };
 
@@ -80,7 +80,7 @@ export async function getPublishedNoteBySlug(
     row = await fetchOne(normalized.toLowerCase());
   }
   if (!row) return null;
-  if (!options?.allowTemplate && row.is_template === true) return null;
+  /** Published template notes are hidden from `/notes` but reachable at `/notes/[slug]` (unlisted pages). */
   return row;
 }
 
