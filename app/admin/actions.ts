@@ -1,5 +1,7 @@
 "use server";
 
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { randomUUID } from "node:crypto";
 
 import type { JSONContent } from "@tiptap/core";
@@ -715,6 +717,60 @@ export async function deleteNote(input: {
   revalidatePath("/admin");
   revalidatePath(`/notes/${input.slug.trim()}`);
   return { ok: true as const };
+}
+
+const RESISTANCE_NOTE_SLUG = "working-with-resistance";
+
+/** Replace body from bundled TipTap JSON (repo `lib/notes/resistance-seed-doc.json`). */
+export async function restoreResistanceNoteFromSeed(
+  noteId: string
+): Promise<{ ok: true; updated_at: string } | { ok: false; message: string }> {
+  const supabase = await createServerSupabase();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false, message: "Not signed in." };
+
+  const { data: row, error: rErr } = await supabase
+    .from("notes")
+    .select("id, slug")
+    .eq("id", noteId)
+    .maybeSingle();
+  if (rErr || !row) {
+    return { ok: false, message: rErr?.message ?? "Note not found." };
+  }
+  if (row.slug !== RESISTANCE_NOTE_SLUG) {
+    return {
+      ok: false,
+      message: "This reset only applies to the working-with-resistance note.",
+    };
+  }
+
+  let doc: JSONContent;
+  try {
+    const raw = readFileSync(
+      join(process.cwd(), "lib/notes/resistance-seed-doc.json"),
+      "utf8"
+    );
+    doc = JSON.parse(raw) as JSONContent;
+  } catch {
+    return { ok: false, message: "Could not read resistance seed file on server." };
+  }
+
+  const { data, error } = await supabase
+    .from("notes")
+    .update({ content_json: doc })
+    .eq("id", noteId)
+    .select("updated_at")
+    .single();
+
+  if (error || !data?.updated_at) {
+    return { ok: false, message: error?.message ?? "Update failed." };
+  }
+
+  revalidatePath("/admin");
+  revalidatePath(`/notes/${RESISTANCE_NOTE_SLUG}`);
+  return { ok: true, updated_at: data.updated_at as string };
 }
 
 export async function createNote(): Promise<

@@ -120,7 +120,6 @@ const doc = {
         para(tx(st.why)),
       ];
     }),
-    para(tx("")),
     ruleList(
       src.rules.label,
       src.rules.rows.map((r) => stripAvoidMarkup(`${r.label} ${r.body}`))
@@ -156,6 +155,12 @@ const title = src.title.replace(/\.$/, "") || "Working with resistance";
 const excerpt = `${src.eyebrow} — ${src.datelineSecond}`;
 
 const jsonStr = JSON.stringify(doc);
+fs.writeFileSync(
+  path.join(root, "lib/notes/resistance-seed-doc.json"),
+  `${JSON.stringify(doc, null, 2)}\n`,
+  "utf8"
+);
+
 /** PostgreSQL dollar-quoted string: $tag$body$tag$ */
 const dq = (tag, body) => `$${tag}$${body}$${tag}$`;
 

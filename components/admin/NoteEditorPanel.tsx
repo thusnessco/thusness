@@ -1,12 +1,14 @@
 "use client";
 
-import { useEffect, useState, type RefObject } from "react";
+import { useEffect, useMemo, useState, type RefObject } from "react";
 import type { JSONContent } from "@tiptap/core";
 import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
+import Link from "next/link";
 
 import {
   deleteNote,
   resetHomepagePinToDefaultLayout,
+  restoreResistanceNoteFromSeed,
   saveNote,
   setHomepagePinToNoteSlug,
   toggleNoteOnReadingsIndex,
@@ -19,7 +21,10 @@ import {
   type NoteCategory,
 } from "@/lib/notes/category";
 import type { OrientContent } from "@/lib/orient-infographics/types";
+import resistanceSeedDoc from "@/lib/notes/resistance-seed-doc.json";
 import type { NoteRow } from "@/lib/supabase/public-server";
+import { emptyDoc } from "@/lib/tiptap/empty-doc";
+import { jsonContentEqual } from "@/lib/tiptap/json-content-equal";
 
 import {
   adminBtnGhost,
@@ -36,6 +41,27 @@ import {
 const checkRow =
   "flex items-start gap-2 text-sm text-[var(--thusness-ink-soft)]";
 const checkHint = "text-[10px] leading-relaxed text-[var(--thusness-muted)]";
+
+const RESISTANCE_NOTE_SLUG = "working-with-resistance";
+
+function looksLikeBlankResistanceBody(doc: JSONContent): boolean {
+  if (!doc || doc.type !== "doc") return true;
+  if (jsonContentEqual(doc, emptyDoc())) return true;
+  const blocks = doc.content;
+  if (!blocks?.length) return true;
+  const onlyEmptyParagraph = (node: JSONContent): boolean => {
+    if (node.type !== "paragraph") return false;
+    const inner = node.content;
+    if (!inner?.length) return true;
+    return inner.every(
+      (n) =>
+        n.type === "text" &&
+        String((n as { text?: string }).text ?? "").trim().length === 0
+    );
+  };
+  if (blocks.length === 1 && onlyEmptyParagraph(blocks[0]!)) return true;
+  return false;
+}
 
 export function NoteEditorPanel({
   note,
@@ -97,6 +123,15 @@ export function NoteEditorPanel({
   const slugDirty = slug.trim() !== note.slug;
   const liveOnRoot = noteDrivesRoot(homepagePin, note);
   const canPinToRoot = published && !slugDirty;
+
+  const editorInitialDoc = useMemo(() => {
+    const raw = (note.content_json ?? emptyDoc()) as JSONContent;
+    if (note.slug !== RESISTANCE_NOTE_SLUG) return raw;
+    if (looksLikeBlankResistanceBody(raw)) {
+      return resistanceSeedDoc as JSONContent;
+    }
+    return raw;
+  }, [note.id, note.slug, note.updated_at, note.content_json]);
 
   return (
     <>
@@ -344,11 +379,64 @@ export function NoteEditorPanel({
           <span className="font-medium text-[var(--thusness-ink)]">Hidden pages → Orient graphics</span>.
         </p>
       ) : null}
+      {note.slug === RESISTANCE_NOTE_SLUG ? (
+        <div className="mb-3 max-w-2xl space-y-2 rounded border border-[var(--thusness-rule)] bg-[var(--thusness-bg)] px-3 py-2.5 text-[11px] leading-relaxed text-[var(--thusness-muted)]">
+          <p>
+            <Link
+              href={`/notes/${RESISTANCE_NOTE_SLUG}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-[var(--thusness-ink)] underline decoration-[var(--thusness-rule)] underline-offset-2 hover:decoration-[var(--thusness-ink-soft)]"
+            >
+              Open public page
+            </Link>
+            <span className="text-[var(--thusness-muted)]"> — </span>
+            <code className="rounded bg-[color-mix(in_srgb,var(--thusness-rule)_35%,transparent)] px-1 py-0.5 text-[10px] text-[var(--thusness-ink-soft)]">
+              /notes/working-with-resistance
+            </code>
+            . Template notes are omitted from the public <span className="italic">/notes</span> list;
+            add this note to <span className="italic">/readings</span> in Admin if you want it linked there.
+          </p>
+          <p>
+            If the saved body in the database is empty or invalid, the editor loads
+            the packaged <span className="text-[var(--thusness-ink-soft)]">
+              Working with resistance
+            </span>{" "}
+            copy so you can edit it. Choose <span className="font-medium text-[var(--thusness-ink)]">Save note</span>{" "}
+            to persist what you see, or restore the on-disk seed into the row (overwrites
+            the body).
+          </p>
+          <button
+            type="button"
+            disabled={isPending}
+            className={adminBtnGhost}
+            onClick={() => {
+              if (
+                !window.confirm(
+                  "Replace this note’s body in the database with the packaged resistance guide? Unsaved editor changes will be lost after refresh."
+                )
+              ) {
+                return;
+              }
+              startTransition(async () => {
+                const res = await restoreResistanceNoteFromSeed(note.id);
+                if (!res.ok) onMessage(res.message);
+                else {
+                  onMessage("Resistance body restored from seed.");
+                  router.refresh();
+                }
+              });
+            }}
+          >
+            Restore packaged body to database
+          </button>
+        </div>
+      ) : null}
       <TiptapEditorField
         ref={noteBodyRef}
         label="Body"
         contentSyncKey={note.updated_at}
-        initialDoc={note.content_json}
+        initialDoc={editorInitialDoc}
         imageUploadScope={`note/${note.id}`}
         onImageUploadMessage={onMessage}
         onEditorError={onMessage}
