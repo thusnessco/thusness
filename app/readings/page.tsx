@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { SiteFooter } from "@/components/thusness/SiteFooter";
+import { SiteHeaderNav } from "@/components/thusness/SiteHeaderNav";
 import { ThusnessPageShell } from "@/components/thusness/ThusnessPageShell";
 import { getReadingsPublicRows } from "@/lib/data/readings-public";
 import { getOrientNavVisible } from "@/lib/data/orient-nav";
@@ -25,15 +26,7 @@ export default async function ReadingsPage() {
   return (
     <main className="min-h-screen bg-[var(--thusness-bg)] font-sans text-[var(--thusness-ink)]">
       <ThusnessPageShell
-        headerAside={
-          orientNavVisible ? (
-            <nav className="flex items-center justify-end gap-4" aria-label="Top navigation">
-              <Link href="/orient" className="transition-opacity hover:opacity-70">
-                Orient
-              </Link>
-            </nav>
-          ) : null
-        }
+        headerAside={<SiteHeaderNav showOrientLink={orientNavVisible} />}
       >
         <h1 className="mt-1 text-[22px] font-medium tracking-tight text-[var(--thusness-ink)]">
           Readings

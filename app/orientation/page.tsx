@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 
 import { OrientArticle } from "@/components/thusness/OrientArticle";
 import { SiteFooter } from "@/components/thusness/SiteFooter";
+import { SiteHeaderNav } from "@/components/thusness/SiteHeaderNav";
 import Wordmark from "@/components/thusness/Wordmark";
 import { getOrientInfographicsBundle } from "@/lib/data/orient-infographics";
 import { getPublishedNoteBySlug } from "@/lib/data/notes-public";
@@ -33,17 +34,12 @@ export default async function OrientationPage() {
           >
             <Wordmark size={20} tagline="~ as it is" />
           </Link>
-          <nav
-            aria-label="Top navigation"
-            className="flex items-center gap-4 text-[11px] uppercase tracking-[2.4px] text-[var(--thusness-muted)]"
+          <div
+            className="text-[11px] uppercase tracking-[2.4px] text-[var(--thusness-muted)]"
             style={{ fontFamily: 'Helvetica, "Helvetica Neue", Arial, sans-serif' }}
           >
-            {orientNavVisible ? (
-              <Link href="/orient" className="transition-opacity hover:opacity-70">
-                Orient
-              </Link>
-            ) : null}
-          </nav>
+            <SiteHeaderNav showOrientLink={orientNavVisible} />
+          </div>
         </div>
       </div>
 

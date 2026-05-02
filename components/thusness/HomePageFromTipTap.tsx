@@ -37,14 +37,19 @@ export function HomePageFromTipTap({
           className="flex items-start justify-between gap-6"
         >
           <Wordmark size={20} />
-          {showOrientLink ? (
-            <Link
-              href="/orient"
-              className="pt-1 text-[11px] uppercase tracking-[2.4px] text-[var(--thusness-muted)] transition-opacity hover:opacity-70"
-            >
-              Orient
+          <nav
+            className="flex items-start gap-5 pt-1 text-[11px] uppercase tracking-[2.4px] text-[var(--thusness-muted)]"
+            aria-label="Top navigation"
+          >
+            {showOrientLink ? (
+              <Link href="/orient" className="transition-opacity hover:opacity-70">
+                Orient
+              </Link>
+            ) : null}
+            <Link href="/sinkin" className="transition-opacity hover:opacity-70">
+              Notice
             </Link>
-          ) : null}
+          </nav>
         </header>
 
         <div
