@@ -4,9 +4,15 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import Link from "next/link";
 
+import { TelegramConnectLink } from "@/components/thusness/TelegramConnectLink";
 import Wordmark from "@/components/thusness/Wordmark";
 import {
-  formatInquirySummary,
+  buildInquiryTrailLine,
+  getInquiryStepById,
+  resolveInquiryNextStepId,
+  stepAllowsFreeText,
+} from "@/lib/inquiry/inquiry-flow";
+import {
   type InquiryContent,
   type InquiryStep,
   visibleInquirySteps,
@@ -17,171 +23,184 @@ const helv = 'Helvetica, "Helvetica Neue", Arial, sans-serif';
 
 type Phase = "inquiry" | "complete";
 
-export function InquiryExperience({
+type TrailEntry = { stepId: string; line: string };
+
+type SavedAnswer = { text: string; choiceId: string | null };
+
+function InquiryEmptySteps() {
+  return (
+    <div
+      className="inquiry-root"
+      style={{
+        minHeight: "100vh",
+        boxSizing: "border-box",
+        background: "var(--thusness-bg, #efece1)",
+        color: "var(--thusness-ink, #1a1915)",
+        fontFamily: helv,
+        WebkitFontSmoothing: "antialiased",
+        padding: "48px 24px",
+      }}
+    >
+      <div className="inquiry-inner">
+        <header className="inquiry-header">
+          <Link href="/" className="inline-block opacity-90 transition-opacity hover:opacity-70">
+            <Wordmark size={20} tagline="~ as it is" />
+          </Link>
+        </header>
+        <p className="inquiry-page-sub" style={{ marginTop: 28 }}>
+          This inquiry path has no enabled steps yet. An editor can enable steps in admin.
+        </p>
+        <footer className="inquiry-footer-connect">
+          <TelegramConnectLink bare />
+        </footer>
+      </div>
+    </div>
+  );
+}
+
+export function InquiryExperience({ content }: { content: InquiryContent }) {
+  const steps = useMemo(() => visibleInquirySteps(content), [content]);
+
+  if (steps.length === 0) {
+    return <InquiryEmptySteps />;
+  }
+
+  return <InquiryGuidedFlow content={content} steps={steps} />;
+}
+
+function InquiryGuidedFlow({
   content,
-  llmAssistAvailable = false,
+  steps,
 }: {
   content: InquiryContent;
-  /** Server: true when INQUIRY_LLM_API_KEY (etc.) is set — shows optional assist control. */
-  llmAssistAvailable?: boolean;
+  steps: InquiryStep[];
 }) {
-  const steps = useMemo(() => visibleInquirySteps(content), [content]);
+  const firstId = steps[0]!.id;
   const [phase, setPhase] = useState<Phase>("inquiry");
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [trail, setTrail] = useState<TrailEntry[]>([]);
+  const [currentStepId, setCurrentStepId] = useState(firstId);
+  const [answers, setAnswers] = useState<Record<string, SavedAnswer>>({});
   const [draft, setDraft] = useState("");
-  const [llmLoading, setLlmLoading] = useState(false);
-  const [llmError, setLlmError] = useState<string | null>(null);
-  const [llmText, setLlmText] = useState<string | null>(null);
+  const [selectedChoiceId, setSelectedChoiceId] = useState<string | null>(null);
 
-  const current: InquiryStep | undefined = steps[activeIndex];
-  const isLast = activeIndex >= steps.length - 1;
-
-  useEffect(() => {
-    if (phase !== "inquiry") return;
-    const id = steps[activeIndex]?.id;
-    if (!id) return;
-    setDraft(answers[id] ?? "");
-  }, [activeIndex, answers, phase, steps]);
+  const current = useMemo(
+    () => getInquiryStepById(steps, currentStepId),
+    [steps, currentStepId]
+  );
 
   useEffect(() => {
-    setLlmText(null);
-    setLlmError(null);
-    setLlmLoading(false);
-  }, [current?.id]);
+    if (phase !== "inquiry" || !currentStepId) return;
+    const saved = answers[currentStepId];
+    setDraft(saved?.text ?? "");
+    setSelectedChoiceId(saved?.choiceId ?? null);
+  }, [currentStepId, phase, answers]);
 
-  const pastSummaries = useMemo(() => {
-    const lines: string[] = [];
-    for (let i = 0; i < activeIndex; i++) {
-      const s = steps[i];
-      const a = (answers[s.id] ?? "").trim();
-      if (!s || !a) continue;
-      lines.push(formatInquirySummary(s.summaryTemplate, a));
-    }
-    return lines;
-  }, [activeIndex, answers, steps]);
-
-  const summaryLines = useMemo(() => {
-    if (phase === "complete") {
-      return steps
-        .map((s) => {
-          const a = (answers[s.id] ?? "").trim();
-          if (!a) return null;
-          return formatInquirySummary(s.summaryTemplate, a);
-        })
-        .filter((x): x is string => Boolean(x));
-    }
-    return pastSummaries;
-  }, [answers, pastSummaries, phase, steps]);
+  const summaryLines = useMemo(() => trail.map((t) => t.line), [trail]);
 
   const resetAll = useCallback(() => {
     setPhase("inquiry");
-    setActiveIndex(0);
+    setTrail([]);
+    setCurrentStepId(firstId);
     setAnswers({});
     setDraft("");
-    setLlmText(null);
-    setLlmError(null);
-    setLlmLoading(false);
-  }, []);
-
-  const fetchGentleWording = useCallback(async () => {
-    if (!current) return;
-    setLlmLoading(true);
-    setLlmError(null);
-    setLlmText(null);
-    try {
-      const res = await fetch("/api/inquiry/assist", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          stepTitle: current.title,
-          stepPrompt: current.prompt,
-          draft,
-          pastSummaries,
-        }),
-      });
-      const data = (await res.json()) as {
-        ok?: boolean;
-        text?: string;
-        error?: string;
-        detail?: string;
-      };
-      if (!res.ok || !data.ok || !data.text) {
-        const msg =
-          typeof data.detail === "string" && data.detail.trim()
-            ? data.detail.trim()
-            : data.error === "not_configured"
-              ? "Assistant is not configured on the server."
-              : "Something went wrong fetching a reflection. You can still continue on your own.";
-        setLlmError(msg);
-        return;
-      }
-      setLlmText(data.text);
-    } catch {
-      setLlmError("Could not reach the assistant. You can still continue on your own.");
-    } finally {
-      setLlmLoading(false);
-    }
-  }, [current, draft, pastSummaries]);
+    setSelectedChoiceId(null);
+  }, [firstId]);
 
   const handleContinue = useCallback(() => {
     if (!current) return;
-    const trimmed = draft.trim();
-    if (!trimmed) return;
-    setAnswers((prev) => ({ ...prev, [current.id]: trimmed }));
-    if (isLast) {
+    const allowFt = stepAllowsFreeText(current);
+    const hasChoices = Boolean(current.choices && current.choices.length > 0);
+    const textOk = allowFt && draft.trim().length > 0;
+    const choiceOk =
+      Boolean(selectedChoiceId) &&
+      Boolean(current.choices?.some((c) => c.id === selectedChoiceId));
+    if (!textOk && !choiceOk) return;
+
+    const line = buildInquiryTrailLine(current, draft, selectedChoiceId);
+    const nextId = resolveInquiryNextStepId(current, selectedChoiceId, steps);
+
+    setAnswers((prev) => ({
+      ...prev,
+      [current.id]: {
+        text: draft.trim(),
+        choiceId: selectedChoiceId,
+      },
+    }));
+    setTrail((prev) => [...prev, { stepId: current.id, line }]);
+
+    if (!nextId) {
       setPhase("complete");
       return;
     }
-    setActiveIndex((i) => i + 1);
-  }, [current, draft, isLast]);
+    setCurrentStepId(nextId);
+    setDraft("");
+    setSelectedChoiceId(null);
+  }, [current, draft, selectedChoiceId, steps]);
 
   const handleBack = useCallback(() => {
     if (phase === "complete") {
+      if (trail.length === 0) {
+        setPhase("inquiry");
+        return;
+      }
+      const last = trail[trail.length - 1]!;
+      setTrail((t) => t.slice(0, -1));
       setPhase("inquiry");
-      setActiveIndex(Math.max(0, steps.length - 1));
+      setCurrentStepId(last.stepId);
+      const saved = answers[last.stepId];
+      setDraft(saved?.text ?? "");
+      setSelectedChoiceId(saved?.choiceId ?? null);
       return;
     }
-    if (activeIndex <= 0) return;
-    setActiveIndex((i) => i - 1);
-  }, [activeIndex, phase, steps.length]);
+    if (trail.length === 0) return;
+    const last = trail[trail.length - 1]!;
+    setTrail((t) => t.slice(0, -1));
+    setCurrentStepId(last.stepId);
+    const saved = answers[last.stepId];
+    setDraft(saved?.text ?? "");
+    setSelectedChoiceId(saved?.choiceId ?? null);
+  }, [answers, phase, trail]);
 
-  const canContinue = draft.trim().length > 0;
-  const backDisabled = phase === "inquiry" && activeIndex <= 0;
+  const allowFt = current ? stepAllowsFreeText(current) : false;
+  const hasChoices = Boolean(current?.choices && current.choices.length > 0);
+  const textOk = allowFt && draft.trim().length > 0;
+  const choiceOk =
+    Boolean(selectedChoiceId) &&
+    Boolean(current?.choices?.some((c) => c.id === selectedChoiceId));
+  let canContinue = false;
+  if (current) {
+    if (!hasChoices) canContinue = textOk;
+    else if (!allowFt) canContinue = choiceOk;
+    else canContinue = textOk || choiceOk;
+  }
+
+  const backDisabled =
+    phase === "inquiry" ? trail.length === 0 : false;
+
   const showVagueHint =
-    phase === "inquiry" && draft.trim().length > 0 && isVagueResponse(draft);
+    phase === "inquiry" &&
+    allowFt &&
+    !selectedChoiceId &&
+    draft.trim().length > 0 &&
+    isVagueResponse(draft);
+
   const fieldPlaceholder = (() => {
     const ph = (current?.placeholder ?? "").trim();
     return ph.length > 0 ? ph : undefined;
   })();
 
-  if (steps.length === 0) {
-    return (
-      <div
-        className="inquiry-root"
-        style={{
-          minHeight: "100vh",
-          boxSizing: "border-box",
-          background: "var(--thusness-bg, #efece1)",
-          color: "var(--thusness-ink, #1a1915)",
-          fontFamily: helv,
-          WebkitFontSmoothing: "antialiased",
-          padding: "48px 24px",
-        }}
-      >
-        <div className="inquiry-inner">
-          <header className="inquiry-header">
-            <Link href="/" className="inline-block opacity-90 transition-opacity hover:opacity-70">
-              <Wordmark size={20} tagline="~ as it is" />
-            </Link>
-          </header>
-          <p className="inquiry-page-sub" style={{ marginTop: 28 }}>
-            This inquiry path has no enabled steps yet. An editor can enable steps in admin.
-          </p>
-        </div>
-      </div>
-    );
-  }
+  const choiceLeadIn = (() => {
+    const per = current?.choiceLeadIn?.trim() ?? "";
+    if (per.length > 0) return per;
+    return content.choiceLeadIn?.trim() ?? "";
+  })();
+
+  const onDraftChange = (value: string) => {
+    setDraft(value);
+    if (value !== answers[currentStepId]?.text) {
+      setSelectedChoiceId(null);
+    }
+  };
 
   return (
     <div
@@ -196,7 +215,7 @@ export function InquiryExperience({
         paddingBottom: "calc(56px + env(safe-area-inset-bottom, 0px))",
       }}
     >
-      <div className="inquiry-inner">
+      <div className="inquiry-inner inquiry-inner--guided">
         <header className="inquiry-header">
           <Link href="/" className="inline-block opacity-90 transition-opacity hover:opacity-70">
             <Wordmark size={20} tagline="~ as it is" />
@@ -206,7 +225,7 @@ export function InquiryExperience({
         <h1 className="inquiry-page-title">{content.pageTitle}</h1>
         <p className="inquiry-page-sub">{content.pageSubtitle}</p>
 
-        {phase === "inquiry" && content.introText.trim() && activeIndex === 0 ? (
+        {phase === "inquiry" && content.introText.trim() && trail.length === 0 ? (
           <p className="inquiry-intro">{content.introText}</p>
         ) : null}
 
@@ -215,52 +234,54 @@ export function InquiryExperience({
             <section className="inquiry-main" key={current.id} aria-live="polite">
               <p className="inquiry-step-kicker">{current.title}</p>
               <p className="inquiry-step-prompt">{current.prompt}</p>
-              <textarea
-                id="inquiry-response"
-                className="inquiry-field"
-                rows={5}
-                value={draft}
-                placeholder={fieldPlaceholder}
-                onChange={(e) => setDraft(e.target.value)}
-                autoComplete="off"
-                aria-label="Your response"
-              />
-              {showVagueHint ? (
-                <p className="inquiry-hint" role="note">
-                  A few more words from what you actually notice here might make the trail
-                  beside this a little clearer — only if that feels natural.
-                </p>
+
+              {hasChoices && choiceLeadIn ? (
+                <p className="inquiry-choice-lead">{choiceLeadIn}</p>
               ) : null}
-              {llmAssistAvailable ? (
-                <div className="inquiry-llm">
-                  <button
-                    type="button"
-                    className="inquiry-llm-trigger"
-                    disabled={llmLoading}
-                    onClick={() => void fetchGentleWording()}
-                  >
-                    {llmLoading ? "One moment…" : "Optional: gentle wording"}
-                  </button>
-                  <p className="inquiry-llm-privacy">
-                    Uses an outside language model once per click. Your text is sent only
-                    for that reply and is not saved here.
-                  </p>
-                  {llmError ? <p className="inquiry-llm-error">{llmError}</p> : null}
-                  {llmText ? (
-                    <div className="inquiry-llm-box">
-                      <p className="inquiry-llm-box-label">Offered reflection</p>
-                      <p className="inquiry-llm-box-body">{llmText}</p>
+
+              {hasChoices ? (
+                <div className="inquiry-choice-grid" role="group" aria-label="Responses">
+                  {current.choices!.map((ch) => {
+                    const active = selectedChoiceId === ch.id;
+                    return (
                       <button
+                        key={ch.id}
                         type="button"
-                        className="inquiry-llm-dismiss"
-                        onClick={() => setLlmText(null)}
+                        className={
+                          active ? "inquiry-choice-btn inquiry-choice-btn--active" : "inquiry-choice-btn"
+                        }
+                        onClick={() => {
+                          setSelectedChoiceId(ch.id);
+                          setDraft("");
+                        }}
                       >
-                        Dismiss
+                        {ch.label}
                       </button>
-                    </div>
-                  ) : null}
+                    );
+                  })}
                 </div>
               ) : null}
+
+              {allowFt ? (
+                <textarea
+                  id="inquiry-response"
+                  className="inquiry-field"
+                  rows={hasChoices ? 4 : 5}
+                  value={draft}
+                  placeholder={fieldPlaceholder}
+                  onChange={(e) => onDraftChange(e.target.value)}
+                  autoComplete="off"
+                  aria-label="Your response"
+                />
+              ) : null}
+
+              {showVagueHint ? (
+                <p className="inquiry-hint" role="note">
+                  A few more words from what you actually notice here might make what is
+                  gathered beside this a little clearer — only if that feels natural.
+                </p>
+              ) : null}
+
               <div className="inquiry-actions">
                 <button
                   type="button"
@@ -319,11 +340,7 @@ export function InquiryExperience({
                   </p>
                 ) : null}
                 <div className="inquiry-actions inquiry-actions--complete">
-                  <button
-                    type="button"
-                    className="inquiry-btn inquiry-btn--ghost"
-                    onClick={handleBack}
-                  >
+                  <button type="button" className="inquiry-btn inquiry-btn--ghost" onClick={handleBack}>
                     Back
                   </button>
                   <button type="button" className="inquiry-btn inquiry-btn--primary" onClick={resetAll}>
@@ -351,6 +368,9 @@ export function InquiryExperience({
             </div>
           </div>
         ) : null}
+        <footer className="inquiry-footer-connect">
+          <TelegramConnectLink bare />
+        </footer>
       </div>
     </div>
   );

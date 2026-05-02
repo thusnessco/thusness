@@ -1,5 +1,14 @@
 export const INQUIRY_SITE_KEY = "inquiry";
 
+export type InquiryChoice = {
+  id: string;
+  label: string;
+  /** If set, used for the trail (supports `{answer}` → choice label). */
+  summaryText?: string;
+  /** When set and valid among enabled steps, navigation follows this branch. */
+  nextStepId?: string;
+};
+
 export type InquiryStep = {
   id: string;
   title: string;
@@ -8,13 +17,21 @@ export type InquiryStep = {
   summaryTemplate: string;
   enabled: boolean;
   sortOrder: number;
+  /** Optional soft options (not a quiz — no correct answer). */
+  choices?: InquiryChoice[];
+  /** Default true. Set false for choice-only steps. */
+  allowFreeText?: boolean;
+  /** Shown above choices; overrides global `choiceLeadIn` when non-empty. */
+  choiceLeadIn?: string;
 };
 
 export type InquiryContent = {
-  v: 1;
+  v: 1 | 2;
   pageTitle: string;
   pageSubtitle: string;
   introText: string;
+  /** Shown above choice buttons when a step has choices and this is non-empty. */
+  choiceLeadIn: string;
   sidePanelTitle: string;
   sidePanelEmptyMessage: string;
   finalReflection: string;
@@ -29,13 +46,19 @@ const SIDE_MAX = 120;
 const SIDE_EMPTY_MAX = 400;
 const FINAL_MAX = 2000;
 const STEP_FIELD_MAX = 2000;
+const CHOICE_ID_MAX = 64;
+const CHOICE_LABEL_MAX = 400;
+const CHOICE_SUMMARY_MAX = 600;
+const CHOICE_LEAD_IN_MAX = 400;
+const MAX_CHOICES_PER_STEP = 12;
 
 export function defaultInquiryContent(): InquiryContent {
   return {
-    v: 1,
+    v: 2,
     pageTitle: "Inquiry",
     pageSubtitle: "A simple way of looking.",
     introText: "Bring something small, charged, or unclear. Move gently.",
+    choiceLeadIn: "You might choose what seems most true right now.",
     sidePanelTitle: "Seen so far",
     sidePanelEmptyMessage:
       "As you move through the inquiry, simple things noticed will appear here.",
@@ -52,6 +75,16 @@ export function defaultInquiryContent(): InquiryContent {
         summaryTemplate: "Looking at: “{answer}.”",
         enabled: true,
         sortOrder: 1,
+        allowFreeText: true,
+        choices: [
+          { id: "start-solid", label: "It feels clear and solid" },
+          { id: "start-vague", label: "It feels vague" },
+          {
+            id: "start-thoughts",
+            label: "I mostly find thoughts or sensations",
+          },
+          { id: "start-unsure", label: "I'm not sure" },
+        ],
       },
       {
         id: "look",
@@ -126,6 +159,50 @@ function slice(s: string, max: number): string {
   return s.trim().slice(0, max);
 }
 
+function parseChoiceRow(
+  row: unknown,
+  fallbackId: string
+): InquiryChoice | null {
+  if (!row || typeof row !== "object") return null;
+  const r = row as Record<string, unknown>;
+  const id =
+    typeof r.id === "string" && r.id.trim()
+      ? slice(r.id, CHOICE_ID_MAX)
+      : fallbackId;
+  if (!id) return null;
+  const label =
+    typeof r.label === "string"
+      ? slice(r.label, CHOICE_LABEL_MAX)
+      : "";
+  if (!label.trim()) return null;
+  const summaryText =
+    typeof r.summaryText === "string"
+      ? slice(r.summaryText, CHOICE_SUMMARY_MAX)
+      : undefined;
+  const nextStepId =
+    typeof r.nextStepId === "string" && r.nextStepId.trim()
+      ? slice(r.nextStepId, CHOICE_ID_MAX)
+      : undefined;
+  return { id, label, summaryText, nextStepId };
+}
+
+function parseChoices(
+  raw: unknown,
+  fallback: InquiryChoice[] | undefined
+): InquiryChoice[] | undefined {
+  if (!Array.isArray(raw)) return fallback;
+  if (raw.length === 0) return [];
+  const out: InquiryChoice[] = [];
+  let i = 0;
+  for (const row of raw) {
+    const c = parseChoiceRow(row, `choice-${i}`);
+    if (c) out.push(c);
+    i++;
+    if (out.length >= MAX_CHOICES_PER_STEP) break;
+  }
+  return out.length > 0 ? out : [];
+}
+
 function parseStepRow(
   row: unknown,
   fallback: InquiryStep | undefined
@@ -158,7 +235,16 @@ function parseStepRow(
     typeof sortOrderRaw === "number" && Number.isFinite(sortOrderRaw)
       ? Math.max(0, Math.min(999, Math.round(sortOrderRaw)))
       : (fallback?.sortOrder ?? 99);
-  return {
+  const choices = parseChoices(r.choices, fallback?.choices);
+  const allowFreeText =
+    typeof r.allowFreeText === "boolean"
+      ? r.allowFreeText
+      : fallback?.allowFreeText;
+  const choiceLeadIn =
+    typeof r.choiceLeadIn === "string"
+      ? slice(r.choiceLeadIn, CHOICE_LEAD_IN_MAX)
+      : fallback?.choiceLeadIn;
+  const step: InquiryStep = {
     id,
     title: title || fallback?.title || id,
     prompt,
@@ -167,6 +253,10 @@ function parseStepRow(
     enabled,
     sortOrder,
   };
+  if (choices !== undefined) step.choices = choices;
+  if (allowFreeText !== undefined) step.allowFreeText = allowFreeText;
+  if (choiceLeadIn !== undefined) step.choiceLeadIn = choiceLeadIn;
+  return step;
 }
 
 /** Merge stored JSON with defaults (by step id). */
@@ -174,7 +264,7 @@ export function parseInquiryContent(raw: unknown): InquiryContent | null {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
   const o = raw as Record<string, unknown>;
   if (o.type === "doc") return null;
-  if (o.v !== undefined && o.v !== 1) return null;
+  if (o.v !== undefined && o.v !== 1 && o.v !== 2) return null;
 
   const base = defaultInquiryContent();
   const pageTitle =
@@ -203,6 +293,10 @@ export function parseInquiryContent(raw: unknown): InquiryContent | null {
     typeof o.finalReflectionSecondary === "string"
       ? slice(o.finalReflectionSecondary, FINAL_MAX)
       : base.finalReflectionSecondary;
+  const choiceLeadIn =
+    typeof o.choiceLeadIn === "string"
+      ? slice(o.choiceLeadIn, CHOICE_LEAD_IN_MAX)
+      : base.choiceLeadIn;
 
   const defaultById = new Map(base.steps.map((s) => [s.id, s]));
   const seen = new Set<string>();
@@ -226,6 +320,9 @@ export function parseInquiryContent(raw: unknown): InquiryContent | null {
         summaryTemplate:
           step.summaryTemplate || fb?.summaryTemplate || "{answer}",
         sortOrder: step.sortOrder ?? fb?.sortOrder ?? merged.length + 1,
+        choices: step.choices ?? fb?.choices,
+        allowFreeText: step.allowFreeText ?? fb?.allowFreeText,
+        choiceLeadIn: step.choiceLeadIn ?? fb?.choiceLeadIn,
       });
     }
   }
@@ -236,10 +333,11 @@ export function parseInquiryContent(raw: unknown): InquiryContent | null {
 
   merged.sort((a, b) => a.sortOrder - b.sortOrder || a.id.localeCompare(b.id));
   return {
-    v: 1,
+    v: 2,
     pageTitle: pageTitle || base.pageTitle,
     pageSubtitle: pageSubtitle || base.pageSubtitle,
     introText: introText || base.introText,
+    choiceLeadIn: choiceLeadIn || base.choiceLeadIn,
     sidePanelTitle: sidePanelTitle || base.sidePanelTitle,
     sidePanelEmptyMessage: sidePanelEmptyMessage || base.sidePanelEmptyMessage,
     finalReflection: finalReflection || base.finalReflection,

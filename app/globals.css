@@ -824,6 +824,10 @@ body.thusness ::selection {
   padding: 48px 24px 32px;
 }
 
+.inquiry-inner--guided {
+  max-width: 880px;
+}
+
 .inquiry-header {
   margin-bottom: 28px;
 }
@@ -893,6 +897,68 @@ body.thusness ::selection {
   font-weight: 400;
   letter-spacing: -0.2px;
   color: var(--thusness-ink, #1a1915);
+}
+
+.inquiry-choice-lead {
+  margin: 0 0 16px;
+  max-width: 40rem;
+  font-size: 14px;
+  line-height: 1.55;
+  font-style: italic;
+  color: var(--thusness-muted, #8a8672);
+}
+
+.inquiry-choice-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0 0 20px;
+  max-width: 40rem;
+}
+
+.inquiry-choice-btn {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 14px 16px;
+  text-align: left;
+  font: inherit;
+  font-size: 15px;
+  line-height: 1.45;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--thusness-ink-soft, #3d3a2f);
+  background: color-mix(in srgb, var(--thusness-bg, #efece1) 88%, #fff);
+  border: 1px solid var(--thusness-rule, #c7c2b0);
+  border-radius: 2px;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    color 0.2s ease,
+    background 0.2s ease;
+}
+
+.inquiry-choice-btn:hover {
+  border-color: var(--thusness-muted, #8a8672);
+  color: var(--thusness-ink, #1a1915);
+}
+
+.inquiry-choice-btn:focus-visible {
+  outline: 1px solid var(--thusness-muted, #8a8672);
+  outline-offset: 2px;
+}
+
+.inquiry-choice-btn--active {
+  border-color: var(--thusness-ink, #1a1915);
+  color: var(--thusness-ink, #1a1915);
+  background: color-mix(in srgb, var(--thusness-bg, #efece1) 70%, #fff);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .inquiry-choice-btn {
+    transition: none;
+  }
 }
 
 .inquiry-field {
@@ -1015,6 +1081,26 @@ body.thusness ::selection {
   text-decoration-color: var(--thusness-rule, #c7c2b0);
   text-underline-offset: 3px;
   cursor: pointer;
+}
+
+.inquiry-footer-connect {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid var(--thusness-rule, #c7c2b0);
+  text-align: center;
+}
+
+.inquiry-footer-connect a {
+  font-size: 11px;
+  letter-spacing: 2.4px;
+  text-transform: uppercase;
+  color: var(--thusness-muted, #8a8672);
+  text-decoration: none;
+  transition: opacity 0.15s ease;
+}
+
+.inquiry-footer-connect a:hover {
+  opacity: 0.7;
 }
 
 .inquiry-actions {

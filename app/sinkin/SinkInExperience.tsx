@@ -2,8 +2,9 @@
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 
-import Wordmark from "@/components/thusness/Wordmark";
 import RedDot from "@/components/thusness/RedDot";
+import { TelegramConnectLink } from "@/components/thusness/TelegramConnectLink";
+import Wordmark from "@/components/thusness/Wordmark";
 import { defaultSinkInUi, type SinkInConfigV1 } from "@/lib/sinkin/config";
 import {
   playSinkInMainChimeFromGesture,
@@ -375,6 +376,7 @@ export function SinkInExperience({ config }: { config: SinkInConfigV1 }) {
 
       {showFooter ? (
         <footer
+          className="relative"
           style={{
             margin: "48px auto 0",
             maxWidth: 880,
@@ -390,6 +392,7 @@ export function SinkInExperience({ config }: { config: SinkInConfigV1 }) {
           }}
         >
           <span>thusness.co · sink in</span>
+          <TelegramConnectLink className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" />
           <RedDot />
         </footer>
       ) : (

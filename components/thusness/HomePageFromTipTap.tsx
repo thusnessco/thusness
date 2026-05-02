@@ -2,6 +2,7 @@ import Link from "next/link";
 import { TiptapHtml } from "@/components/TiptapHtml";
 
 import RedDot from "./RedDot";
+import { TelegramConnectLink } from "./TelegramConnectLink";
 import Wordmark from "./Wordmark";
 
 const helv = 'Helvetica, "Helvetica Neue", Arial, sans-serif';
@@ -87,6 +88,7 @@ export function HomePageFromTipTap({
         </div>
 
         <footer
+          className="relative"
           style={{
             marginTop: 80,
             paddingTop: 24,
@@ -101,6 +103,7 @@ export function HomePageFromTipTap({
           }}
         >
           <span>thusness.co</span>
+          <TelegramConnectLink className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" />
           <RedDot />
         </footer>
       </div>
