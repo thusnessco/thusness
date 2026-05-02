@@ -60,7 +60,10 @@ export function InquiryEditorPanel({
           >
             /inquiry
           </Link>
-          . Answers stay in the browser only; nothing here is stored per visitor.
+          . Answers stay in the browser only; nothing here is stored per visitor. Optional
+          “gentle wording” uses server env{" "}
+          <code className="text-[11px] text-[var(--thusness-muted)]">INQUIRY_LLM_*</code>{" "}
+          (see <code className="text-[11px]">.env.example</code>).
         </p>
       </header>
 

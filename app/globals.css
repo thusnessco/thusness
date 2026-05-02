@@ -934,6 +934,89 @@ body.thusness ::selection {
   color: var(--thusness-muted, #8a8672);
 }
 
+.inquiry-llm {
+  margin: 0 0 20px;
+  max-width: 42rem;
+}
+
+.inquiry-llm-trigger {
+  display: inline-block;
+  margin: 0 0 8px;
+  padding: 0 0 2px;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  line-height: 1.45;
+  text-transform: uppercase;
+  color: var(--thusness-ink-soft, #3d3a2f);
+  text-decoration: underline;
+  text-decoration-color: var(--thusness-rule, #c7c2b0);
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+
+.inquiry-llm-trigger:disabled {
+  opacity: 0.45;
+  cursor: wait;
+  text-decoration: none;
+}
+
+.inquiry-llm-privacy {
+  margin: 0 0 10px;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--thusness-muted, #8a8672);
+}
+
+.inquiry-llm-error {
+  margin: 0 0 10px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--thusness-red, #c23a2a);
+}
+
+.inquiry-llm-box {
+  margin-top: 4px;
+  padding: 14px 16px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--thusness-rule, #c7c2b0);
+  background: color-mix(in srgb, var(--thusness-bg, #efece1) 90%, #fff);
+}
+
+.inquiry-llm-box-label {
+  margin: 0 0 8px;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--thusness-muted, #8a8672);
+}
+
+.inquiry-llm-box-body {
+  margin: 0 0 12px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--thusness-ink-soft, #3d3a2f);
+}
+
+.inquiry-llm-dismiss {
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: 11px;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: var(--thusness-muted, #8a8672);
+  text-decoration: underline;
+  text-decoration-color: var(--thusness-rule, #c7c2b0);
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
 .inquiry-actions {
   display: flex;
   flex-wrap: wrap;

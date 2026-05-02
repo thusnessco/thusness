@@ -17,12 +17,22 @@ const helv = 'Helvetica, "Helvetica Neue", Arial, sans-serif';
 
 type Phase = "inquiry" | "complete";
 
-export function InquiryExperience({ content }: { content: InquiryContent }) {
+export function InquiryExperience({
+  content,
+  llmAssistAvailable = false,
+}: {
+  content: InquiryContent;
+  /** Server: true when INQUIRY_LLM_API_KEY (etc.) is set — shows optional assist control. */
+  llmAssistAvailable?: boolean;
+}) {
   const steps = useMemo(() => visibleInquirySteps(content), [content]);
   const [phase, setPhase] = useState<Phase>("inquiry");
   const [activeIndex, setActiveIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [draft, setDraft] = useState("");
+  const [llmLoading, setLlmLoading] = useState(false);
+  const [llmError, setLlmError] = useState<string | null>(null);
+  const [llmText, setLlmText] = useState<string | null>(null);
 
   const current: InquiryStep | undefined = steps[activeIndex];
   const isLast = activeIndex >= steps.length - 1;
@@ -34,6 +44,23 @@ export function InquiryExperience({ content }: { content: InquiryContent }) {
     setDraft(answers[id] ?? "");
   }, [activeIndex, answers, phase, steps]);
 
+  useEffect(() => {
+    setLlmText(null);
+    setLlmError(null);
+    setLlmLoading(false);
+  }, [current?.id]);
+
+  const pastSummaries = useMemo(() => {
+    const lines: string[] = [];
+    for (let i = 0; i < activeIndex; i++) {
+      const s = steps[i];
+      const a = (answers[s.id] ?? "").trim();
+      if (!s || !a) continue;
+      lines.push(formatInquirySummary(s.summaryTemplate, a));
+    }
+    return lines;
+  }, [activeIndex, answers, steps]);
+
   const summaryLines = useMemo(() => {
     if (phase === "complete") {
       return steps
@@ -44,22 +71,58 @@ export function InquiryExperience({ content }: { content: InquiryContent }) {
         })
         .filter((x): x is string => Boolean(x));
     }
-    const lines: string[] = [];
-    for (let i = 0; i < activeIndex; i++) {
-      const s = steps[i];
-      const a = (answers[s.id] ?? "").trim();
-      if (!s || !a) continue;
-      lines.push(formatInquirySummary(s.summaryTemplate, a));
-    }
-    return lines;
-  }, [activeIndex, answers, phase, steps]);
+    return pastSummaries;
+  }, [answers, pastSummaries, phase, steps]);
 
   const resetAll = useCallback(() => {
     setPhase("inquiry");
     setActiveIndex(0);
     setAnswers({});
     setDraft("");
+    setLlmText(null);
+    setLlmError(null);
+    setLlmLoading(false);
   }, []);
+
+  const fetchGentleWording = useCallback(async () => {
+    if (!current) return;
+    setLlmLoading(true);
+    setLlmError(null);
+    setLlmText(null);
+    try {
+      const res = await fetch("/api/inquiry/assist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          stepTitle: current.title,
+          stepPrompt: current.prompt,
+          draft,
+          pastSummaries,
+        }),
+      });
+      const data = (await res.json()) as {
+        ok?: boolean;
+        text?: string;
+        error?: string;
+        detail?: string;
+      };
+      if (!res.ok || !data.ok || !data.text) {
+        const msg =
+          typeof data.detail === "string" && data.detail.trim()
+            ? data.detail.trim()
+            : data.error === "not_configured"
+              ? "Assistant is not configured on the server."
+              : "Something went wrong fetching a reflection. You can still continue on your own.";
+        setLlmError(msg);
+        return;
+      }
+      setLlmText(data.text);
+    } catch {
+      setLlmError("Could not reach the assistant. You can still continue on your own.");
+    } finally {
+      setLlmLoading(false);
+    }
+  }, [current, draft, pastSummaries]);
 
   const handleContinue = useCallback(() => {
     if (!current) return;
@@ -167,6 +230,36 @@ export function InquiryExperience({ content }: { content: InquiryContent }) {
                   A few more words from what you actually notice here might make the trail
                   beside this a little clearer — only if that feels natural.
                 </p>
+              ) : null}
+              {llmAssistAvailable ? (
+                <div className="inquiry-llm">
+                  <button
+                    type="button"
+                    className="inquiry-llm-trigger"
+                    disabled={llmLoading}
+                    onClick={() => void fetchGentleWording()}
+                  >
+                    {llmLoading ? "One moment…" : "Optional: gentle wording"}
+                  </button>
+                  <p className="inquiry-llm-privacy">
+                    Uses an outside language model once per click. Your text is sent only
+                    for that reply and is not saved here.
+                  </p>
+                  {llmError ? <p className="inquiry-llm-error">{llmError}</p> : null}
+                  {llmText ? (
+                    <div className="inquiry-llm-box">
+                      <p className="inquiry-llm-box-label">Offered reflection</p>
+                      <p className="inquiry-llm-box-body">{llmText}</p>
+                      <button
+                        type="button"
+                        className="inquiry-llm-dismiss"
+                        onClick={() => setLlmText(null)}
+                      >
+                        Dismiss
+                      </button>
+                    </div>
+                  ) : null}
+                </div>
               ) : null}
               <div className="inquiry-actions">
                 <button

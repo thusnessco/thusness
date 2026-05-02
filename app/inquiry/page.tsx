@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { getInquiryConfigBundle } from "@/lib/data/inquiry-config";
+import { isInquiryLlmConfigured } from "@/lib/inquiry/inquiry-llm-config";
 
 import { InquiryExperience } from "./InquiryExperience";
 
@@ -32,7 +33,12 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function InquiryPage() {
   const bundle = await getInquiryConfigBundle();
+  const llmAssistAvailable = isInquiryLlmConfigured();
   return (
-    <InquiryExperience key={bundle.updatedAt ?? "inquiry-default"} content={bundle.content} />
+    <InquiryExperience
+      key={bundle.updatedAt ?? "inquiry-default"}
+      content={bundle.content}
+      llmAssistAvailable={llmAssistAvailable}
+    />
   );
 }
