@@ -100,9 +100,9 @@ export function OrientBookletPanel({
               setConfig((prev) => ({ ...prev, showFooterLinks: e.target.checked }))
             }
           />
-          <span>Show link row (~ orient · readings · notes)</span>
+          <span>Show link row (~ orient · notes)</span>
         </label>
-        {(["footerOrient", "footerReadings", "footerNotes"] as const).map((k) => (
+        {(["footerOrient", "footerNotes"] as const).map((k) => (
           <label
             key={k}
             className="ml-6 flex items-start gap-2 text-sm text-[var(--thusness-ink-soft)]"
@@ -117,11 +117,7 @@ export function OrientBookletPanel({
               }
             />
             <span>
-              {k === "footerOrient"
-                ? "Orient"
-                : k === "footerReadings"
-                  ? "Readings"
-                  : "Notes"}
+              {k === "footerOrient" ? "Orient" : "Notes"}
             </span>
           </label>
         ))}

@@ -144,10 +144,6 @@ export default async function OrientSectionPage({
         {cfg.showFooterLinks ? (
           <nav className="site-footer-nav" aria-label="Site sections">
             {cfg.footerOrient ? <Link href="/orient" className="site-footer-link">~ orient</Link> : null}
-            {cfg.footerOrient && cfg.footerReadings ? (
-              <span className="site-footer-sep">·</span>
-            ) : null}
-            {cfg.footerReadings ? <Link href="/readings" className="site-footer-link">~ readings</Link> : null}
           </nav>
         ) : null}
         <div className="orient-signature orient-signature--text-only">

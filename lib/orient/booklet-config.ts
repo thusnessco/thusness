@@ -15,7 +15,6 @@ export type OrientBookletConfig = {
   pagesVisible: Record<OrientBookletSlug, boolean>;
   showFooterLinks: boolean;
   footerOrient: boolean;
-  footerReadings: boolean;
   footerNotes: boolean;
   copy: {
     indexKicker: string;
@@ -53,7 +52,6 @@ export function defaultOrientBookletConfig(): OrientBookletConfig {
     pagesVisible: defaultPagesVisible(),
     showFooterLinks: true,
     footerOrient: true,
-    footerReadings: true,
     footerNotes: true,
     copy: {
       indexKicker: "~ Orientation",
@@ -202,8 +200,6 @@ export function parseOrientBookletConfig(raw: unknown): OrientBookletConfig {
     showFooterLinks:
       typeof o.showFooterLinks === "boolean" ? o.showFooterLinks : d.showFooterLinks,
     footerOrient: typeof o.footerOrient === "boolean" ? o.footerOrient : d.footerOrient,
-    footerReadings:
-      typeof o.footerReadings === "boolean" ? o.footerReadings : d.footerReadings,
     footerNotes: typeof o.footerNotes === "boolean" ? o.footerNotes : d.footerNotes,
     copy,
   };
