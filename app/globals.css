@@ -813,6 +813,251 @@ body.thusness ::selection {
   }
 }
 
+/* —— /inquiry guided inquiry (quiet, sinkin-adjacent) */
+.inquiry-root {
+  -webkit-font-smoothing: antialiased;
+}
+
+.inquiry-inner {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 48px 24px 32px;
+}
+
+.inquiry-header {
+  margin-bottom: 28px;
+}
+
+.inquiry-page-title {
+  margin: 0 auto 10px;
+  max-width: 620px;
+  text-align: center;
+  font-size: 11px;
+  line-height: 1.5;
+  font-weight: 500;
+  letter-spacing: 2.4px;
+  text-transform: uppercase;
+  color: var(--thusness-muted, #8a8672);
+}
+
+.inquiry-page-sub {
+  margin: 0 auto 8px;
+  max-width: 560px;
+  text-align: center;
+  font-size: 15px;
+  line-height: 1.55;
+  font-style: italic;
+  color: var(--thusness-ink-soft, #3d3a2f);
+}
+
+.inquiry-intro {
+  margin: 20px auto 28px;
+  max-width: 520px;
+  text-align: center;
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--thusness-ink-soft, #3d3a2f);
+}
+
+.inquiry-grid {
+  display: grid;
+  gap: 36px;
+  margin-top: 8px;
+  align-items: start;
+}
+
+@media (min-width: 900px) {
+  .inquiry-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(220px, 280px);
+    gap: 48px;
+  }
+}
+
+.inquiry-main {
+  min-width: 0;
+}
+
+.inquiry-step-kicker {
+  margin: 0 0 12px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--thusness-muted, #8a8672);
+}
+
+.inquiry-step-prompt {
+  margin: 0 0 22px;
+  font-size: 20px;
+  line-height: 1.45;
+  font-weight: 400;
+  letter-spacing: -0.2px;
+  color: var(--thusness-ink, #1a1915);
+}
+
+.inquiry-field {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0 0 22px;
+  padding: 16px 18px;
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--thusness-ink-soft, #3d3a2f);
+  background: color-mix(in srgb, var(--thusness-bg, #efece1) 88%, #fff);
+  border: 1px solid var(--thusness-rule, #c7c2b0);
+  border-radius: 10px;
+  resize: vertical;
+  min-height: 120px;
+  outline: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.inquiry-field::placeholder {
+  color: var(--thusness-muted, #8a8672);
+  opacity: 0.85;
+}
+
+.inquiry-field:focus-visible {
+  border-color: color-mix(in srgb, var(--thusness-muted, #8a8672) 55%, var(--thusness-rule, #c7c2b0));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--thusness-muted, #8a8672) 35%, transparent);
+}
+
+.inquiry-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.inquiry-actions--complete {
+  margin-top: 28px;
+  margin-bottom: 0;
+}
+
+.inquiry-btn {
+  font: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 12px 22px;
+  border-radius: 999px;
+  border: 1px solid var(--thusness-rule, #c7c2b0);
+  background: transparent;
+  color: var(--thusness-ink-soft, #3d3a2f);
+  cursor: pointer;
+  transition:
+    opacity 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.inquiry-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.inquiry-btn--primary {
+  border-color: color-mix(in srgb, var(--thusness-ink, #1a1915) 18%, var(--thusness-rule, #c7c2b0));
+  background: color-mix(in srgb, var(--thusness-ink, #1a1915) 6%, transparent);
+  color: var(--thusness-ink, #1a1915);
+}
+
+.inquiry-btn--ghost:hover:not(:disabled),
+.inquiry-btn--primary:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--thusness-ink, #1a1915) 9%, transparent);
+}
+
+.inquiry-reset {
+  display: block;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--thusness-muted, #8a8672);
+  text-decoration: underline;
+  text-decoration-color: var(--thusness-rule, #c7c2b0);
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+
+.inquiry-reset:hover {
+  opacity: 0.75;
+}
+
+.inquiry-side {
+  padding-top: 8px;
+  border-top: 1px solid var(--thusness-rule, #c7c2b0);
+}
+
+@media (min-width: 900px) {
+  .inquiry-side {
+    padding-top: 0;
+    border-top: none;
+    padding-left: 8px;
+    border-left: 1px solid var(--thusness-rule, #c7c2b0);
+  }
+}
+
+.inquiry-side-title {
+  margin: 0 0 14px;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 2.2px;
+  text-transform: uppercase;
+  color: var(--thusness-muted, #8a8672);
+}
+
+.inquiry-side-empty {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.55;
+  font-style: italic;
+  color: var(--thusness-muted, #8a8672);
+}
+
+.inquiry-side-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.inquiry-side-item {
+  margin: 0 0 14px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--thusness-ink-soft, #3d3a2f);
+}
+
+.inquiry-side-item:last-child {
+  margin-bottom: 0;
+}
+
+.inquiry-complete {
+  margin-top: 12px;
+}
+
+.inquiry-reflection {
+  margin: 0 0 16px;
+  font-size: 18px;
+  line-height: 1.55;
+  color: var(--thusness-ink-soft, #3d3a2f);
+}
+
+.inquiry-reflection--secondary {
+  font-size: 16px;
+  font-style: italic;
+  color: var(--thusness-muted, #8a8672);
+}
+
 /* Admin: Orient diagram embed placeholder in the note editor */
 .tiptap-editor .ProseMirror figure.tiptap-thusness-orient-diagram {
   min-height: 88px;

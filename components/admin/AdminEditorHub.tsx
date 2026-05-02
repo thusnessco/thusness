@@ -20,6 +20,7 @@ import {
   type NoteCategory,
 } from "@/lib/notes/category";
 import { NOTE_PAGES_BASE } from "@/lib/site/note-pages";
+import type { InquiryContent } from "@/lib/inquiry/inquiry-content";
 import type { ReadingsIndexConfig } from "@/lib/readings/readings-index";
 import type { SinkInConfigV1 } from "@/lib/sinkin/config";
 import type { NoteRow } from "@/lib/supabase/public-server";
@@ -49,6 +50,7 @@ import { RootStatusStrip } from "./RootStatusStrip";
 import { SimpleLayoutForm } from "./SimpleLayoutForm";
 import { OrientInfographicsEditorPanel } from "./OrientInfographicsEditorPanel";
 import { OrientBookletPanel } from "./OrientBookletPanel";
+import { InquiryEditorPanel } from "./InquiryEditorPanel";
 import { ReadingsIndexPanel } from "./ReadingsIndexPanel";
 import { SinkInEditorPanel } from "./SinkInEditorPanel";
 import { SwitchRootToNote } from "./SwitchRootToNote";
@@ -61,6 +63,8 @@ type Props = {
   homepagePin: HomepagePin;
   sinkInConfig: SinkInConfigV1;
   sinkInUpdatedAt: string | null;
+  inquiryContent: InquiryContent;
+  inquiryUpdatedAt: string | null;
   orientNavVisible: boolean;
   orientBookletConfig: OrientBookletConfig;
   orientInfographics: OrientContent;
@@ -89,6 +93,8 @@ export function AdminEditorHub({
   homepagePin,
   sinkInConfig,
   sinkInUpdatedAt,
+  inquiryContent,
+  inquiryUpdatedAt,
   orientNavVisible,
   orientBookletConfig,
   orientInfographics,
@@ -433,6 +439,16 @@ export function AdminEditorHub({
           </button>
           <button
             type="button"
+            className={adminNavBtn(contentKey === "inquiry")}
+            onClick={() => setContentKey("inquiry")}
+          >
+            <span className="block truncate">Inquiry</span>
+            <span className="mt-0.5 block text-[10px] uppercase tracking-wider text-[var(--thusness-muted)]">
+              /inquiry
+            </span>
+          </button>
+          <button
+            type="button"
             className={adminNavBtn(contentKey === "orient_graphics")}
             onClick={() => setContentKey("orient_graphics")}
           >
@@ -559,6 +575,16 @@ export function AdminEditorHub({
             <SinkInEditorPanel
               key={sinkInUpdatedAt ?? "sinkin"}
               initialConfig={sinkInConfig}
+              isPending={isPending}
+              startTransition={startTransition}
+              onMessage={onMessage}
+            />
+          ) : null}
+
+          {contentKey === "inquiry" ? (
+            <InquiryEditorPanel
+              key={inquiryUpdatedAt ?? "inquiry"}
+              initialContent={inquiryContent}
               isPending={isPending}
               startTransition={startTransition}
               onMessage={onMessage}

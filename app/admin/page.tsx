@@ -6,6 +6,7 @@ import { getOrientBookletConfigForAdmin } from "@/lib/data/orient-booklet-config
 import { getReadingsIndexBundleForAdmin } from "@/lib/data/readings-index";
 import { getOrientInfographicsBundleForAdmin } from "@/lib/data/orient-infographics";
 import { getOrientNavVisibleForAdmin } from "@/lib/data/orient-nav";
+import { getInquiryConfigBundle } from "@/lib/data/inquiry-config";
 import { getSinkInConfigBundle } from "@/lib/data/sinkin-config";
 import { getAllNotesForAdmin } from "@/lib/data/notes-admin";
 import { getSupabasePublicConfig } from "@/lib/supabase/config";
@@ -40,6 +41,7 @@ export default async function AdminPage() {
     notes,
     homepagePin,
     sinkInBundle,
+    inquiryBundle,
     orientNavVisible,
     orientBookletConfig,
     orientIg,
@@ -49,6 +51,7 @@ export default async function AdminPage() {
       getAllNotesForAdmin(),
       getHomepagePinForAdmin(),
       getSinkInConfigBundle(),
+      getInquiryConfigBundle(),
       getOrientNavVisibleForAdmin(),
       getOrientBookletConfigForAdmin(),
       getOrientInfographicsBundleForAdmin(),
@@ -61,6 +64,8 @@ export default async function AdminPage() {
       homepagePin={homepagePin}
       sinkInConfig={sinkInBundle.config}
       sinkInUpdatedAt={sinkInBundle.updatedAt}
+      inquiryContent={inquiryBundle.content}
+      inquiryUpdatedAt={inquiryBundle.updatedAt}
       orientNavVisible={orientNavVisible}
       orientBookletConfig={orientBookletConfig}
       orientInfographics={orientIg.content}

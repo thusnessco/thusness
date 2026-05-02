@@ -25,6 +25,11 @@ import type { NoteCategory } from "@/lib/notes/category";
 import { createServerSupabase } from "@/lib/supabase/server";
 import type { NoteRow } from "@/lib/supabase/public-server";
 import {
+  INQUIRY_SITE_KEY,
+  normalizeInquiryContent,
+  type InquiryContent,
+} from "@/lib/inquiry/inquiry-content";
+import {
   normalizeSinkInConfig,
   SINKIN_SITE_KEY,
   type SinkInConfigV1,
@@ -205,6 +210,45 @@ export async function saveSinkInConfig(
   }
 
   revalidatePath("/sinkin");
+  revalidatePath("/admin");
+  return { ok: true as const, updated_at: data.updated_at as string };
+}
+
+export async function saveInquiryConfig(
+  input: InquiryContent
+): Promise<
+  { ok: true; updated_at: string } | { ok: false; message: string }
+> {
+  const supabase = await createServerSupabase();
+  const normalized = normalizeInquiryContent(input);
+  const payload = JSON.parse(JSON.stringify(normalized)) as Record<
+    string,
+    unknown
+  >;
+
+  const { data, error } = await supabase
+    .from("site_content")
+    .upsert(
+      {
+        key: INQUIRY_SITE_KEY,
+        title: "Inquiry",
+        content_json: payload,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "key" }
+    )
+    .select("updated_at")
+    .single();
+
+  if (error) return { ok: false as const, message: error.message };
+  if (!data?.updated_at) {
+    return {
+      ok: false as const,
+      message: "Save did not return updated_at. Try again.",
+    };
+  }
+
+  revalidatePath("/inquiry");
   revalidatePath("/admin");
   return { ok: true as const, updated_at: data.updated_at as string };
 }

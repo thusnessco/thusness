@@ -16,6 +16,7 @@ import type { HomepagePin } from "@/lib/homepage/homepage-pin";
 import type { ReadingsIndexConfig } from "@/lib/readings/readings-index";
 import type { OrientBookletConfig } from "@/lib/orient/booklet-config";
 import type { OrientContent } from "@/lib/orient-infographics/types";
+import type { InquiryContent } from "@/lib/inquiry/inquiry-content";
 import type { SinkInConfigV1 } from "@/lib/sinkin/config";
 import type { NoteRow } from "@/lib/supabase/public-server";
 
@@ -34,6 +35,8 @@ type Props = {
   homepagePin: HomepagePin;
   sinkInConfig: SinkInConfigV1;
   sinkInUpdatedAt: string | null;
+  inquiryContent: InquiryContent;
+  inquiryUpdatedAt: string | null;
   orientNavVisible: boolean;
   orientBookletConfig: OrientBookletConfig;
   orientInfographics: OrientContent;
@@ -49,6 +52,8 @@ export function AdminDashboard({
   homepagePin,
   sinkInConfig,
   sinkInUpdatedAt,
+  inquiryContent,
+  inquiryUpdatedAt,
   orientNavVisible,
   orientBookletConfig,
   orientInfographics,
@@ -168,6 +173,8 @@ export function AdminDashboard({
         homepagePin={homepagePin}
         sinkInConfig={sinkInConfig}
         sinkInUpdatedAt={sinkInUpdatedAt}
+        inquiryContent={inquiryContent}
+        inquiryUpdatedAt={inquiryUpdatedAt}
         orientNavVisible={orientNavVisible}
         orientBookletConfig={orientBookletConfig}
         orientInfographics={orientInfographics}

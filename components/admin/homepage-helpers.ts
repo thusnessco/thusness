@@ -7,6 +7,7 @@ export type ContentKey =
   | "tpl:simple"
   | "tpl:full"
   | "sinkin"
+  | "inquiry"
   | "orient_graphics"
   | "orient_booklet"
   | "readings";
