@@ -925,6 +925,15 @@ body.thusness ::selection {
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--thusness-muted, #8a8672) 35%, transparent);
 }
 
+.inquiry-hint {
+  margin: -12px 0 18px;
+  max-width: 42rem;
+  font-size: 13px;
+  line-height: 1.55;
+  font-style: italic;
+  color: var(--thusness-muted, #8a8672);
+}
+
 .inquiry-actions {
   display: flex;
   flex-wrap: wrap;
@@ -973,14 +982,15 @@ body.thusness ::selection {
 }
 
 .inquiry-reset {
-  display: block;
+  display: inline-block;
   margin: 0;
-  padding: 0;
+  padding: 0 0 3px;
   border: none;
   background: none;
   font: inherit;
   font-size: 11px;
   letter-spacing: 2px;
+  line-height: 1.45;
   text-transform: uppercase;
   color: var(--thusness-muted, #8a8672);
   text-decoration: underline;

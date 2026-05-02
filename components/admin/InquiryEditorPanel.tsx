@@ -234,6 +234,9 @@ export function InquiryEditorPanel({
                 }
                 className={adminFieldInput}
               />
+              <span className="text-[10px] text-[var(--thusness-muted)]">
+                Leave blank so the public page shows no grey example text in the box.
+              </span>
             </label>
             <label className="block space-y-1">
               <span className={adminFieldLabel}>Summary template</span>

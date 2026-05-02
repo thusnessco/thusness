@@ -11,6 +11,7 @@ import {
   type InquiryStep,
   visibleInquirySteps,
 } from "@/lib/inquiry/inquiry-content";
+import { isVagueResponse, truncateInquirySummaryLine } from "@/lib/inquiry/inquiry-ux";
 
 const helv = 'Helvetica, "Helvetica Neue", Arial, sans-serif';
 
@@ -84,6 +85,12 @@ export function InquiryExperience({ content }: { content: InquiryContent }) {
 
   const canContinue = draft.trim().length > 0;
   const backDisabled = phase === "inquiry" && activeIndex <= 0;
+  const showVagueHint =
+    phase === "inquiry" && draft.trim().length > 0 && isVagueResponse(draft);
+  const fieldPlaceholder = (() => {
+    const ph = (current?.placeholder ?? "").trim();
+    return ph.length > 0 ? ph : undefined;
+  })();
 
   if (steps.length === 0) {
     return (
@@ -150,11 +157,17 @@ export function InquiryExperience({ content }: { content: InquiryContent }) {
                 className="inquiry-field"
                 rows={5}
                 value={draft}
-                placeholder={current.placeholder}
+                placeholder={fieldPlaceholder}
                 onChange={(e) => setDraft(e.target.value)}
                 autoComplete="off"
                 aria-label="Your response"
               />
+              {showVagueHint ? (
+                <p className="inquiry-hint" role="note">
+                  A few more words from what you actually notice here might make the trail
+                  beside this a little clearer — only if that feels natural.
+                </p>
+              ) : null}
               <div className="inquiry-actions">
                 <button
                   type="button"
@@ -184,11 +197,18 @@ export function InquiryExperience({ content }: { content: InquiryContent }) {
                 <p className="inquiry-side-empty">{content.sidePanelEmptyMessage}</p>
               ) : (
                 <ul className="inquiry-side-list">
-                  {summaryLines.map((line, i) => (
-                    <li key={`${i}-${line.slice(0, 24)}`} className="inquiry-side-item">
-                      {line}
-                    </li>
-                  ))}
+                  {summaryLines.map((line, i) => {
+                    const { display, title } = truncateInquirySummaryLine(line);
+                    return (
+                      <li
+                        key={`${i}-${line.slice(0, 24)}`}
+                        className="inquiry-side-item"
+                        title={title}
+                      >
+                        {display}
+                      </li>
+                    );
+                  })}
                 </ul>
               )}
             </aside>
@@ -221,11 +241,18 @@ export function InquiryExperience({ content }: { content: InquiryContent }) {
               <aside className="inquiry-side" aria-label={content.sidePanelTitle}>
                 <h2 className="inquiry-side-title">{content.sidePanelTitle}</h2>
                 <ul className="inquiry-side-list">
-                  {summaryLines.map((line, i) => (
-                    <li key={`c-${i}-${line.slice(0, 24)}`} className="inquiry-side-item">
-                      {line}
-                    </li>
-                  ))}
+                  {summaryLines.map((line, i) => {
+                    const { display, title } = truncateInquirySummaryLine(line);
+                    return (
+                      <li
+                        key={`c-${i}-${line.slice(0, 24)}`}
+                        className="inquiry-side-item"
+                        title={title}
+                      >
+                        {display}
+                      </li>
+                    );
+                  })}
                 </ul>
               </aside>
             </div>

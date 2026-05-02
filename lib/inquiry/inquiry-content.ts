@@ -263,5 +263,6 @@ export function visibleInquirySteps(content: InquiryContent): InquiryStep[] {
 }
 
 export function formatInquirySummary(template: string, answer: string): string {
-  return template.replace(/\{answer\}/g, answer.trim());
+  const normalized = answer.replace(/\s+/g, " ").trim();
+  return template.replace(/\{answer\}/g, normalized);
 }
