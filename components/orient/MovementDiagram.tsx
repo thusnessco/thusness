@@ -25,7 +25,7 @@ export function MovementDiagram({ content }: Props) {
       style={{ fontFamily: ORIENT_HELV }}
     >
       <div style={{ maxWidth: 980, margin: "0 auto" }}>
-          <svg viewBox="0 0 980 320" width="100%" height={320} aria-hidden>
+          <svg viewBox="0 0 980 336" width="100%" height={336} aria-hidden>
             <text
               x="160"
               y="40"
