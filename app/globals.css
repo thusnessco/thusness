@@ -485,6 +485,70 @@ body.thusness ::selection {
   font-weight: 500;
 }
 
+/* Join row: phrase link, no underline; video hint swaps on hover (site + editor) */
+.tiptap-html .tiptap-thusness-zoom-block > p:first-of-type .tiptap-link,
+.tiptap-editor .ProseMirror .tiptap-thusness-zoom-block > p:first-of-type .tiptap-link {
+  border-bottom: none;
+  padding-bottom: 0;
+  padding-inline-start: 1.38em;
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  position: relative;
+}
+
+.tiptap-html .tiptap-thusness-zoom-block > p:first-of-type .tiptap-link::before,
+.tiptap-html .tiptap-thusness-zoom-block > p:first-of-type .tiptap-link::after,
+.tiptap-editor .ProseMirror .tiptap-thusness-zoom-block > p:first-of-type .tiptap-link::before,
+.tiptap-editor .ProseMirror .tiptap-thusness-zoom-block > p:first-of-type .tiptap-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  translate: 0 -50%;
+  width: 1.05em;
+  height: 1.05em;
+  flex-shrink: 0;
+  background-color: var(--thusness-muted, #8a8672);
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  transition: opacity 0.2s ease, background-color 0.2s ease;
+}
+
+.tiptap-html .tiptap-thusness-zoom-block > p:first-of-type .tiptap-link::before,
+.tiptap-editor .ProseMirror .tiptap-thusness-zoom-block > p:first-of-type .tiptap-link::before {
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M17 10.5V7a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3.5l4 4V6.5l-4 4z'/%3E%3C/svg%3E");
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M17 10.5V7a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3.5l4 4V6.5l-4 4z'/%3E%3C/svg%3E");
+  opacity: 0.85;
+}
+
+.tiptap-html .tiptap-thusness-zoom-block > p:first-of-type .tiptap-link::after,
+.tiptap-editor .ProseMirror .tiptap-thusness-zoom-block > p:first-of-type .tiptap-link::after {
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M10 7.5v9l7.5-4.5L10 7.5z'/%3E%3C/svg%3E");
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M10 7.5v9l7.5-4.5L10 7.5z'/%3E%3C/svg%3E");
+  opacity: 0;
+  background-color: var(--thusness-ink, #1a1915);
+}
+
+.tiptap-html .tiptap-thusness-zoom-block > p:first-of-type .tiptap-link:hover,
+.tiptap-editor .ProseMirror .tiptap-thusness-zoom-block > p:first-of-type .tiptap-link:hover {
+  opacity: 1;
+}
+
+.tiptap-html .tiptap-thusness-zoom-block > p:first-of-type .tiptap-link:hover::before,
+.tiptap-editor .ProseMirror .tiptap-thusness-zoom-block > p:first-of-type .tiptap-link:hover::before {
+  opacity: 0;
+}
+
+.tiptap-html .tiptap-thusness-zoom-block > p:first-of-type .tiptap-link:hover::after,
+.tiptap-editor .ProseMirror .tiptap-thusness-zoom-block > p:first-of-type .tiptap-link:hover::after {
+  opacity: 1;
+}
+
 .tiptap-thusness-zoom-block > p + p {
   margin-top: 22px;
   font-style: italic;
@@ -1264,11 +1328,11 @@ body.thusness ::selection {
   margin-bottom: 0;
   padding-bottom: 0;
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: center;
-  gap: 6px 14px;
+  gap: 4px 10px;
   font-size: 11px;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--thusness-muted, #8a8672);
 }

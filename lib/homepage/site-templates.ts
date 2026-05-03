@@ -3,7 +3,7 @@ import type { JSONContent } from "@tiptap/core";
 import {
   DEFAULT_PUBLIC_JOIN_URL,
   makeThusnessSessionCard,
-  paragraphWithHttpLink,
+  paragraphZoomJoinRow,
 } from "@/lib/tiptap/thusness-blocks";
 
 export type SiteTemplateId = "simple_contemplation" | "full_description";
@@ -229,7 +229,7 @@ export function buildSimpleContemplationDoc(
       },
       {
         type: ZB,
-        content: [paragraphWithHttpLink(f.zoomUrl), p(tx(f.zoomClosing))],
+        content: [paragraphZoomJoinRow(f.zoomUrl), p(tx(f.zoomClosing))],
       },
     ],
   };
@@ -275,7 +275,7 @@ export function buildFullDescriptionDoc(f: FullDescriptionFields): JSONContent {
       },
       {
         type: ZB,
-        content: [paragraphWithHttpLink(f.zoomUrl), p(tx(f.zoomClosing))],
+        content: [paragraphZoomJoinRow(f.zoomUrl), p(tx(f.zoomClosing))],
       },
     ],
   };

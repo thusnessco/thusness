@@ -25,7 +25,7 @@ function para(...content: JSONContent[]): JSONContent {
   return { type: "paragraph", content: content.length ? content : undefined };
 }
 
-/** Zoom / join row: store URL with a link mark so HTML output is a real `<a>`. */
+/** Raw URL as link label (rare snippets); prefer `paragraphZoomJoinRow` for the zoom block. */
 export function paragraphWithHttpLink(url: string): JSONContent {
   const href = url.trim();
   if (!href) return { type: "paragraph", content: [] };
@@ -35,6 +35,22 @@ export function paragraphWithHttpLink(url: string): JSONContent {
       {
         type: "text",
         text: href,
+        marks: [{ type: "link", attrs: { href } }],
+      },
+    ],
+  };
+}
+
+/** Zoom block first line: “guided noticing” links to the join URL (styled in `.tiptap-thusness-zoom-block`). */
+export function paragraphZoomJoinRow(url: string): JSONContent {
+  const href = url.trim();
+  if (!href) return { type: "paragraph", content: [] };
+  return {
+    type: "paragraph",
+    content: [
+      {
+        type: "text",
+        text: "guided noticing",
         marks: [{ type: "link", attrs: { href } }],
       },
     ],
@@ -611,7 +627,7 @@ export function getThusnessSnippetFragment(
       return {
         type: zoomBlock,
         content: [
-          paragraphWithHttpLink(DEFAULT_PUBLIC_JOIN_URL),
+          paragraphZoomJoinRow(DEFAULT_PUBLIC_JOIN_URL),
           para(text("All are welcome.")),
         ],
       };
@@ -755,7 +771,7 @@ export function getPageLayoutSampleDoc(): JSONContent {
       {
         type: zoomBlock,
         content: [
-          paragraphWithHttpLink(DEFAULT_PUBLIC_JOIN_URL),
+          paragraphZoomJoinRow(DEFAULT_PUBLIC_JOIN_URL),
           para(text("All are welcome.")),
         ],
       },

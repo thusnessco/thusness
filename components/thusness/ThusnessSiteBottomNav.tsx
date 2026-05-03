@@ -4,7 +4,7 @@ import { TelegramConnectLink } from "./TelegramConnectLink";
 
 /**
  * Quiet caps links at the bottom of public pages.
- * Home and inquiry are omitted; Telegram “~ connect” sits in this row (not duplicated on the stripe below).
+ * Home and inquiry are omitted; Telegram invite uses the same caps label as the row (not duplicated on the stripe below).
  */
 export function ThusnessSiteBottomNav() {
   return (
@@ -18,9 +18,6 @@ export function ThusnessSiteBottomNav() {
         ·
       </span>
       <Link href="/readings">Readings</Link>
-      <span className="thusness-bottom-nav-sep" aria-hidden>
-        ·
-      </span>
       <TelegramConnectLink bare />
     </nav>
   );
