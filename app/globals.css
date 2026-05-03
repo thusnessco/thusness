@@ -352,6 +352,52 @@ body.thusness ::selection {
   }
 }
 
+/* Session times + join link in one bordered block */
+.tiptap-thusness-session-and-join {
+  box-sizing: border-box;
+  max-width: 760px;
+  margin: 0 auto 52px;
+  border: 1px solid var(--thusness-rule);
+  background: transparent;
+}
+
+.tiptap-thusness-session-and-join .tiptap-thusness-session-grid {
+  margin: 0;
+  padding: 28px 28px 12px;
+  max-width: none;
+}
+
+@media (max-width: 640px) {
+  .tiptap-thusness-session-and-join .tiptap-thusness-session-grid {
+    padding: 24px 22px 8px;
+  }
+}
+
+.tiptap-thusness-session-and-join .tiptap-thusness-zoom-block {
+  margin: 0;
+  padding: 18px 20px 24px;
+  max-width: none;
+  border-top: 1px solid color-mix(in srgb, var(--thusness-rule) 52%, transparent);
+}
+
+.tiptap-thusness-session-and-join .tiptap-thusness-zoom-block > p + p {
+  margin-top: 14px;
+}
+
+/* Old home docs: session grid then zoom as siblings — tuck join under the grid */
+.tiptap-html .tiptap-thusness-session-grid:has(+ .tiptap-thusness-zoom-block),
+.tiptap-editor .ProseMirror .tiptap-thusness-session-grid:has(+ .tiptap-thusness-zoom-block) {
+  margin-bottom: 0;
+}
+
+.tiptap-html .tiptap-thusness-session-grid + .tiptap-thusness-zoom-block,
+.tiptap-editor .ProseMirror .tiptap-thusness-session-grid + .tiptap-thusness-zoom-block {
+  margin-top: 0;
+  padding-top: 20px;
+  padding-bottom: 28px;
+  border-top: 1px solid color-mix(in srgb, var(--thusness-rule) 52%, transparent);
+}
+
 .tiptap-thusness-session-card {
   display: flex;
   flex-direction: column;

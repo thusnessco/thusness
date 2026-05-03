@@ -2,8 +2,8 @@ import type { JSONContent } from "@tiptap/core";
 
 import {
   DEFAULT_PUBLIC_JOIN_URL,
+  makeThusnessSessionAndJoin,
   makeThusnessSessionCard,
-  paragraphZoomJoinRow,
 } from "@/lib/tiptap/thusness-blocks";
 
 export type SiteTemplateId = "simple_contemplation" | "full_description";
@@ -23,7 +23,6 @@ const RL = "thusnessRuleList";
 const RLI = "thusnessRuleListItem";
 const PL = "thusnessPillar";
 const SG = "thusnessSessionGrid";
-const ZB = "thusnessZoomBlock";
 
 export type SessionSlotFields = {
   kicker: string;
@@ -210,27 +209,27 @@ export function buildSimpleContemplationDoc(
         type: H,
         content: [p(tx(f.heroQuestion)), p(tx(f.heroSubtitle))],
       },
-      {
-        type: SG,
-        content: [
-          makeThusnessSessionCard(
-            f.session1.kicker,
-            f.session1.day,
-            f.session1.time,
-            f.session1.zone
-          ),
-          makeThusnessSessionCard(
-            f.session2.kicker,
-            f.session2.day,
-            f.session2.time,
-            f.session2.zone
-          ),
-        ],
-      },
-      {
-        type: ZB,
-        content: [paragraphZoomJoinRow(f.zoomUrl), p(tx(f.zoomClosing))],
-      },
+      makeThusnessSessionAndJoin(
+        {
+          type: SG,
+          content: [
+            makeThusnessSessionCard(
+              f.session1.kicker,
+              f.session1.day,
+              f.session1.time,
+              f.session1.zone
+            ),
+            makeThusnessSessionCard(
+              f.session2.kicker,
+              f.session2.day,
+              f.session2.time,
+              f.session2.zone
+            ),
+          ],
+        },
+        f.zoomUrl,
+        f.zoomClosing
+      ),
     ],
   };
 }
@@ -256,27 +255,27 @@ export function buildFullDescriptionDoc(f: FullDescriptionFields): JSONContent {
       { type: PL, content: [p(tx(f.pillarLine))] },
       { type: SM, content: [p(tx(f.sectionSitTogether))] },
       p(tx(f.sitTogetherIntro)),
-      {
-        type: SG,
-        content: [
-          makeThusnessSessionCard(
-            f.session1.kicker,
-            f.session1.day,
-            f.session1.time,
-            f.session1.zone
-          ),
-          makeThusnessSessionCard(
-            f.session2.kicker,
-            f.session2.day,
-            f.session2.time,
-            f.session2.zone
-          ),
-        ],
-      },
-      {
-        type: ZB,
-        content: [paragraphZoomJoinRow(f.zoomUrl), p(tx(f.zoomClosing))],
-      },
+      makeThusnessSessionAndJoin(
+        {
+          type: SG,
+          content: [
+            makeThusnessSessionCard(
+              f.session1.kicker,
+              f.session1.day,
+              f.session1.time,
+              f.session1.zone
+            ),
+            makeThusnessSessionCard(
+              f.session2.kicker,
+              f.session2.day,
+              f.session2.time,
+              f.session2.zone
+            ),
+          ],
+        },
+        f.zoomUrl,
+        f.zoomClosing
+      ),
     ],
   };
 }

@@ -14,6 +14,7 @@ const pillar = "thusnessPillar";
 const sessionGrid = "thusnessSessionGrid";
 const sessionCard = "thusnessSessionCard";
 const zoomBlock = "thusnessZoomBlock";
+const sessionAndJoin = "thusnessSessionAndJoin";
 const programRow = "thusnessProgramRow";
 const programCard = "thusnessProgramCard";
 
@@ -394,6 +395,30 @@ export const ThusnessZoomBlock = Node.create({
   },
 });
 
+/**
+ * Session times (two cards) plus join row in one bordered block — fewer rules before the footer.
+ */
+export const ThusnessSessionAndJoin = Node.create({
+  name: sessionAndJoin,
+  group: "block",
+  content: `${sessionGrid} ${zoomBlock}`,
+  defining: true,
+  parseHTML() {
+    return [{ tag: `section[data-thusness-node="${sessionAndJoin}"]` }];
+  },
+  renderHTML({ HTMLAttributes }) {
+    return [
+      "section",
+      mergeAttributes(HTMLAttributes, {
+        "data-thusness-node": sessionAndJoin,
+        class: "tiptap-thusness-session-and-join",
+        "aria-label": "Sit together times and join link",
+      }),
+      0,
+    ];
+  },
+});
+
 /** One row in the program schedule card: when label, session title, day. */
 export const ThusnessProgramRow = Node.create({
   name: programRow,
@@ -454,6 +479,7 @@ export function thusnessBlockExtensions() {
     ThusnessProgramRow,
     ThusnessProgramCard,
     ThusnessZoomBlock,
+    ThusnessSessionAndJoin,
   ];
 }
 
@@ -470,6 +496,24 @@ export function makeThusnessSessionCard(
       para(text(day)),
       para(text(time)),
       para(text(zone)),
+    ],
+  };
+}
+
+/** Two session cards + guided-noticing join + closing line, in one `ThusnessSessionAndJoin` block. */
+export function makeThusnessSessionAndJoin(
+  sessionGridNode: JSONContent,
+  zoomUrl: string,
+  zoomClosing: string
+): JSONContent {
+  return {
+    type: sessionAndJoin,
+    content: [
+      sessionGridNode,
+      {
+        type: zoomBlock,
+        content: [paragraphZoomJoinRow(zoomUrl), para(text(zoomClosing))],
+      },
     ],
   };
 }
@@ -751,30 +795,27 @@ export function getPageLayoutSampleDoc(): JSONContent {
           "A quiet hour of guided noticing, with space for sharing. Held on Zoom."
         )
       ),
-      {
-        type: sessionGrid,
-        content: [
-          makeThusnessSessionCard(
-            "~ I",
-            "Wednesday",
-            "09:00 — 10:00",
-            "Pacific Time"
-          ),
-          makeThusnessSessionCard(
-            "~ II",
-            "Friday",
-            "09:00 — 10:00",
-            "Pacific Time"
-          ),
-        ],
-      },
-      {
-        type: zoomBlock,
-        content: [
-          paragraphZoomJoinRow(DEFAULT_PUBLIC_JOIN_URL),
-          para(text("All are welcome.")),
-        ],
-      },
+      makeThusnessSessionAndJoin(
+        {
+          type: sessionGrid,
+          content: [
+            makeThusnessSessionCard(
+              "~ I",
+              "Wednesday",
+              "09:00 — 10:00",
+              "Pacific Time"
+            ),
+            makeThusnessSessionCard(
+              "~ II",
+              "Friday",
+              "09:00 — 10:00",
+              "Pacific Time"
+            ),
+          ],
+        },
+        DEFAULT_PUBLIC_JOIN_URL,
+        "All are welcome."
+      ),
     ],
   };
 }
