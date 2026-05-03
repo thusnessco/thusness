@@ -76,13 +76,6 @@ export default async function OrientPage() {
             </>
           ) : null}
         </nav>
-        {bookletConfig.footerOrient ? (
-          <nav className="site-footer-nav" aria-label="Orient map">
-            <Link href="/orient" className="site-footer-link">
-              ~ orient
-            </Link>
-          </nav>
-        ) : null}
         <div className="orient-signature orient-signature--text-only">
           <span>{bookletConfig.copy.signatureLabel}</span>
         </div>

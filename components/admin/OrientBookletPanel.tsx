@@ -88,43 +88,6 @@ export function OrientBookletPanel({
 
       <div className="space-y-2 border-t border-[var(--thusness-rule)] pt-4">
         <p className="text-[11px] uppercase tracking-[0.16em] text-[var(--thusness-muted)]">
-          Footer links
-        </p>
-        <label className="flex items-start gap-2 text-sm text-[var(--thusness-ink-soft)]">
-          <input
-            type="checkbox"
-            className="mt-1 border-[var(--thusness-rule)] accent-[var(--thusness-ink)]"
-            checked={config.showFooterLinks}
-            disabled={isPending}
-            onChange={(e) =>
-              setConfig((prev) => ({ ...prev, showFooterLinks: e.target.checked }))
-            }
-          />
-          <span>Show link row (~ orient · notes)</span>
-        </label>
-        {(["footerOrient", "footerNotes"] as const).map((k) => (
-          <label
-            key={k}
-            className="ml-6 flex items-start gap-2 text-sm text-[var(--thusness-ink-soft)]"
-          >
-            <input
-              type="checkbox"
-              className="mt-1 border-[var(--thusness-rule)] accent-[var(--thusness-ink)]"
-              checked={config[k]}
-              disabled={isPending || !config.showFooterLinks}
-              onChange={(e) =>
-                setConfig((prev) => ({ ...prev, [k]: e.target.checked }))
-              }
-            />
-            <span>
-              {k === "footerOrient" ? "Orient" : "Notes"}
-            </span>
-          </label>
-        ))}
-      </div>
-
-      <div className="space-y-2 border-t border-[var(--thusness-rule)] pt-4">
-        <p className="text-[11px] uppercase tracking-[0.16em] text-[var(--thusness-muted)]">
           Page copy
         </p>
         <label className="block space-y-1">

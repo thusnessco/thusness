@@ -142,13 +142,6 @@ export default async function OrientSectionPage({
           </div>
         </nav>
 
-        {cfg.showFooterLinks && cfg.footerOrient ? (
-          <nav className="site-footer-nav" aria-label="Orient map">
-            <Link href="/orient" className="site-footer-link">
-              ~ orient
-            </Link>
-          </nav>
-        ) : null}
         <div className="orient-signature orient-signature--text-only">
           <span>{cfg.copy.signatureLabel}</span>
         </div>

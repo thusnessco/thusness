@@ -13,9 +13,6 @@ export type OrientBookletSlug = (typeof ORIENT_BOOKLET_SLUGS)[number];
 
 export type OrientBookletConfig = {
   pagesVisible: Record<OrientBookletSlug, boolean>;
-  showFooterLinks: boolean;
-  footerOrient: boolean;
-  footerNotes: boolean;
   copy: {
     indexKicker: string;
     indexTitle: string;
@@ -50,9 +47,6 @@ function defaultPagesVisible(): Record<OrientBookletSlug, boolean> {
 export function defaultOrientBookletConfig(): OrientBookletConfig {
   return {
     pagesVisible: defaultPagesVisible(),
-    showFooterLinks: true,
-    footerOrient: true,
-    footerNotes: true,
     copy: {
       indexKicker: "~ Orientation",
       indexTitle: "A map of the practice.",
@@ -68,7 +62,7 @@ export function defaultOrientBookletConfig(): OrientBookletConfig {
       prevKicker: "previous",
       nextKicker: "next",
       backToMapLabel: "back to the map",
-      diagramFooterLabel: "thusness.co · orient",
+      diagramFooterLabel: "thusness.co",
       signatureLabel: "thusness.co",
       proseOverrides: {
         pillars: "",
@@ -153,10 +147,12 @@ export function parseOrientBookletConfig(raw: unknown): OrientBookletConfig {
       typeof copyRaw.backToMapLabel === "string"
         ? copyRaw.backToMapLabel
         : d.copy.backToMapLabel,
-    diagramFooterLabel:
-      typeof copyRaw.diagramFooterLabel === "string"
-        ? copyRaw.diagramFooterLabel
-        : d.copy.diagramFooterLabel,
+    diagramFooterLabel: (() => {
+      if (typeof copyRaw.diagramFooterLabel !== "string") return d.copy.diagramFooterLabel;
+      const s = copyRaw.diagramFooterLabel.trim();
+      if (/^thusness\.co\s*·\s*orient$/i.test(s)) return d.copy.diagramFooterLabel;
+      return copyRaw.diagramFooterLabel as string;
+    })(),
     signatureLabel:
       typeof copyRaw.signatureLabel === "string"
         ? copyRaw.signatureLabel
@@ -197,10 +193,6 @@ export function parseOrientBookletConfig(raw: unknown): OrientBookletConfig {
 
   return {
     pagesVisible,
-    showFooterLinks:
-      typeof o.showFooterLinks === "boolean" ? o.showFooterLinks : d.showFooterLinks,
-    footerOrient: typeof o.footerOrient === "boolean" ? o.footerOrient : d.footerOrient,
-    footerNotes: typeof o.footerNotes === "boolean" ? o.footerNotes : d.footerNotes,
     copy,
   };
 }
