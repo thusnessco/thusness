@@ -3,7 +3,6 @@ import Link from "next/link";
 
 import { GiantMasterBooklet } from "@/components/orient/GiantMasterBooklet";
 import { OrientDiagramSheetFooter } from "@/components/orient/OrientDiagramSheetFooter";
-import { TelegramConnectLink } from "@/components/thusness/TelegramConnectLink";
 import { ThusnessSiteBottomNav } from "@/components/thusness/ThusnessSiteBottomNav";
 import Wordmark from "@/components/thusness/Wordmark";
 import { getOrientBookletConfig } from "@/lib/data/orient-booklet-config";
@@ -77,20 +76,13 @@ export default async function OrientPage() {
             </>
           ) : null}
         </nav>
-        <nav className="site-footer-nav" aria-label="Site sections and community">
-          {bookletConfig.footerOrient ? (
-            <>
-              <Link href="/orient" className="site-footer-link">
-                ~ orient
-              </Link>
-              <span className="site-footer-sep" aria-hidden="true">
-                {" "}
-                ·{" "}
-              </span>
-            </>
-          ) : null}
-          <TelegramConnectLink bare className="site-footer-link" />
-        </nav>
+        {bookletConfig.footerOrient ? (
+          <nav className="site-footer-nav" aria-label="Orient map">
+            <Link href="/orient" className="site-footer-link">
+              ~ orient
+            </Link>
+          </nav>
+        ) : null}
         <div className="orient-signature orient-signature--text-only">
           <span>{bookletConfig.copy.signatureLabel}</span>
         </div>

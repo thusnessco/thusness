@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import Link from "next/link";
 
-import { TelegramConnectLink } from "@/components/thusness/TelegramConnectLink";
 import { ThusnessSiteBottomNav } from "@/components/thusness/ThusnessSiteBottomNav";
 import Wordmark from "@/components/thusness/Wordmark";
 import {
@@ -53,9 +52,6 @@ function InquiryEmptySteps() {
         </p>
         <footer className="inquiry-page-bottom">
           <ThusnessSiteBottomNav />
-          <div className="inquiry-footer-connect">
-            <TelegramConnectLink bare />
-          </div>
         </footer>
       </div>
     </div>
@@ -374,9 +370,6 @@ function InquiryGuidedFlow({
         ) : null}
         <footer className="inquiry-page-bottom">
           <ThusnessSiteBottomNav />
-          <div className="inquiry-footer-connect">
-            <TelegramConnectLink bare />
-          </div>
         </footer>
       </div>
     </div>

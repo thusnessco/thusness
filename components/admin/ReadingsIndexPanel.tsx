@@ -125,17 +125,18 @@ export function ReadingsIndexPanel({
           </Link>
         </p>
         <p className="text-[11px] text-[var(--thusness-muted)]">
-          The fixed field guide lives at{" "}
+          The resistance field guide is always shown first on{" "}
           <Link
-            href="/readings/resistance"
+            href="/readings"
             className="underline decoration-[var(--thusness-rule)] underline-offset-2 hover:opacity-70"
             target="_blank"
             rel="noreferrer"
           >
-            /readings/resistance
+            /readings
           </Link>{" "}
-          (edit copy under Admin → Resistance). Add it here as an internal link
-          when you want it on the curated list.
+          (copy under Admin → Resistance). Omit a duplicate internal link to{" "}
+          <code className="text-[var(--thusness-ink-soft)]">/readings/resistance</code>{" "}
+          here.
         </p>
       </header>
 

@@ -1094,25 +1094,6 @@ body.thusness ::selection {
   padding-bottom: 0;
 }
 
-.inquiry-footer-connect {
-  margin-top: 12px;
-  padding-top: 0;
-  text-align: center;
-}
-
-.inquiry-footer-connect a {
-  font-size: 11px;
-  letter-spacing: 2.4px;
-  text-transform: uppercase;
-  color: var(--thusness-muted, #8a8672);
-  text-decoration: none;
-  transition: opacity 0.15s ease;
-}
-
-.inquiry-footer-connect a:hover {
-  opacity: 0.7;
-}
-
 .inquiry-actions {
   display: flex;
   flex-wrap: wrap;

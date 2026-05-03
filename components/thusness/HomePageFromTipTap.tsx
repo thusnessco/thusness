@@ -1,7 +1,8 @@
 import { TiptapHtml } from "@/components/TiptapHtml";
 
+import Link from "next/link";
+
 import RedDot from "./RedDot";
-import { TelegramConnectLink } from "./TelegramConnectLink";
 import { ThusnessSiteBottomNav } from "./ThusnessSiteBottomNav";
 import Wordmark from "./Wordmark";
 
@@ -71,7 +72,7 @@ export function HomePageFromTipTap({
         <footer className="thusness-site-footer" style={{ marginTop: 80 }}>
           <ThusnessSiteBottomNav />
           <div
-            className="thusness-site-footer__stripe relative flex items-center justify-between pt-5"
+            className="thusness-site-footer__stripe flex items-center justify-between pt-5"
             style={{
               fontSize: 11,
               letterSpacing: 2,
@@ -79,8 +80,12 @@ export function HomePageFromTipTap({
               textTransform: "uppercase",
             }}
           >
-            <span>thusness.co</span>
-            <TelegramConnectLink className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" />
+            <Link
+              href="/"
+              className="text-[var(--thusness-muted)] transition-opacity hover:opacity-70"
+            >
+              thusness.co
+            </Link>
             <RedDot />
           </div>
         </footer>

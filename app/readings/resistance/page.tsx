@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 import { ResistancePageView } from "@/components/resistance/ResistancePageView";
 import { SiteFooter } from "@/components/thusness/SiteFooter";
@@ -30,7 +31,16 @@ export default async function ResistanceReadingPage() {
 
   return (
     <main className="min-h-screen bg-[var(--thusness-bg)] font-sans text-[var(--thusness-ink)]">
-      <ThusnessPageShell>
+      <ThusnessPageShell
+        headerAside={
+          <Link
+            href="/readings"
+            className="transition-opacity hover:opacity-70"
+          >
+            ← Readings
+          </Link>
+        }
+      >
         <p className="text-[11px] uppercase tracking-[2.4px] text-[var(--thusness-muted)]">
           ~ readings
         </p>

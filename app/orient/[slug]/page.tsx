@@ -5,7 +5,6 @@ import { notFound } from "next/navigation";
 
 import { OrientDiagramEmbed } from "@/components/orient/OrientDiagramEmbed";
 import { OrientDiagramSheetFooter } from "@/components/orient/OrientDiagramSheetFooter";
-import { TelegramConnectLink } from "@/components/thusness/TelegramConnectLink";
 import { ThusnessSiteBottomNav } from "@/components/thusness/ThusnessSiteBottomNav";
 import Wordmark from "@/components/thusness/Wordmark";
 import { getOrientBookletConfig } from "@/lib/data/orient-booklet-config";
@@ -143,20 +142,13 @@ export default async function OrientSectionPage({
           </div>
         </nav>
 
-        <nav className="site-footer-nav" aria-label="Site sections and community">
-          {cfg.showFooterLinks && cfg.footerOrient ? (
-            <>
-              <Link href="/orient" className="site-footer-link">
-                ~ orient
-              </Link>
-              <span className="site-footer-sep" aria-hidden="true">
-                {" "}
-                ·{" "}
-              </span>
-            </>
-          ) : null}
-          <TelegramConnectLink bare className="site-footer-link" />
-        </nav>
+        {cfg.showFooterLinks && cfg.footerOrient ? (
+          <nav className="site-footer-nav" aria-label="Orient map">
+            <Link href="/orient" className="site-footer-link">
+              ~ orient
+            </Link>
+          </nav>
+        ) : null}
         <div className="orient-signature orient-signature--text-only">
           <span>{cfg.copy.signatureLabel}</span>
         </div>

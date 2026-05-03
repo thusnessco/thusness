@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import RedDot from "@/components/thusness/RedDot";
-import { TelegramConnectLink } from "@/components/thusness/TelegramConnectLink";
 import { ThusnessSiteBottomNav } from "@/components/thusness/ThusnessSiteBottomNav";
 import Wordmark from "@/components/thusness/Wordmark";
 import { defaultSinkInUi, type SinkInConfigV1 } from "@/lib/sinkin/config";
@@ -386,7 +385,7 @@ export function SinkInExperience({ config }: { config: SinkInConfigV1 }) {
           <footer className="thusness-site-footer">
             <ThusnessSiteBottomNav />
             <div
-              className="thusness-site-footer__stripe relative flex items-center justify-between pt-5"
+              className="thusness-site-footer__stripe flex items-center justify-between pt-5"
               style={{
                 fontSize: 11,
                 letterSpacing: 2,
@@ -395,7 +394,6 @@ export function SinkInExperience({ config }: { config: SinkInConfigV1 }) {
               }}
             >
               <span>thusness.co · sink in</span>
-              <TelegramConnectLink className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" />
               <RedDot />
             </div>
           </footer>
