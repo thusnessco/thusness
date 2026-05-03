@@ -527,13 +527,16 @@ body.thusness ::selection {
   color: var(--thusness-ink);
 }
 
-.tiptap-thusness-zoom-block > p:first-of-type .tiptap-link {
+.tiptap-thusness-zoom-block > p:first-of-type .tiptap-link,
+.tiptap-thusness-program-card > p:nth-of-type(5) .tiptap-link {
   font-weight: 500;
 }
 
-/* Join row: phrase link, no underline; video hint swaps on hover (site + editor) */
+/* Join row: phrase link, no underline; video hint swaps on hover (zoom block + program card) */
 .tiptap-html .tiptap-thusness-zoom-block > p:first-of-type .tiptap-link,
-.tiptap-editor .ProseMirror .tiptap-thusness-zoom-block > p:first-of-type .tiptap-link {
+.tiptap-editor .ProseMirror .tiptap-thusness-zoom-block > p:first-of-type .tiptap-link,
+.tiptap-html .tiptap-thusness-program-card > p:nth-of-type(5) .tiptap-link,
+.tiptap-editor .ProseMirror .tiptap-thusness-program-card > p:nth-of-type(5) .tiptap-link {
   border-bottom: none;
   padding-bottom: 0;
   padding-inline-start: 1.38em;
@@ -546,7 +549,11 @@ body.thusness ::selection {
 .tiptap-html .tiptap-thusness-zoom-block > p:first-of-type .tiptap-link::before,
 .tiptap-html .tiptap-thusness-zoom-block > p:first-of-type .tiptap-link::after,
 .tiptap-editor .ProseMirror .tiptap-thusness-zoom-block > p:first-of-type .tiptap-link::before,
-.tiptap-editor .ProseMirror .tiptap-thusness-zoom-block > p:first-of-type .tiptap-link::after {
+.tiptap-editor .ProseMirror .tiptap-thusness-zoom-block > p:first-of-type .tiptap-link::after,
+.tiptap-html .tiptap-thusness-program-card > p:nth-of-type(5) .tiptap-link::before,
+.tiptap-html .tiptap-thusness-program-card > p:nth-of-type(5) .tiptap-link::after,
+.tiptap-editor .ProseMirror .tiptap-thusness-program-card > p:nth-of-type(5) .tiptap-link::before,
+.tiptap-editor .ProseMirror .tiptap-thusness-program-card > p:nth-of-type(5) .tiptap-link::after {
   content: "";
   position: absolute;
   left: 0;
@@ -566,14 +573,18 @@ body.thusness ::selection {
 }
 
 .tiptap-html .tiptap-thusness-zoom-block > p:first-of-type .tiptap-link::before,
-.tiptap-editor .ProseMirror .tiptap-thusness-zoom-block > p:first-of-type .tiptap-link::before {
+.tiptap-editor .ProseMirror .tiptap-thusness-zoom-block > p:first-of-type .tiptap-link::before,
+.tiptap-html .tiptap-thusness-program-card > p:nth-of-type(5) .tiptap-link::before,
+.tiptap-editor .ProseMirror .tiptap-thusness-program-card > p:nth-of-type(5) .tiptap-link::before {
   mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M17 10.5V7a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3.5l4 4V6.5l-4 4z'/%3E%3C/svg%3E");
   -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M17 10.5V7a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3.5l4 4V6.5l-4 4z'/%3E%3C/svg%3E");
   opacity: 0.85;
 }
 
 .tiptap-html .tiptap-thusness-zoom-block > p:first-of-type .tiptap-link::after,
-.tiptap-editor .ProseMirror .tiptap-thusness-zoom-block > p:first-of-type .tiptap-link::after {
+.tiptap-editor .ProseMirror .tiptap-thusness-zoom-block > p:first-of-type .tiptap-link::after,
+.tiptap-html .tiptap-thusness-program-card > p:nth-of-type(5) .tiptap-link::after,
+.tiptap-editor .ProseMirror .tiptap-thusness-program-card > p:nth-of-type(5) .tiptap-link::after {
   mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M10 7.5v9l7.5-4.5L10 7.5z'/%3E%3C/svg%3E");
   -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M10 7.5v9l7.5-4.5L10 7.5z'/%3E%3C/svg%3E");
   opacity: 0;
@@ -581,17 +592,23 @@ body.thusness ::selection {
 }
 
 .tiptap-html .tiptap-thusness-zoom-block > p:first-of-type .tiptap-link:hover,
-.tiptap-editor .ProseMirror .tiptap-thusness-zoom-block > p:first-of-type .tiptap-link:hover {
+.tiptap-editor .ProseMirror .tiptap-thusness-zoom-block > p:first-of-type .tiptap-link:hover,
+.tiptap-html .tiptap-thusness-program-card > p:nth-of-type(5) .tiptap-link:hover,
+.tiptap-editor .ProseMirror .tiptap-thusness-program-card > p:nth-of-type(5) .tiptap-link:hover {
   opacity: 1;
 }
 
 .tiptap-html .tiptap-thusness-zoom-block > p:first-of-type .tiptap-link:hover::before,
-.tiptap-editor .ProseMirror .tiptap-thusness-zoom-block > p:first-of-type .tiptap-link:hover::before {
+.tiptap-editor .ProseMirror .tiptap-thusness-zoom-block > p:first-of-type .tiptap-link:hover::before,
+.tiptap-html .tiptap-thusness-program-card > p:nth-of-type(5) .tiptap-link:hover::before,
+.tiptap-editor .ProseMirror .tiptap-thusness-program-card > p:nth-of-type(5) .tiptap-link:hover::before {
   opacity: 0;
 }
 
 .tiptap-html .tiptap-thusness-zoom-block > p:first-of-type .tiptap-link:hover::after,
-.tiptap-editor .ProseMirror .tiptap-thusness-zoom-block > p:first-of-type .tiptap-link:hover::after {
+.tiptap-editor .ProseMirror .tiptap-thusness-zoom-block > p:first-of-type .tiptap-link:hover::after,
+.tiptap-html .tiptap-thusness-program-card > p:nth-of-type(5) .tiptap-link:hover::after,
+.tiptap-editor .ProseMirror .tiptap-thusness-program-card > p:nth-of-type(5) .tiptap-link:hover::after {
   opacity: 1;
 }
 
@@ -607,7 +624,7 @@ body.thusness ::selection {
 .tiptap-thusness-program-card {
   box-sizing: border-box;
   max-width: 720px;
-  margin: 0 auto 88px;
+  margin: 0 auto 64px;
   padding: 32px 36px 28px;
   border: 1px solid var(--thusness-rule);
   background: transparent;
@@ -658,7 +675,8 @@ body.thusness ::selection {
   grid-column: 1 / -1;
 }
 
-.tiptap-thusness-program-card > p:last-of-type {
+/* Fourth <p> = schedule footnote (always); 5–6 = optional join + welcome */
+.tiptap-thusness-program-card > p:nth-of-type(4) {
   grid-column: 1 / -1;
   margin: 0;
   padding-top: 22px;
@@ -668,6 +686,29 @@ body.thusness ::selection {
   letter-spacing: 0.3px;
   color: var(--thusness-muted);
   text-align: center;
+}
+
+.tiptap-thusness-program-card > p:nth-of-type(5) {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding-top: 20px;
+  border-top: 1px solid color-mix(in srgb, var(--thusness-rule) 52%, transparent);
+  text-align: center;
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1.35;
+  color: var(--thusness-ink);
+}
+
+.tiptap-thusness-program-card > p:nth-of-type(6) {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding-top: 12px;
+  text-align: center;
+  font-style: italic;
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--thusness-muted);
 }
 
 .tiptap-thusness-program-row {
