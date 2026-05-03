@@ -711,6 +711,45 @@ body.thusness ::selection {
   color: var(--thusness-muted);
 }
 
+/*
+ * Legacy pins: program schedule + separate zoom block — read as one card (no inner join yet).
+ * Skip when the card already has a 6th <p> (in-card join + welcome).
+ */
+.tiptap-html .tiptap-thusness-program-card:not(:has(> p:nth-of-type(6))):has(+ .tiptap-thusness-zoom-block),
+.tiptap-editor .ProseMirror .tiptap-thusness-program-card:not(:has(> p:nth-of-type(6))):has(+ .tiptap-thusness-zoom-block) {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 20px;
+}
+
+.tiptap-html .tiptap-thusness-program-card:not(:has(> p:nth-of-type(6))) + .tiptap-thusness-zoom-block,
+.tiptap-editor .ProseMirror .tiptap-thusness-program-card:not(:has(> p:nth-of-type(6))) + .tiptap-thusness-zoom-block {
+  box-sizing: border-box;
+  max-width: 720px;
+  margin: 0 auto 64px;
+  padding: 18px 36px 26px;
+  border: 1px solid var(--thusness-rule);
+  border-top: 1px solid color-mix(in srgb, var(--thusness-rule) 50%, transparent);
+}
+
+.tiptap-html .tiptap-thusness-program-card:not(:has(> p:nth-of-type(6))) + .tiptap-thusness-zoom-block > p + p,
+.tiptap-editor .ProseMirror .tiptap-thusness-program-card:not(:has(> p:nth-of-type(6))) + .tiptap-thusness-zoom-block > p + p {
+  margin-top: 14px;
+}
+
+.tiptap-html .tiptap-thusness-program-card:not(:has(> p:nth-of-type(6))) + .tiptap-thusness-zoom-block > p:first-of-type,
+.tiptap-editor .ProseMirror .tiptap-thusness-program-card:not(:has(> p:nth-of-type(6))) + .tiptap-thusness-zoom-block > p:first-of-type {
+  font-size: clamp(15px, 2.4vw, 20px);
+  line-height: 1.35;
+}
+
+@media (max-width: 640px) {
+  .tiptap-html .tiptap-thusness-program-card:not(:has(> p:nth-of-type(6))) + .tiptap-thusness-zoom-block,
+  .tiptap-editor .ProseMirror .tiptap-thusness-program-card:not(:has(> p:nth-of-type(6))) + .tiptap-thusness-zoom-block {
+    padding: 16px 22px 22px;
+  }
+}
+
 .tiptap-thusness-program-row {
   display: grid;
   grid-template-columns: 110px 1fr auto;
