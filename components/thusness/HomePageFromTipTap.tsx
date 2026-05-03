@@ -14,13 +14,10 @@ const helv = 'Helvetica, "Helvetica Neue", Arial, sans-serif';
 export function HomePageFromTipTap({
   html,
   showBackgroundCircle = false,
-  showOrientLink = true,
 }: {
   html: string;
   /** Large thin ring behind the article body (social-style framing). */
   showBackgroundCircle?: boolean;
-  /** Passed to the bottom site nav (Orient link when enabled). */
-  showOrientLink?: boolean;
 }) {
   return (
     <div
@@ -71,16 +68,11 @@ export function HomePageFromTipTap({
           />
         </div>
 
-        <div style={{ marginTop: 80 }}>
-          <ThusnessSiteBottomNav showOrientLink={showOrientLink} />
-          <footer
-            className="relative"
+        <footer className="thusness-site-footer" style={{ marginTop: 80 }}>
+          <ThusnessSiteBottomNav />
+          <div
+            className="thusness-site-footer__stripe relative flex items-center justify-between pt-5"
             style={{
-              paddingTop: 24,
-              borderTop: "1px solid var(--thusness-rule, #c7c2b0)",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
               fontSize: 11,
               letterSpacing: 2,
               color: "var(--thusness-muted, #8a8672)",
@@ -90,8 +82,8 @@ export function HomePageFromTipTap({
             <span>thusness.co</span>
             <TelegramConnectLink className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" />
             <RedDot />
-          </footer>
-        </div>
+          </div>
+        </footer>
       </div>
     </div>
   );

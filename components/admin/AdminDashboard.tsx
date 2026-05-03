@@ -38,7 +38,6 @@ type Props = {
   sinkInUpdatedAt: string | null;
   inquiryContent: InquiryContent;
   inquiryUpdatedAt: string | null;
-  orientNavVisible: boolean;
   orientBookletConfig: OrientBookletConfig;
   orientInfographics: OrientContent;
   orientInfographicsUpdatedAt: string | null;
@@ -57,7 +56,6 @@ export function AdminDashboard({
   sinkInUpdatedAt,
   inquiryContent,
   inquiryUpdatedAt,
-  orientNavVisible,
   orientBookletConfig,
   orientInfographics,
   orientInfographicsUpdatedAt,
@@ -180,7 +178,6 @@ export function AdminDashboard({
         sinkInUpdatedAt={sinkInUpdatedAt}
         inquiryContent={inquiryContent}
         inquiryUpdatedAt={inquiryUpdatedAt}
-        orientNavVisible={orientNavVisible}
         orientBookletConfig={orientBookletConfig}
         orientInfographics={orientInfographics}
         orientInfographicsUpdatedAt={orientInfographicsUpdatedAt}

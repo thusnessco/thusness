@@ -4,7 +4,6 @@ import Link from "next/link";
 import { SiteFooter } from "@/components/thusness/SiteFooter";
 import { ThusnessPageShell } from "@/components/thusness/ThusnessPageShell";
 import { getReadingsPublicRows } from "@/lib/data/readings-public";
-import { getOrientNavVisible } from "@/lib/data/orient-nav";
 import { formatPublishedDate } from "@/lib/data/notes-public";
 import { notePageHref } from "@/lib/site/note-pages";
 
@@ -17,10 +16,7 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 export default async function ReadingsPage() {
-  const [rows, orientNavVisible] = await Promise.all([
-    getReadingsPublicRows(),
-    getOrientNavVisible(),
-  ]);
+  const rows = await getReadingsPublicRows();
 
   return (
     <main className="min-h-screen bg-[var(--thusness-bg)] font-sans text-[var(--thusness-ink)]">
@@ -112,7 +108,7 @@ export default async function ReadingsPage() {
           )}
         </section>
 
-        <SiteFooter showOrientLink={orientNavVisible} />
+        <SiteFooter />
       </ThusnessPageShell>
     </main>
   );

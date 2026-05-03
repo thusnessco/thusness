@@ -28,7 +28,7 @@ type TrailEntry = { stepId: string; line: string };
 
 type SavedAnswer = { text: string; choiceId: string | null };
 
-function InquiryEmptySteps({ showOrientLink }: { showOrientLink: boolean }) {
+function InquiryEmptySteps() {
   return (
     <div
       className="inquiry-root"
@@ -52,7 +52,7 @@ function InquiryEmptySteps({ showOrientLink }: { showOrientLink: boolean }) {
           This inquiry path has no enabled steps yet. An editor can enable steps in admin.
         </p>
         <footer className="inquiry-page-bottom">
-          <ThusnessSiteBottomNav showOrientLink={showOrientLink} />
+          <ThusnessSiteBottomNav />
           <div className="inquiry-footer-connect">
             <TelegramConnectLink bare />
           </div>
@@ -62,30 +62,22 @@ function InquiryEmptySteps({ showOrientLink }: { showOrientLink: boolean }) {
   );
 }
 
-export function InquiryExperience({
-  content,
-  showOrientLink = true,
-}: {
-  content: InquiryContent;
-  showOrientLink?: boolean;
-}) {
+export function InquiryExperience({ content }: { content: InquiryContent }) {
   const steps = useMemo(() => visibleInquirySteps(content), [content]);
 
   if (steps.length === 0) {
-    return <InquiryEmptySteps showOrientLink={showOrientLink} />;
+    return <InquiryEmptySteps />;
   }
 
-  return <InquiryGuidedFlow content={content} steps={steps} showOrientLink={showOrientLink} />;
+  return <InquiryGuidedFlow content={content} steps={steps} />;
 }
 
 function InquiryGuidedFlow({
   content,
   steps,
-  showOrientLink,
 }: {
   content: InquiryContent;
   steps: InquiryStep[];
-  showOrientLink: boolean;
 }) {
   const firstId = steps[0]!.id;
   const [phase, setPhase] = useState<Phase>("inquiry");
@@ -381,7 +373,7 @@ function InquiryGuidedFlow({
           </div>
         ) : null}
         <footer className="inquiry-page-bottom">
-          <ThusnessSiteBottomNav showOrientLink={showOrientLink} />
+          <ThusnessSiteBottomNav />
           <div className="inquiry-footer-connect">
             <TelegramConnectLink bare />
           </div>

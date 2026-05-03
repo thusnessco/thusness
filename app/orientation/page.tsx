@@ -6,7 +6,6 @@ import { SiteFooter } from "@/components/thusness/SiteFooter";
 import Wordmark from "@/components/thusness/Wordmark";
 import { getOrientInfographicsBundle } from "@/lib/data/orient-infographics";
 import { getPublishedNoteBySlug } from "@/lib/data/notes-public";
-import { getOrientNavVisible } from "@/lib/data/orient-nav";
 import { tiptapJsonToHtml } from "@/lib/tiptap/to-html";
 
 export const dynamic = "force-dynamic";
@@ -14,9 +13,8 @@ export const dynamic = "force-dynamic";
 const ORIENTATION_SLUG = "orientation";
 
 export default async function OrientationPage() {
-  const [note, orientNavVisible, orientIg] = await Promise.all([
+  const [note, orientIg] = await Promise.all([
     getPublishedNoteBySlug(ORIENTATION_SLUG),
-    getOrientNavVisible(),
     getOrientInfographicsBundle(),
   ]);
   if (!note) notFound();
@@ -38,7 +36,7 @@ export default async function OrientationPage() {
 
       <OrientArticle html={html} embedContent={orientIg.content} />
       <div className="mx-auto max-w-[1080px] px-6 pb-12 lg:px-10">
-        <SiteFooter showOrientLink={orientNavVisible} />
+        <SiteFooter />
       </div>
     </div>
   );

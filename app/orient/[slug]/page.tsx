@@ -9,7 +9,6 @@ import { TelegramConnectLink } from "@/components/thusness/TelegramConnectLink";
 import { ThusnessSiteBottomNav } from "@/components/thusness/ThusnessSiteBottomNav";
 import Wordmark from "@/components/thusness/Wordmark";
 import { getOrientBookletConfig } from "@/lib/data/orient-booklet-config";
-import { getOrientNavVisible } from "@/lib/data/orient-nav";
 import { getOrientInfographicsBundle } from "@/lib/data/orient-infographics";
 import { getBookletPage, ORIENT_BOOKLET_PAGES } from "@/lib/orient/booklet-pages";
 import { infographicHeadForDiagram } from "@/lib/orient/infographic-head";
@@ -63,10 +62,9 @@ export default async function OrientSectionPage({
   const page = getBookletPage(slug);
   if (!page) notFound();
 
-  const [cfg, infographics, orientNavVisible] = await Promise.all([
+  const [cfg, infographics] = await Promise.all([
     getOrientBookletConfig(),
     getOrientInfographicsBundle(),
-    getOrientNavVisible(),
   ]);
   if (!cfg.pagesVisible[page.slug]) notFound();
 
@@ -163,7 +161,7 @@ export default async function OrientSectionPage({
           <span>{cfg.copy.signatureLabel}</span>
         </div>
         <div className="orient-bottom-site-nav">
-          <ThusnessSiteBottomNav showOrientLink={orientNavVisible} />
+          <ThusnessSiteBottomNav />
         </div>
       </div>
     </div>

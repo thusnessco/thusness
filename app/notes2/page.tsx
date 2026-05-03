@@ -7,7 +7,6 @@ import {
   formatPublishedDate,
   getPublishedNotes,
 } from "@/lib/data/notes-public";
-import { getOrientNavVisible } from "@/lib/data/orient-nav";
 import {
   NOTE_CATEGORIES,
   NOTE_CATEGORY_LABELS,
@@ -30,10 +29,9 @@ export default async function Notes2IndexPage({ searchParams }: PageProps) {
   const categoryFilter = parseNoteCategory(
     typeof sp.category === "string" ? sp.category : undefined
   );
-  const [notes, orientNavVisible] = await Promise.all([
-    getPublishedNotes(categoryFilter ? { category: categoryFilter } : undefined),
-    getOrientNavVisible(),
-  ]);
+  const notes = await getPublishedNotes(
+    categoryFilter ? { category: categoryFilter } : undefined
+  );
 
   return (
     <main className="min-h-screen bg-[var(--thusness-bg)] font-sans text-[var(--thusness-ink)]">
@@ -117,7 +115,7 @@ export default async function Notes2IndexPage({ searchParams }: PageProps) {
           )}
         </section>
 
-        <SiteFooter showOrientLink={orientNavVisible} />
+        <SiteFooter />
       </ThusnessPageShell>
     </main>
   );

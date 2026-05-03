@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 
 import { HomePageFromTipTap } from "@/components/thusness/HomePageFromTipTap";
 import { getPublishedNoteBySlug } from "@/lib/data/notes-public";
-import { getOrientNavVisible } from "@/lib/data/orient-nav";
 import { tiptapJsonToHtml } from "@/lib/tiptap/to-html";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -24,10 +23,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function Note2Page({ params }: Props) {
   const { slug } = await params;
 
-  const [note, orientNavVisible] = await Promise.all([
-    getPublishedNoteBySlug(slug),
-    getOrientNavVisible(),
-  ]);
+  const note = await getPublishedNoteBySlug(slug);
   if (!note) notFound();
 
   const html = tiptapJsonToHtml(note.content_json);
@@ -36,7 +32,6 @@ export default async function Note2Page({ params }: Props) {
     <HomePageFromTipTap
       html={html}
       showBackgroundCircle={note.show_background_circle === true}
-      showOrientLink={orientNavVisible}
     />
   );
 }

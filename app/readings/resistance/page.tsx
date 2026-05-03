@@ -4,7 +4,6 @@ import { ResistancePageView } from "@/components/resistance/ResistancePageView";
 import { SiteFooter } from "@/components/thusness/SiteFooter";
 import { ThusnessPageShell } from "@/components/thusness/ThusnessPageShell";
 import { getResistancePageBundle } from "@/lib/data/resistance-page";
-import { getOrientNavVisible } from "@/lib/data/orient-nav";
 
 export const dynamic = "force-dynamic";
 
@@ -27,10 +26,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function ResistanceReadingPage() {
-  const [bundle, orientNavVisible] = await Promise.all([
-    getResistancePageBundle(),
-    getOrientNavVisible(),
-  ]);
+  const bundle = await getResistancePageBundle();
 
   return (
     <main className="min-h-screen bg-[var(--thusness-bg)] font-sans text-[var(--thusness-ink)]">
@@ -39,7 +35,7 @@ export default async function ResistanceReadingPage() {
           ~ readings
         </p>
         <ResistancePageView content={bundle.content} />
-        <SiteFooter showOrientLink={orientNavVisible} />
+        <SiteFooter />
       </ThusnessPageShell>
     </main>
   );

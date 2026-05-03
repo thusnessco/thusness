@@ -38,13 +38,7 @@ function SinkinResumeIcon() {
   );
 }
 
-export function SinkInExperience({
-  config,
-  showOrientLink = true,
-}: {
-  config: SinkInConfigV1;
-  showOrientLink?: boolean;
-}) {
+export function SinkInExperience({ config }: { config: SinkInConfigV1 }) {
   const steps = config.steps;
   const stepsLen = steps.length;
   const ui = { ...defaultSinkInUi, ...config.ui };
@@ -389,24 +383,21 @@ export function SinkInExperience({
             padding: "0 24px",
           }}
         >
-          <ThusnessSiteBottomNav showOrientLink={showOrientLink} />
-          <footer
-            className="relative"
-            style={{
-              padding: "24px 0 0",
-              borderTop: "1px solid var(--thusness-rule, #c7c2b0)",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              fontSize: 11,
-              letterSpacing: 2,
-              color: "var(--thusness-muted, #8a8672)",
-              textTransform: "uppercase",
-            }}
-          >
-            <span>thusness.co · sink in</span>
-            <TelegramConnectLink className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" />
-            <RedDot />
+          <footer className="thusness-site-footer">
+            <ThusnessSiteBottomNav />
+            <div
+              className="thusness-site-footer__stripe relative flex items-center justify-between pt-5"
+              style={{
+                fontSize: 11,
+                letterSpacing: 2,
+                color: "var(--thusness-muted, #8a8672)",
+                textTransform: "uppercase",
+              }}
+            >
+              <span>thusness.co · sink in</span>
+              <TelegramConnectLink className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" />
+              <RedDot />
+            </div>
           </footer>
         </div>
       ) : (
