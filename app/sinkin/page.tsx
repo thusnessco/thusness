@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { getOrientNavVisible } from "@/lib/data/orient-nav";
 import { getSinkInConfigBundle } from "@/lib/data/sinkin-config";
 
 import { SinkInExperience } from "./SinkInExperience";
@@ -33,11 +34,15 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function SinkInPage() {
-  const bundle = await getSinkInConfigBundle();
+  const [bundle, orientNavVisible] = await Promise.all([
+    getSinkInConfigBundle(),
+    getOrientNavVisible(),
+  ]);
   return (
     <SinkInExperience
       key={bundle.updatedAt ?? "sinkin-default"}
       config={bundle.config}
+      showOrientLink={orientNavVisible}
     />
   );
 }

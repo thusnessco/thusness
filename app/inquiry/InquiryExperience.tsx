@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 
 import { TelegramConnectLink } from "@/components/thusness/TelegramConnectLink";
+import { ThusnessSiteBottomNav } from "@/components/thusness/ThusnessSiteBottomNav";
 import Wordmark from "@/components/thusness/Wordmark";
 import {
   buildInquiryTrailLine,
@@ -27,7 +28,7 @@ type TrailEntry = { stepId: string; line: string };
 
 type SavedAnswer = { text: string; choiceId: string | null };
 
-function InquiryEmptySteps() {
+function InquiryEmptySteps({ showOrientLink }: { showOrientLink: boolean }) {
   return (
     <div
       className="inquiry-root"
@@ -50,30 +51,41 @@ function InquiryEmptySteps() {
         <p className="inquiry-page-sub" style={{ marginTop: 28 }}>
           This inquiry path has no enabled steps yet. An editor can enable steps in admin.
         </p>
-        <footer className="inquiry-footer-connect">
-          <TelegramConnectLink bare />
+        <footer className="inquiry-page-bottom">
+          <ThusnessSiteBottomNav showOrientLink={showOrientLink} />
+          <div className="inquiry-footer-connect">
+            <TelegramConnectLink bare />
+          </div>
         </footer>
       </div>
     </div>
   );
 }
 
-export function InquiryExperience({ content }: { content: InquiryContent }) {
+export function InquiryExperience({
+  content,
+  showOrientLink = true,
+}: {
+  content: InquiryContent;
+  showOrientLink?: boolean;
+}) {
   const steps = useMemo(() => visibleInquirySteps(content), [content]);
 
   if (steps.length === 0) {
-    return <InquiryEmptySteps />;
+    return <InquiryEmptySteps showOrientLink={showOrientLink} />;
   }
 
-  return <InquiryGuidedFlow content={content} steps={steps} />;
+  return <InquiryGuidedFlow content={content} steps={steps} showOrientLink={showOrientLink} />;
 }
 
 function InquiryGuidedFlow({
   content,
   steps,
+  showOrientLink,
 }: {
   content: InquiryContent;
   steps: InquiryStep[];
+  showOrientLink: boolean;
 }) {
   const firstId = steps[0]!.id;
   const [phase, setPhase] = useState<Phase>("inquiry");
@@ -368,8 +380,11 @@ function InquiryGuidedFlow({
             </div>
           </div>
         ) : null}
-        <footer className="inquiry-footer-connect">
-          <TelegramConnectLink bare />
+        <footer className="inquiry-page-bottom">
+          <ThusnessSiteBottomNav showOrientLink={showOrientLink} />
+          <div className="inquiry-footer-connect">
+            <TelegramConnectLink bare />
+          </div>
         </footer>
       </div>
     </div>

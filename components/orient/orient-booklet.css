@@ -210,6 +210,12 @@
 }
 
 /* Page end: text only — red dot sits in `.orient-diagram-sheet-footer` above. */
+.orient-bottom-site-nav {
+  max-width: 880px;
+  margin: 32px auto 0;
+  padding: 0 24px 48px;
+}
+
 .orient-signature--text-only {
   gap: 0;
 }

@@ -10,7 +10,8 @@ export type ContentKey =
   | "inquiry"
   | "orient_graphics"
   | "orient_booklet"
-  | "readings";
+  | "readings"
+  | "readings_resistance";
 
 function slugMatchesPin(noteSlug: string, pinSlug: string): boolean {
   return noteSlug.trim().toLowerCase() === pinSlug.trim().toLowerCase();

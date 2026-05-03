@@ -30,6 +30,11 @@ import {
   type InquiryContent,
 } from "@/lib/inquiry/inquiry-content";
 import {
+  normalizeResistancePageContent,
+  READINGS_RESISTANCE_SITE_KEY,
+  type ResistancePageContent,
+} from "@/lib/resistance/resistance-page";
+import {
   normalizeSinkInConfig,
   SINKIN_SITE_KEY,
   type SinkInConfigV1,
@@ -249,6 +254,46 @@ export async function saveInquiryConfig(
   }
 
   revalidatePath("/inquiry");
+  revalidatePath("/admin");
+  return { ok: true as const, updated_at: data.updated_at as string };
+}
+
+export async function saveResistancePage(
+  input: ResistancePageContent
+): Promise<
+  { ok: true; updated_at: string } | { ok: false; message: string }
+> {
+  const supabase = await createServerSupabase();
+  const normalized = normalizeResistancePageContent(input);
+  const payload = JSON.parse(JSON.stringify(normalized)) as Record<
+    string,
+    unknown
+  >;
+
+  const { data, error } = await supabase
+    .from("site_content")
+    .upsert(
+      {
+        key: READINGS_RESISTANCE_SITE_KEY,
+        title: "Readings · Resistance",
+        content_json: payload,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "key" }
+    )
+    .select("updated_at")
+    .single();
+
+  if (error) return { ok: false as const, message: error.message };
+  if (!data?.updated_at) {
+    return {
+      ok: false as const,
+      message: "Save did not return updated_at. Try again.",
+    };
+  }
+
+  revalidatePath("/readings");
+  revalidatePath("/readings/resistance");
   revalidatePath("/admin");
   return { ok: true as const, updated_at: data.updated_at as string };
 }

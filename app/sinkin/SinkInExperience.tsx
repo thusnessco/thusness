@@ -4,6 +4,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react
 
 import RedDot from "@/components/thusness/RedDot";
 import { TelegramConnectLink } from "@/components/thusness/TelegramConnectLink";
+import { ThusnessSiteBottomNav } from "@/components/thusness/ThusnessSiteBottomNav";
 import Wordmark from "@/components/thusness/Wordmark";
 import { defaultSinkInUi, type SinkInConfigV1 } from "@/lib/sinkin/config";
 import {
@@ -37,7 +38,13 @@ function SinkinResumeIcon() {
   );
 }
 
-export function SinkInExperience({ config }: { config: SinkInConfigV1 }) {
+export function SinkInExperience({
+  config,
+  showOrientLink = true,
+}: {
+  config: SinkInConfigV1;
+  showOrientLink?: boolean;
+}) {
   const steps = config.steps;
   const stepsLen = steps.length;
   const ui = { ...defaultSinkInUi, ...config.ui };
@@ -375,26 +382,33 @@ export function SinkInExperience({ config }: { config: SinkInConfigV1 }) {
       </div>
 
       {showFooter ? (
-        <footer
-          className="relative"
+        <div
           style={{
             margin: "48px auto 0",
             maxWidth: 880,
-            padding: "24px 24px 0",
-            borderTop: "1px solid var(--thusness-rule, #c7c2b0)",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            fontSize: 11,
-            letterSpacing: 2,
-            color: "var(--thusness-muted, #8a8672)",
-            textTransform: "uppercase",
+            padding: "0 24px",
           }}
         >
-          <span>thusness.co · sink in</span>
-          <TelegramConnectLink className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" />
-          <RedDot />
-        </footer>
+          <ThusnessSiteBottomNav showOrientLink={showOrientLink} />
+          <footer
+            className="relative"
+            style={{
+              padding: "24px 0 0",
+              borderTop: "1px solid var(--thusness-rule, #c7c2b0)",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              fontSize: 11,
+              letterSpacing: 2,
+              color: "var(--thusness-muted, #8a8672)",
+              textTransform: "uppercase",
+            }}
+          >
+            <span>thusness.co · sink in</span>
+            <TelegramConnectLink className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" />
+            <RedDot />
+          </footer>
+        </div>
       ) : (
         <div style={{ height: 32 }} aria-hidden />
       )}

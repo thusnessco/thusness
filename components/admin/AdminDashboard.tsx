@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 
 import { createNote, signOut } from "@/app/admin/actions";
 import type { HomepagePin } from "@/lib/homepage/homepage-pin";
+import type { ResistancePageContent } from "@/lib/resistance/resistance-page";
 import type { ReadingsIndexConfig } from "@/lib/readings/readings-index";
 import type { OrientBookletConfig } from "@/lib/orient/booklet-config";
 import type { OrientContent } from "@/lib/orient-infographics/types";
@@ -43,6 +44,8 @@ type Props = {
   orientInfographicsUpdatedAt: string | null;
   readingsIndex: ReadingsIndexConfig;
   readingsUpdatedAt: string | null;
+  resistanceContent: ResistancePageContent;
+  resistanceUpdatedAt: string | null;
 };
 
 type NoteBodyOverride = { doc: JSONContent; key: string };
@@ -60,6 +63,8 @@ export function AdminDashboard({
   orientInfographicsUpdatedAt,
   readingsIndex,
   readingsUpdatedAt,
+  resistanceContent,
+  resistanceUpdatedAt,
 }: Props) {
   const router = useRouter();
   const [contentKey, setContentKey] = useState<ContentKey>(() =>
@@ -181,6 +186,8 @@ export function AdminDashboard({
         orientInfographicsUpdatedAt={orientInfographicsUpdatedAt}
         readingsIndex={readingsIndex}
         readingsUpdatedAt={readingsUpdatedAt}
+        resistanceContent={resistanceContent}
+        resistanceUpdatedAt={resistanceUpdatedAt}
         contentKey={contentKey}
         setContentKey={setContentKey}
         onMessage={flash}

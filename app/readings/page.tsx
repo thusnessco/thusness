@@ -115,7 +115,7 @@ export default async function ReadingsPage() {
           )}
         </section>
 
-        <SiteFooter />
+        <SiteFooter showOrientLink={orientNavVisible} />
       </ThusnessPageShell>
     </main>
   );

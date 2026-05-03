@@ -4,8 +4,10 @@ import Link from "next/link";
 import { GiantMasterBooklet } from "@/components/orient/GiantMasterBooklet";
 import { OrientDiagramSheetFooter } from "@/components/orient/OrientDiagramSheetFooter";
 import { TelegramConnectLink } from "@/components/thusness/TelegramConnectLink";
+import { ThusnessSiteBottomNav } from "@/components/thusness/ThusnessSiteBottomNav";
 import Wordmark from "@/components/thusness/Wordmark";
 import { getOrientBookletConfig } from "@/lib/data/orient-booklet-config";
+import { getOrientNavVisible } from "@/lib/data/orient-nav";
 import { getOrientInfographicsBundle } from "@/lib/data/orient-infographics";
 import { ORIENT_BOOKLET_PAGES } from "@/lib/orient/booklet-pages";
 
@@ -20,9 +22,10 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function OrientPage() {
-  const [orientIg, bookletConfig] = await Promise.all([
+  const [orientIg, bookletConfig, orientNavVisible] = await Promise.all([
     getOrientInfographicsBundle(),
     getOrientBookletConfig(),
+    getOrientNavVisible(),
   ]);
   const visiblePages = ORIENT_BOOKLET_PAGES.filter((p) => bookletConfig.pagesVisible[p.slug]);
   const sections = visiblePages.filter((p) => p.slug !== "nihilism");
@@ -92,6 +95,9 @@ export default async function OrientPage() {
         </nav>
         <div className="orient-signature orient-signature--text-only">
           <span>{bookletConfig.copy.signatureLabel}</span>
+        </div>
+        <div className="orient-bottom-site-nav">
+          <ThusnessSiteBottomNav showOrientLink={orientNavVisible} />
         </div>
         </main>
       </div>

@@ -124,6 +124,19 @@ export function ReadingsIndexPanel({
             Open /readings
           </Link>
         </p>
+        <p className="text-[11px] text-[var(--thusness-muted)]">
+          The fixed field guide lives at{" "}
+          <Link
+            href="/readings/resistance"
+            className="underline decoration-[var(--thusness-rule)] underline-offset-2 hover:opacity-70"
+            target="_blank"
+            rel="noreferrer"
+          >
+            /readings/resistance
+          </Link>{" "}
+          (edit copy under Admin → Resistance). Add it here as an internal link
+          when you want it on the curated list.
+        </p>
       </header>
 
       <div className="space-y-2 border-t border-[var(--thusness-rule)] pt-4">

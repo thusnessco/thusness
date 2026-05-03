@@ -120,7 +120,7 @@ export default async function Notes2IndexPage({ searchParams }: PageProps) {
           )}
         </section>
 
-        <SiteFooter />
+        <SiteFooter showOrientLink={orientNavVisible} />
       </ThusnessPageShell>
     </main>
   );

@@ -45,7 +45,7 @@ export default async function OrientationPage() {
 
       <OrientArticle html={html} embedContent={orientIg.content} />
       <div className="mx-auto max-w-[1080px] px-6 pb-12 lg:px-10">
-        <SiteFooter />
+        <SiteFooter showOrientLink={orientNavVisible} />
       </div>
     </div>
   );

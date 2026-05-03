@@ -21,6 +21,7 @@ import {
 } from "@/lib/notes/category";
 import { NOTE_PAGES_BASE } from "@/lib/site/note-pages";
 import type { InquiryContent } from "@/lib/inquiry/inquiry-content";
+import type { ResistancePageContent } from "@/lib/resistance/resistance-page";
 import type { ReadingsIndexConfig } from "@/lib/readings/readings-index";
 import type { SinkInConfigV1 } from "@/lib/sinkin/config";
 import type { NoteRow } from "@/lib/supabase/public-server";
@@ -52,6 +53,7 @@ import { OrientInfographicsEditorPanel } from "./OrientInfographicsEditorPanel";
 import { OrientBookletPanel } from "./OrientBookletPanel";
 import { InquiryEditorPanel } from "./InquiryEditorPanel";
 import { ReadingsIndexPanel } from "./ReadingsIndexPanel";
+import { ResistanceEditorPanel } from "./ResistanceEditorPanel";
 import { SinkInEditorPanel } from "./SinkInEditorPanel";
 import { SwitchRootToNote } from "./SwitchRootToNote";
 import type { TiptapEditorFieldHandle } from "./TiptapEditorField";
@@ -71,6 +73,8 @@ type Props = {
   orientInfographicsUpdatedAt: string | null;
   readingsIndex: ReadingsIndexConfig;
   readingsUpdatedAt: string | null;
+  resistanceContent: ResistancePageContent;
+  resistanceUpdatedAt: string | null;
   contentKey: ContentKey;
   setContentKey: (k: ContentKey) => void;
   onMessage: (msg: string) => void;
@@ -101,6 +105,8 @@ export function AdminEditorHub({
   orientInfographicsUpdatedAt,
   readingsIndex,
   readingsUpdatedAt,
+  resistanceContent,
+  resistanceUpdatedAt,
   contentKey,
   setContentKey,
   onMessage,
@@ -477,6 +483,16 @@ export function AdminEditorHub({
               /readings
             </span>
           </button>
+          <button
+            type="button"
+            className={adminNavBtn(contentKey === "readings_resistance")}
+            onClick={() => setContentKey("readings_resistance")}
+          >
+            <span className="block truncate">Resistance</span>
+            <span className="mt-0.5 block text-[10px] uppercase tracking-wider text-[var(--thusness-muted)]">
+              /readings/resistance
+            </span>
+          </button>
           <label className="mt-3 flex items-start gap-2 text-sm text-[var(--thusness-ink-soft)]">
             <input
               type="checkbox"
@@ -615,6 +631,16 @@ export function AdminEditorHub({
               initialConfig={readingsIndex}
               readingsUpdatedAt={readingsUpdatedAt}
               notes={notes}
+              isPending={isPending}
+              startTransition={startTransition}
+              onMessage={onMessage}
+            />
+          ) : null}
+          {contentKey === "readings_resistance" ? (
+            <ResistanceEditorPanel
+              key={resistanceUpdatedAt ?? "readings_resistance"}
+              initialContent={resistanceContent}
+              updatedAt={resistanceUpdatedAt}
               isPending={isPending}
               startTransition={startTransition}
               onMessage={onMessage}

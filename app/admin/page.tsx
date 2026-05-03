@@ -3,6 +3,7 @@ import { unstable_noStore as noStore } from "next/cache";
 import { AdminDashboard } from "@/components/admin/AdminDashboard";
 import { getHomepagePinForAdmin } from "@/lib/data/homepage-source";
 import { getOrientBookletConfigForAdmin } from "@/lib/data/orient-booklet-config";
+import { getResistancePageBundleForAdmin } from "@/lib/data/resistance-page";
 import { getReadingsIndexBundleForAdmin } from "@/lib/data/readings-index";
 import { getOrientInfographicsBundleForAdmin } from "@/lib/data/orient-infographics";
 import { getOrientNavVisibleForAdmin } from "@/lib/data/orient-nav";
@@ -46,6 +47,7 @@ export default async function AdminPage() {
     orientBookletConfig,
     orientIg,
     readingsBundle,
+    resistanceBundle,
   ] =
     await Promise.all([
       getAllNotesForAdmin(),
@@ -56,6 +58,7 @@ export default async function AdminPage() {
       getOrientBookletConfigForAdmin(),
       getOrientInfographicsBundleForAdmin(),
       getReadingsIndexBundleForAdmin(),
+      getResistancePageBundleForAdmin(),
     ]);
 
   return (
@@ -72,6 +75,8 @@ export default async function AdminPage() {
       orientInfographicsUpdatedAt={orientIg.updatedAt}
       readingsIndex={readingsBundle.config}
       readingsUpdatedAt={readingsBundle.updatedAt}
+      resistanceContent={resistanceBundle.content}
+      resistanceUpdatedAt={resistanceBundle.updatedAt}
     />
   );
 }

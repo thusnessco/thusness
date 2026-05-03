@@ -6,8 +6,10 @@ import { notFound } from "next/navigation";
 import { OrientDiagramEmbed } from "@/components/orient/OrientDiagramEmbed";
 import { OrientDiagramSheetFooter } from "@/components/orient/OrientDiagramSheetFooter";
 import { TelegramConnectLink } from "@/components/thusness/TelegramConnectLink";
+import { ThusnessSiteBottomNav } from "@/components/thusness/ThusnessSiteBottomNav";
 import Wordmark from "@/components/thusness/Wordmark";
 import { getOrientBookletConfig } from "@/lib/data/orient-booklet-config";
+import { getOrientNavVisible } from "@/lib/data/orient-nav";
 import { getOrientInfographicsBundle } from "@/lib/data/orient-infographics";
 import { getBookletPage, ORIENT_BOOKLET_PAGES } from "@/lib/orient/booklet-pages";
 import { infographicHeadForDiagram } from "@/lib/orient/infographic-head";
@@ -61,9 +63,10 @@ export default async function OrientSectionPage({
   const page = getBookletPage(slug);
   if (!page) notFound();
 
-  const [cfg, infographics] = await Promise.all([
+  const [cfg, infographics, orientNavVisible] = await Promise.all([
     getOrientBookletConfig(),
     getOrientInfographicsBundle(),
+    getOrientNavVisible(),
   ]);
   if (!cfg.pagesVisible[page.slug]) notFound();
 
@@ -158,6 +161,9 @@ export default async function OrientSectionPage({
         </nav>
         <div className="orient-signature orient-signature--text-only">
           <span>{cfg.copy.signatureLabel}</span>
+        </div>
+        <div className="orient-bottom-site-nav">
+          <ThusnessSiteBottomNav showOrientLink={orientNavVisible} />
         </div>
       </div>
     </div>

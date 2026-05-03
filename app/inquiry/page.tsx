@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { getInquiryConfigBundle } from "@/lib/data/inquiry-config";
+import { getOrientNavVisible } from "@/lib/data/orient-nav";
 
 import { InquiryExperience } from "./InquiryExperience";
 
@@ -31,11 +32,15 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function InquiryPage() {
-  const bundle = await getInquiryConfigBundle();
+  const [bundle, orientNavVisible] = await Promise.all([
+    getInquiryConfigBundle(),
+    getOrientNavVisible(),
+  ]);
   return (
     <InquiryExperience
       key={bundle.updatedAt ?? "inquiry-default"}
       content={bundle.content}
+      showOrientLink={orientNavVisible}
     />
   );
 }
