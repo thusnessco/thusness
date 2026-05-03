@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { SiteFooter } from "@/components/thusness/SiteFooter";
-import { SiteHeaderNav } from "@/components/thusness/SiteHeaderNav";
 import { ThusnessPageShell } from "@/components/thusness/ThusnessPageShell";
 import {
   formatPublishedDate,
@@ -38,9 +37,7 @@ export default async function Notes2IndexPage({ searchParams }: PageProps) {
 
   return (
     <main className="min-h-screen bg-[var(--thusness-bg)] font-sans text-[var(--thusness-ink)]">
-      <ThusnessPageShell
-        headerAside={<SiteHeaderNav showOrientLink={orientNavVisible} />}
-      >
+      <ThusnessPageShell>
         <h1 className="mt-1 text-[22px] font-medium tracking-tight text-[var(--thusness-ink)]">
           Notes
         </h1>

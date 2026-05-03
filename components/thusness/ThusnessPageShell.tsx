@@ -26,7 +26,7 @@ export function ThusnessPageShell({ children, headerAside }: Props) {
           className="inline-block transition-opacity hover:opacity-70"
           aria-label="Thusness home"
         >
-          <Wordmark size={20} tagline="thusness.co" />
+          <Wordmark size={20} />
         </Link>
         {headerAside ? (
           <div className="text-right text-[11px] uppercase leading-relaxed tracking-[2.4px] text-[var(--thusness-muted)]">

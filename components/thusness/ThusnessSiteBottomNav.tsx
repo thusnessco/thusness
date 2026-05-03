@@ -19,10 +19,6 @@ export function ThusnessSiteBottomNav({
       <span className="thusness-bottom-nav-sep" aria-hidden>
         ·
       </span>
-      <Link href="/notes2">Notes</Link>
-      <span className="thusness-bottom-nav-sep" aria-hidden>
-        ·
-      </span>
       <Link href="/sinkin">Notice</Link>
       {showOrientLink ? (
         <>

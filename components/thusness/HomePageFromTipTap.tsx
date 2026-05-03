@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { TiptapHtml } from "@/components/TiptapHtml";
 
 import RedDot from "./RedDot";
@@ -20,7 +19,7 @@ export function HomePageFromTipTap({
   html: string;
   /** Large thin ring behind the article body (social-style framing). */
   showBackgroundCircle?: boolean;
-  /** Subtle top-right public link to /orient. */
+  /** Passed to the bottom site nav (Orient link when enabled). */
   showOrientLink?: boolean;
 }) {
   return (
@@ -34,24 +33,8 @@ export function HomePageFromTipTap({
       }}
     >
       <div style={{ maxWidth: 880, margin: "0 auto", padding: "48px 40px 96px" }}>
-        <header
-          style={{ marginBottom: 56 }}
-          className="flex items-start justify-between gap-6"
-        >
+        <header style={{ marginBottom: 56 }}>
           <Wordmark size={20} />
-          <nav
-            className="flex items-start gap-5 pt-1 text-[11px] uppercase tracking-[2.4px] text-[var(--thusness-muted)]"
-            aria-label="Top navigation"
-          >
-            {showOrientLink ? (
-              <Link href="/orient" className="transition-opacity hover:opacity-70">
-                Orient
-              </Link>
-            ) : null}
-            <Link href="/sinkin" className="transition-opacity hover:opacity-70">
-              Notice
-            </Link>
-          </nav>
         </header>
 
         <div

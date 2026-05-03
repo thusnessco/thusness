@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 
 import { ResistancePageView } from "@/components/resistance/ResistancePageView";
 import { SiteFooter } from "@/components/thusness/SiteFooter";
-import { SiteHeaderNav } from "@/components/thusness/SiteHeaderNav";
 import { ThusnessPageShell } from "@/components/thusness/ThusnessPageShell";
 import { getResistancePageBundle } from "@/lib/data/resistance-page";
 import { getOrientNavVisible } from "@/lib/data/orient-nav";
@@ -35,9 +34,7 @@ export default async function ResistanceReadingPage() {
 
   return (
     <main className="min-h-screen bg-[var(--thusness-bg)] font-sans text-[var(--thusness-ink)]">
-      <ThusnessPageShell
-        headerAside={<SiteHeaderNav showOrientLink={orientNavVisible} />}
-      >
+      <ThusnessPageShell>
         <p className="text-[11px] uppercase tracking-[2.4px] text-[var(--thusness-muted)]">
           ~ readings
         </p>
