@@ -1769,16 +1769,3 @@ body.thusness ::selection {
   flex-direction: column;
   gap: 22px;
 }
-
-.resistance-foot {
-  margin-top: 64px;
-  padding-top: 24px;
-  border-top: 1px solid var(--thusness-rule, #c7c2b0);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 11px;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: var(--thusness-muted, #8a8672);
-}

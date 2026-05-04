@@ -2,7 +2,6 @@ import type { ReactNode } from "react";
 
 import { ResistanceFormattedText } from "@/components/resistance/format-resistance-markup";
 import { ResistanceGlyph } from "@/components/resistance/ResistanceGlyph";
-import RedDot from "@/components/thusness/RedDot";
 import type { ResistancePageContent, ResistanceTool } from "@/lib/resistance/resistance-page";
 
 function SectionMark({ label }: { label: string }) {
@@ -131,9 +130,11 @@ export function ResistancePageView({ content }: { content: ResistancePageContent
           </p>
         ))}
       </div>
-      <p className="resistance-pull" style={{ whiteSpace: "pre-line" }}>
-        <ResistanceFormattedText text={content.premise.pull} />
-      </p>
+      {content.premise.pull.trim() ? (
+        <p className="resistance-pull" style={{ whiteSpace: "pre-line" }}>
+          <ResistanceFormattedText text={content.premise.pull} />
+        </p>
+      ) : null}
 
       <SectionMark label={content.rules.label} />
       <div className="resistance-rules">
@@ -159,11 +160,6 @@ export function ResistancePageView({ content }: { content: ResistancePageContent
       <SectionMark label={content.toolsLabel} />
 
       <div className="resistance-strategies">{toolBlocks}</div>
-
-      <footer className="resistance-foot">
-        <span>{content.footer.credit}</span>
-        <RedDot />
-      </footer>
     </article>
   );
 }

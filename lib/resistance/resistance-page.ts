@@ -41,10 +41,6 @@ export type ResistanceTool = {
   wide?: boolean;
 };
 
-export type ResistanceFooter = {
-  credit: string;
-};
-
 export type ResistancePageContent = {
   v: 1;
   wordmark: string;
@@ -55,7 +51,6 @@ export type ResistancePageContent = {
   rules: ResistanceRules;
   toolsLabel: string;
   tools: ResistanceTool[];
-  footer: ResistanceFooter;
 };
 
 const W = 200;
@@ -65,8 +60,6 @@ const BLOCK = 4000;
 const ROW = 4000;
 const TOOL_NAME = 200;
 const NUM = 8;
-const CREDIT = 200;
-
 function slice(s: string, max: number): string {
   return s.trim().slice(0, max);
 }
@@ -83,7 +76,7 @@ export function defaultResistancePageContent(): ResistancePageContent {
       paragraphs: [
         "Resistance is a quiet *no* to what's already here. What if the no were simply *noticed*, as part of what's here, or alongside everything else that's here?",
       ],
-      pull: "Never fight resistance.\nAlways include or expand.",
+      pull: "",
     },
     rules: {
       label: "~ Clean rules",
@@ -149,9 +142,6 @@ export function defaultResistancePageContent(): ResistancePageContent {
           "The mind often tries to replace tension with peace.\nThis lets both be noticed together.\nThe conflict softens because nothing has to win.",
       },
     ],
-    footer: {
-      credit: "thusness.co · field notes",
-    },
   };
 }
 
@@ -184,7 +174,12 @@ function parsePremise(
   const o = raw as Record<string, unknown>;
   const label =
     typeof o.label === "string" ? slice(o.label, W) : fb.label;
-  const pull = typeof o.pull === "string" ? slice(o.pull, BLOCK) : fb.pull;
+  const pull =
+    "pull" in o
+      ? typeof o.pull === "string"
+        ? slice(o.pull, BLOCK)
+        : fb.pull
+      : fb.pull;
   const paragraphs: string[] = [];
   if (Array.isArray(o.paragraphs)) {
     for (const p of o.paragraphs) {
@@ -195,7 +190,7 @@ function parsePremise(
   return {
     label: label || fb.label,
     paragraphs: kept,
-    pull: pull || fb.pull,
+    pull,
   };
 }
 
@@ -280,14 +275,6 @@ export function parseResistancePageContent(raw: unknown): ResistancePageContent 
     }
   }
 
-  let footer = base.footer;
-  if (o.footer && typeof o.footer === "object") {
-    const f = o.footer as Record<string, unknown>;
-    const credit =
-      typeof f.credit === "string" ? slice(f.credit, CREDIT) : base.footer.credit;
-    footer = { credit: credit || base.footer.credit };
-  }
-
   return {
     v: 1,
     wordmark: wordmark || base.wordmark,
@@ -298,7 +285,6 @@ export function parseResistancePageContent(raw: unknown): ResistancePageContent 
     rules,
     toolsLabel: toolsLabel || base.toolsLabel,
     tools: tools.length > 0 ? tools : [...base.tools],
-    footer,
   };
 }
 

@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 export async function generateMetadata(): Promise<Metadata> {
   const { content } = await getResistancePageBundle();
   const title = `${content.title.replace(/\.$/, "")} · Readings · Thusness`;
-  const description = content.sub.trim() || "Field notes on working with tension.";
+  const description = content.sub.trim() || "On working with tension.";
   return {
     title,
     description,

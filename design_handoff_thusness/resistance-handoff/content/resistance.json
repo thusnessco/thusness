@@ -99,9 +99,5 @@
     "left":  { "label": "~ Here",      "word": "resistance", "sub": "tight, narrow, pushing away" },
     "right": { "label": "~ Also here", "word": "peace",      "sub": "open, quiet, already present" },
     "invitation": "Don't pick one. Don't replace one with the other. Hold them side by side, and see what happens on its own."
-  },
-
-  "footer": {
-    "credit": "thusness.co · field notes"
   }
 }

@@ -214,6 +214,9 @@ export function ResistanceEditorPanel({
             onChange={(e) => setPremise({ pull: e.target.value })}
             className={`${adminFieldInput} min-h-[80px] resize-y`}
           />
+          <span className="text-[10px] text-[var(--thusness-muted)]">
+            Leave empty to hide the callout block between premise and clean rules.
+          </span>
         </label>
       </div>
 
@@ -392,19 +395,6 @@ export function ResistanceEditorPanel({
           </div>
         ))}
       </div>
-
-      <label className="block max-w-2xl space-y-1 border-t border-[var(--thusness-rule)] pt-6">
-        <span className={adminFieldLabel}>Footer credit</span>
-        <input
-          type="text"
-          disabled={isPending}
-          value={c.footer.credit}
-          onChange={(e) =>
-            setC((x) => ({ ...x, footer: { ...x.footer, credit: e.target.value } }))
-          }
-          className={adminFieldInput}
-        />
-      </label>
 
       <div className="flex flex-wrap gap-3">
         <button
