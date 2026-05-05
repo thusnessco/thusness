@@ -25,7 +25,6 @@ export default async function ReadingsPage() {
   const curatedRows = rows.filter(
     (r) => !(r.kind === "link" && r.href === "/readings/resistance")
   );
-  const hasCuratedExtra = curatedRows.length > 0;
 
   const linkClassName =
     "block px-5 py-7 text-[var(--thusness-ink)] transition-opacity hover:opacity-70 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-[var(--thusness-ink)] sm:px-6";
@@ -33,18 +32,11 @@ export default async function ReadingsPage() {
   return (
     <main className="min-h-screen bg-[var(--thusness-bg)] font-sans text-[var(--thusness-ink)]">
       <ThusnessPageShell>
-        <header className="mt-1 max-w-[620px]">
-          <h1 className="text-[22px] font-medium tracking-tight text-[var(--thusness-ink)]">
-            Readings
-          </h1>
-          <p className="mt-4 text-[15px] leading-relaxed text-[var(--thusness-ink-soft)]">
-            {hasCuratedExtra
-              ? "Guides and links for slow reading — starting with working with resistance."
-              : "Curated for slow reading. For now, one piece: working with resistance."}
-          </p>
-        </header>
+        <h1 className="mt-1 max-w-[620px] text-[22px] font-medium tracking-tight text-[var(--thusness-ink)]">
+          Readings
+        </h1>
 
-        <section className="mt-12" aria-label="Readings list">
+        <section className="mt-10" aria-label="Readings list">
           <ol className="m-0 max-w-[620px] list-none divide-y divide-[var(--thusness-rule)] overflow-hidden rounded-sm border border-[var(--thusness-rule)] p-0">
             <li>
               <Link href="/readings/resistance" className={linkClassName}>
