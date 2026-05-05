@@ -10,7 +10,7 @@ import { notePageHref } from "@/lib/site/note-pages";
 
 export const metadata: Metadata = {
   title: "Readings",
-  description: "Curated readings and links.",
+  description: "Short guides and curated links from Thusness.",
   robots: { index: false, follow: false },
 };
 
@@ -25,25 +25,29 @@ export default async function ReadingsPage() {
   const curatedRows = rows.filter(
     (r) => !(r.kind === "link" && r.href === "/readings/resistance")
   );
-  const listIsEmpty = curatedRows.length === 0;
+  const hasCuratedExtra = curatedRows.length > 0;
+
+  const linkClassName =
+    "block px-5 py-7 text-[var(--thusness-ink)] transition-opacity hover:opacity-70 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-[var(--thusness-ink)] sm:px-6";
 
   return (
     <main className="min-h-screen bg-[var(--thusness-bg)] font-sans text-[var(--thusness-ink)]">
       <ThusnessPageShell>
-        <h1 className="mt-1 text-[22px] font-medium tracking-tight text-[var(--thusness-ink)]">
-          Readings
-        </h1>
-
-        <section className="mt-14">
-          <p className="text-[11px] uppercase tracking-[2.4px] text-[var(--thusness-muted)]">
-            ~ curated
+        <header className="mt-1 max-w-[620px]">
+          <h1 className="text-[22px] font-medium tracking-tight text-[var(--thusness-ink)]">
+            Readings
+          </h1>
+          <p className="mt-4 text-[15px] leading-relaxed text-[var(--thusness-ink-soft)]">
+            {hasCuratedExtra
+              ? "Guides and links for slow reading — starting with working with resistance."
+              : "Curated for slow reading. For now, one piece: working with resistance."}
           </p>
-          <ol className="m-0 mt-8 max-w-[620px] list-none p-0">
-            <li className="border-t border-[var(--thusness-rule)] py-6 last:border-b last:border-[var(--thusness-rule)]">
-              <Link
-                href="/readings/resistance"
-                className="block text-[var(--thusness-ink)] transition-opacity hover:opacity-70 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-[var(--thusness-ink)]"
-              >
+        </header>
+
+        <section className="mt-12" aria-label="Readings list">
+          <ol className="m-0 max-w-[620px] list-none divide-y divide-[var(--thusness-rule)] overflow-hidden rounded-sm border border-[var(--thusness-rule)] p-0">
+            <li>
+              <Link href="/readings/resistance" className={linkClassName}>
                 <span className="text-[11px] uppercase tracking-[2px] text-[var(--thusness-muted)]">
                   {resistance.kicker}
                 </span>
@@ -64,12 +68,11 @@ export default async function ReadingsPage() {
                     ? `n-${row.slug}-${i}`
                     : `l-${row.href}-${i}`
                 }
-                className="border-t border-[var(--thusness-rule)] py-6 last:border-b last:border-[var(--thusness-rule)]"
               >
                 {row.kind === "note" ? (
                   <Link
                     href={notePageHref(row.slug)}
-                    className="block text-[var(--thusness-ink)] transition-opacity hover:opacity-70 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-[var(--thusness-ink)]"
+                    className={linkClassName}
                   >
                     <span className="text-[11px] uppercase tracking-[2px] text-[var(--thusness-muted)]">
                       {formatPublishedDate(row.published_at)}
@@ -84,10 +87,7 @@ export default async function ReadingsPage() {
                     ) : null}
                   </Link>
                 ) : row.href.startsWith("/") ? (
-                  <Link
-                    href={row.href}
-                    className="block text-[var(--thusness-ink)] transition-opacity hover:opacity-70 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-[var(--thusness-ink)]"
-                  >
+                  <Link href={row.href} className={linkClassName}>
                     <span className="text-[11px] uppercase tracking-[2px] text-[var(--thusness-muted)]">
                       Link
                     </span>
@@ -103,7 +103,7 @@ export default async function ReadingsPage() {
                     href={row.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="block text-[var(--thusness-ink)] transition-opacity hover:opacity-70 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-[var(--thusness-ink)]"
+                    className={linkClassName}
                   >
                     <span className="text-[11px] uppercase tracking-[2px] text-[var(--thusness-muted)]">
                       External
@@ -119,19 +119,6 @@ export default async function ReadingsPage() {
               </li>
             ))}
           </ol>
-          {listIsEmpty ? (
-            <p className="mt-8 max-w-[620px] text-base italic leading-relaxed text-[var(--thusness-muted)]">
-              Nothing else in the curated list yet. In Admin, use{" "}
-              <span className="not-italic text-[var(--thusness-ink-soft)]">
-                Hidden pages → Readings
-              </span>{" "}
-              or{" "}
-              <span className="not-italic text-[var(--thusness-ink-soft)]">
-                Listed on /readings
-              </span>{" "}
-              on a note.
-            </p>
-          ) : null}
         </section>
 
         <SiteFooter />
