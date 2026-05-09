@@ -298,6 +298,8 @@ export function SinkInExperience({ config }: { config: SinkInConfigV1 }) {
         width: "100%",
         alignSelf: "stretch",
         minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
         background: "var(--thusness-bg, #efece1)",
         color: "var(--thusness-ink, #1a1915)",
         fontFamily: helv,
@@ -305,7 +307,19 @@ export function SinkInExperience({ config }: { config: SinkInConfigV1 }) {
         paddingBottom: "calc(88px + env(safe-area-inset-bottom, 0px))",
       }}
     >
-      <div style={{ maxWidth: 880, margin: "0 auto", padding: "48px 24px 32px" }}>
+      {/* Column fills space above the fixed dock so the footer sits at the bottom, not under short hero copy */}
+      <div
+        style={{
+          flex: "1 1 auto",
+          display: "flex",
+          flexDirection: "column",
+          width: "100%",
+          maxWidth: 880,
+          margin: "0 auto",
+          padding: "48px 24px 24px",
+          boxSizing: "border-box",
+        }}
+      >
         <header style={{ marginBottom: running ? 20 : 36 }}>
           <Wordmark size={20} tagline="~ as it is" />
         </header>
@@ -372,35 +386,29 @@ export function SinkInExperience({ config }: { config: SinkInConfigV1 }) {
             ) : null}
           </div>
         ) : null}
-      </div>
 
-      {showFooter ? (
-        <div
-          style={{
-            margin: "48px auto 0",
-            maxWidth: 880,
-            padding: "0 24px",
-          }}
-        >
-          <footer className="thusness-site-footer">
-            <ThusnessSiteBottomNav />
-            <div
-              className="thusness-site-footer__stripe flex items-center justify-between pt-5"
-              style={{
-                fontSize: 11,
-                letterSpacing: 2,
-                color: "var(--thusness-muted, #8a8672)",
-                textTransform: "uppercase",
-              }}
-            >
-              <span>thusness.co · sink in</span>
-              <RedDot />
-            </div>
-          </footer>
-        </div>
-      ) : (
-        <div style={{ height: 32 }} aria-hidden />
-      )}
+        {showFooter ? (
+          <div style={{ marginTop: "auto", paddingTop: 48 }}>
+            <footer className="thusness-site-footer">
+              <ThusnessSiteBottomNav />
+              <div
+                className="thusness-site-footer__stripe flex items-center justify-between pt-5"
+                style={{
+                  fontSize: 11,
+                  letterSpacing: 2,
+                  color: "var(--thusness-muted, #8a8672)",
+                  textTransform: "uppercase",
+                }}
+              >
+                <span>thusness.co · sink in</span>
+                <RedDot />
+              </div>
+            </footer>
+          </div>
+        ) : (
+          <div style={{ marginTop: "auto", minHeight: 32 }} aria-hidden />
+        )}
+      </div>
 
       <div className="sinkin-dock">
         <div className="sinkin-dock-inner">
