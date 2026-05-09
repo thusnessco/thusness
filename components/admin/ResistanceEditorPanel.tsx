@@ -9,7 +9,6 @@ import {
   defaultResistancePageContent,
   RESISTANCE_GLYPH_KEYS,
   type ResistancePageContent,
-  type ResistanceRuleRow,
   type ResistanceTool,
 } from "@/lib/resistance/resistance-page";
 
@@ -41,37 +40,6 @@ export function ResistanceEditorPanel({
 
   function setPremise(patch: Partial<ResistancePageContent["premise"]>) {
     setC((x) => ({ ...x, premise: { ...x.premise, ...patch } }));
-  }
-
-  function setRules(patch: Partial<ResistancePageContent["rules"]>) {
-    setC((x) => ({ ...x, rules: { ...x.rules, ...patch } }));
-  }
-
-  function setRuleRow(i: number, patch: Partial<ResistanceRuleRow>) {
-    setC((x) => {
-      const rows = x.rules.rows.map((r, j) => (j === i ? { ...r, ...patch } : r));
-      return { ...x, rules: { ...x.rules, rows } };
-    });
-  }
-
-  function addRuleRow() {
-    setC((x) => ({
-      ...x,
-      rules: {
-        ...x.rules,
-        rows: [...x.rules.rows, { label: "~ New", body: "Body text." }],
-      },
-    }));
-  }
-
-  function removeRuleRow(i: number) {
-    setC((x) => ({
-      ...x,
-      rules: {
-        ...x.rules,
-        rows: x.rules.rows.filter((_, j) => j !== i),
-      },
-    }));
   }
 
   function setTool(i: number, patch: Partial<ResistanceTool>) {
@@ -215,60 +183,9 @@ export function ResistanceEditorPanel({
             className={`${adminFieldInput} min-h-[80px] resize-y`}
           />
           <span className="text-[10px] text-[var(--thusness-muted)]">
-            Leave empty to hide the callout block between premise and clean rules.
+            Leave empty to hide the callout block between premise and tools.
           </span>
         </label>
-      </div>
-
-      <div className="space-y-3 border-t border-[var(--thusness-rule)] pt-6">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <p className={adminFieldLabel}>Clean rules</p>
-          <button type="button" className={adminBtnGhost} disabled={isPending} onClick={addRuleRow}>
-            Add row
-          </button>
-        </div>
-        <label className="block space-y-1">
-          <span className="text-[10px] uppercase text-[var(--thusness-muted)]">Section label</span>
-          <input
-            type="text"
-            disabled={isPending}
-            value={c.rules.label}
-            onChange={(e) => setRules({ label: e.target.value })}
-            className={adminFieldInput}
-          />
-        </label>
-        {c.rules.rows.map((row, i) => (
-          <div
-            key={i}
-            className="space-y-2 rounded border border-[var(--thusness-rule)] p-3"
-          >
-            <div className="flex justify-end">
-              <button
-                type="button"
-                className={adminBtnGhost}
-                disabled={isPending || c.rules.rows.length <= 1}
-                onClick={() => removeRuleRow(i)}
-              >
-                Remove row
-              </button>
-            </div>
-            <input
-              type="text"
-              disabled={isPending}
-              value={row.label}
-              onChange={(e) => setRuleRow(i, { label: e.target.value })}
-              className={adminFieldInput}
-              placeholder="~ Label"
-            />
-            <textarea
-              rows={3}
-              disabled={isPending}
-              value={row.body}
-              onChange={(e) => setRuleRow(i, { body: e.target.value })}
-              className={`${adminFieldInput} min-h-[88px] resize-y`}
-            />
-          </div>
-        ))}
       </div>
 
       <div className="space-y-3 border-t border-[var(--thusness-rule)] pt-6">

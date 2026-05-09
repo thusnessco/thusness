@@ -136,25 +136,6 @@ export function ResistancePageView({ content }: { content: ResistancePageContent
         </p>
       ) : null}
 
-      <SectionMark label={content.rules.label} />
-      <div className="resistance-rules">
-        {content.rules.rows.map((row, i) => (
-          <div
-            key={i}
-            className={
-              i === content.rules.rows.length - 1
-                ? "resistance-rule-row resistance-rule-row--last"
-                : "resistance-rule-row"
-            }
-          >
-            <div className="resistance-rule-label">{row.label}</div>
-            <div className="resistance-rule-body">
-              <ResistanceFormattedText text={row.body} />
-            </div>
-          </div>
-        ))}
-      </div>
-
       <div className="resistance-tools-spacer" aria-hidden />
 
       <SectionMark label={content.toolsLabel} />

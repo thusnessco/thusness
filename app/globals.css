@@ -1573,37 +1573,6 @@ body.thusness ::selection {
   border-bottom: 1px solid var(--thusness-rule, #c7c2b0);
 }
 
-.resistance-rules {
-  max-width: 620px;
-  margin: 0 auto 64px;
-}
-
-.resistance-rule-row {
-  display: grid;
-  grid-template-columns: minmax(72px, 100px) 1fr;
-  gap: 20px 24px;
-  padding: 22px 0;
-  border-top: 1px solid var(--thusness-rule, #c7c2b0);
-  align-items: baseline;
-}
-
-.resistance-rule-row--last {
-  border-bottom: 1px solid var(--thusness-rule, #c7c2b0);
-}
-
-.resistance-rule-label {
-  font-size: 11px;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: var(--thusness-muted, #8a8672);
-}
-
-.resistance-rule-body {
-  font-size: 16px;
-  line-height: 1.55;
-  color: var(--thusness-ink, #1a1915);
-}
-
 .resistance-tools-spacer {
   height: 48px;
 }

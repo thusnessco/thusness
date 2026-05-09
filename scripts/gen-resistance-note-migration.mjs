@@ -16,10 +16,6 @@ const jsonPath = path.join(
 
 const src = JSON.parse(fs.readFileSync(jsonPath, "utf8"));
 
-function stripAvoidMarkup(s) {
-  return String(s).replace(/\[avoid\]/g, "").replace(/\[\/avoid\]/g, "");
-}
-
 function tx(s) {
   return { type: "text", text: s };
 }
@@ -44,18 +40,6 @@ function pullBlock(...paragraphs) {
     content: paragraphs.map((p) =>
       typeof p === "string" ? para(tx(p)) : p
     ),
-  };
-}
-function ruleList(header, items) {
-  return {
-    type: "thusnessRuleList",
-    content: [
-      para(tx(header)),
-      ...items.map((body) => ({
-        type: "thusnessRuleListItem",
-        content: [para(tx(body))],
-      })),
-    ],
   };
 }
 function h2(s) {
@@ -120,10 +104,6 @@ const doc = {
         para(tx(st.why)),
       ];
     }),
-    ruleList(
-      src.rules.label,
-      src.rules.rows.map((r) => stripAvoidMarkup(`${r.label} ${r.body}`))
-    ),
     sectionMarkLine(src.decisionTree.label),
     ...src.decisionTree.steps.map((step) =>
       para(

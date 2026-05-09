@@ -14,20 +14,10 @@ export function isResistanceGlyphKey(s: string): s is ResistanceGlyphKey {
   return (RESISTANCE_GLYPH_KEYS as readonly string[]).includes(s);
 }
 
-export type ResistanceRuleRow = {
-  label: string;
-  body: string;
-};
-
 export type ResistancePremise = {
   label: string;
   paragraphs: string[];
   pull: string;
-};
-
-export type ResistanceRules = {
-  label: string;
-  rows: ResistanceRuleRow[];
 };
 
 export type ResistanceTool = {
@@ -48,7 +38,6 @@ export type ResistancePageContent = {
   title: string;
   sub: string;
   premise: ResistancePremise;
-  rules: ResistanceRules;
   toolsLabel: string;
   tools: ResistanceTool[];
 };
@@ -57,7 +46,6 @@ const W = 200;
 const TITLE = 200;
 const SUB = 400;
 const BLOCK = 4000;
-const ROW = 4000;
 const TOOL_NAME = 200;
 const NUM = 8;
 function slice(s: string, max: number): string {
@@ -77,25 +65,6 @@ export function defaultResistancePageContent(): ResistancePageContent {
         "Resistance is a quiet *no* to what's already here. What if the no were simply *noticed*, as part of what's here, or alongside everything else that's here?",
       ],
       pull: "",
-    },
-    rules: {
-      label: "~ Clean rules",
-      rows: [
-        {
-          label: "~ Notice",
-          body:
-            '[avoid]"Relax it,"[/avoid] [avoid]"let it go,"[/avoid] and [avoid]"release it"[/avoid] are all instructions to push. They tend to create more resistance.',
-        },
-        {
-          label: "~ Instead",
-          body: "Include, or widen. With *gentle curiosity*. The work is quieter than effort.",
-        },
-        {
-          label: "~ Fallback",
-          body:
-            'If you blank out: *"What happens if it\'s just noticed, with a bit of gentle curiosity, and allowed to be part of what\'s here?"*',
-        },
-      ],
     },
     toolsLabel: "~ Five tools",
     tools: [
@@ -152,20 +121,6 @@ function parseGlyph(raw: unknown, fallback: ResistanceGlyphKey): ResistanceGlyph
   return fallback;
 }
 
-function parseRuleRow(
-  row: unknown,
-  fallback: ResistanceRuleRow | undefined
-): ResistanceRuleRow | null {
-  if (!row || typeof row !== "object") return null;
-  const r = row as Record<string, unknown>;
-  const label =
-    typeof r.label === "string" ? slice(r.label, W) : (fallback?.label ?? "");
-  const body =
-    typeof r.body === "string" ? slice(r.body, ROW) : (fallback?.body ?? "");
-  if (!label || !body) return null;
-  return { label, body };
-}
-
 function parsePremise(
   raw: unknown,
   fb: ResistancePremise
@@ -191,27 +146,6 @@ function parsePremise(
     label: label || fb.label,
     paragraphs: kept,
     pull,
-  };
-}
-
-function parseRules(raw: unknown, fb: ResistanceRules): ResistanceRules {
-  if (!raw || typeof raw !== "object") return fb;
-  const o = raw as Record<string, unknown>;
-  const label =
-    typeof o.label === "string" ? slice(o.label, W) : fb.label;
-  const rows: ResistanceRuleRow[] = [];
-  if (Array.isArray(o.rows)) {
-    let i = 0;
-    for (const row of o.rows) {
-      const fr = fb.rows[i];
-      const parsed = parseRuleRow(row, fr);
-      if (parsed) rows.push(parsed);
-      i++;
-    }
-  }
-  return {
-    label: label || fb.label,
-    rows: rows.length > 0 ? rows : [...fb.rows],
   };
 }
 
@@ -258,7 +192,6 @@ export function parseResistancePageContent(raw: unknown): ResistancePageContent 
     typeof o.title === "string" ? slice(o.title, TITLE) : base.title;
   const sub = typeof o.sub === "string" ? slice(o.sub, SUB) : base.sub;
   const premise = parsePremise(o.premise, base.premise);
-  const rules = parseRules(o.rules, base.rules);
   const toolsLabel =
     typeof o.toolsLabel === "string"
       ? slice(o.toolsLabel, W)
@@ -282,7 +215,6 @@ export function parseResistancePageContent(raw: unknown): ResistancePageContent 
     title: title || base.title,
     sub: sub || base.sub,
     premise,
-    rules,
     toolsLabel: toolsLabel || base.toolsLabel,
     tools: tools.length > 0 ? tools : [...base.tools],
   };

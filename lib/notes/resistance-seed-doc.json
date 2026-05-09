@@ -652,62 +652,6 @@
       ]
     },
     {
-      "type": "thusnessRuleList",
-      "content": [
-        {
-          "type": "paragraph",
-          "content": [
-            {
-              "type": "text",
-              "text": "~ Clean rules"
-            }
-          ]
-        },
-        {
-          "type": "thusnessRuleListItem",
-          "content": [
-            {
-              "type": "paragraph",
-              "content": [
-                {
-                  "type": "text",
-                  "text": "~ Avoid Don't say \"relax it,\" \"let it go,\" or \"release it.\" They're all instructions to push. They create more resistance."
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "type": "thusnessRuleListItem",
-          "content": [
-            {
-              "type": "paragraph",
-              "content": [
-                {
-                  "type": "text",
-                  "text": "~ Always Include, or widen. With *gentle curiosity*. Never force."
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "type": "thusnessRuleListItem",
-          "content": [
-            {
-              "type": "paragraph",
-              "content": [
-                {
-                  "type": "text",
-                  "text": "~ Fallback If you blank out: *\"Just notice it… with a bit of gentle curiosity… and let it be part of what's here…\"*"
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
       "type": "thusnessSectionMark",
       "content": [
         {

@@ -66,24 +66,6 @@
     }
   ],
 
-  "rules": {
-    "label": "~ Clean rules",
-    "rows": [
-      {
-        "label": "~ Avoid",
-        "body": "Don't say [avoid]\"relax it,\"[/avoid] [avoid]\"let it go,\"[/avoid] or [avoid]\"release it.\"[/avoid] They're all instructions to push. They create more resistance."
-      },
-      {
-        "label": "~ Always",
-        "body": "Include, or widen. With *gentle curiosity*. Never force."
-      },
-      {
-        "label": "~ Fallback",
-        "body": "If you blank out: *\"Just notice it… with a bit of gentle curiosity… and let it be part of what's here…\"*"
-      }
-    ]
-  },
-
   "decisionTree": {
     "label": "~ Decision tree",
     "steps": [
