@@ -902,6 +902,23 @@ body.thusness ::selection {
     transform var(--sinkin-crossfade-ms, 900ms) linear;
 }
 
+.sinkin-bottom-stack {
+  flex-shrink: 0;
+  width: 100%;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Session controls bar above site footer (Sink In); not fixed — footer stays terminal chrome */
+.sinkin-dock.sinkin-dock--inline {
+  position: relative;
+  inset: auto;
+  bottom: auto;
+  left: auto;
+  right: auto;
+  z-index: auto;
+  padding: 14px 20px;
+}
+
 .sinkin-dock {
   position: fixed;
   bottom: 0;

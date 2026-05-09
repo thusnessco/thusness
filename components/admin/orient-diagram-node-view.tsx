@@ -6,6 +6,7 @@ import { NodeViewWrapper, ReactNodeViewRenderer } from "@tiptap/react";
 
 import { defaultOrientInfographics } from "@/lib/orient-infographics/default-content";
 import { applyOrientDiagramPatch } from "@/lib/orient-infographics/merge-orient-diagram-patch";
+import { themesListFromTextareaValue } from "@/lib/orient-infographics/themes-list-textarea";
 import type { OrientContent } from "@/lib/orient-infographics/types";
 import {
   isOrientDiagramId,
@@ -390,11 +391,7 @@ function OrientDiagramNodeViewInner(props: ReactNodeViewProps) {
               disabled={!props.editor.isEditable}
               value={merged.themes.list.join("\n")}
               onChange={(e) => {
-                const list = e.target.value
-                  .split("\n")
-                  .map((s) => s.trim())
-                  .filter(Boolean)
-                  .slice(0, 8);
+                const list = themesListFromTextareaValue(e.target.value);
                 up({ ...basePatch(), list });
               }}
             />
@@ -483,11 +480,7 @@ function OrientDiagramNodeViewInner(props: ReactNodeViewProps) {
               disabled={!props.editor.isEditable}
               value={merged.themes.list.join("\n")}
               onChange={(e) => {
-                const list = e.target.value
-                  .split("\n")
-                  .map((s) => s.trim())
-                  .filter(Boolean)
-                  .slice(0, 8);
+                const list = themesListFromTextareaValue(e.target.value);
                 mergeGiantPart("themes", { list });
               }}
             />

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { saveOrientInfographics } from "@/app/admin/actions";
+import { themesListFromTextareaValue } from "@/lib/orient-infographics/themes-list-textarea";
 import type { OrientContent } from "@/lib/orient-infographics/types";
 
 import {
@@ -279,11 +280,7 @@ export function OrientInfographicsEditorPanel({
               disabled={isPending}
               value={c.themes.list.join("\n")}
               onChange={(e) => {
-                const list = e.target.value
-                  .split("\n")
-                  .map((s) => s.trim())
-                  .filter(Boolean)
-                  .slice(0, 8);
+                const list = themesListFromTextareaValue(e.target.value);
                 setC((x) => ({ ...x, themes: { ...x.themes, list } }));
               }}
             />

@@ -2,8 +2,7 @@
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 
-import RedDot from "@/components/thusness/RedDot";
-import { ThusnessSiteBottomNav } from "@/components/thusness/ThusnessSiteBottomNav";
+import { SiteFooter } from "@/components/thusness/SiteFooter";
 import Wordmark from "@/components/thusness/Wordmark";
 import { defaultSinkInUi, type SinkInConfigV1 } from "@/lib/sinkin/config";
 import {
@@ -304,10 +303,8 @@ export function SinkInExperience({ config }: { config: SinkInConfigV1 }) {
         color: "var(--thusness-ink, #1a1915)",
         fontFamily: helv,
         WebkitFontSmoothing: "antialiased",
-        paddingBottom: "calc(88px + env(safe-area-inset-bottom, 0px))",
       }}
     >
-      {/* Column fills space above the fixed dock so the footer sits at the bottom, not under short hero copy */}
       <div
         style={{
           flex: "1 1 auto",
@@ -318,6 +315,7 @@ export function SinkInExperience({ config }: { config: SinkInConfigV1 }) {
           margin: "0 auto",
           padding: "48px 24px 24px",
           boxSizing: "border-box",
+          minHeight: 0,
         }}
       >
         <header style={{ marginBottom: running ? 20 : 36 }}>
@@ -386,64 +384,49 @@ export function SinkInExperience({ config }: { config: SinkInConfigV1 }) {
             ) : null}
           </div>
         ) : null}
-
-        {showFooter ? (
-          <div style={{ marginTop: "auto", paddingTop: 48 }}>
-            <footer className="thusness-site-footer">
-              <ThusnessSiteBottomNav />
-              <div
-                className="thusness-site-footer__stripe flex items-center justify-between pt-5"
-                style={{
-                  fontSize: 11,
-                  letterSpacing: 2,
-                  color: "var(--thusness-muted, #8a8672)",
-                  textTransform: "uppercase",
-                }}
-              >
-                <span>thusness.co · sink in</span>
-                <RedDot />
-              </div>
-            </footer>
-          </div>
-        ) : (
-          <div style={{ marginTop: "auto", minHeight: 32 }} aria-hidden />
-        )}
       </div>
 
-      <div className="sinkin-dock">
-        <div className="sinkin-dock-inner">
-          {!running ? (
-            <button
-              type="button"
-              className="sinkin-dock-btn sinkin-dock-btn--primary"
-              disabled={stepsLen === 0}
-              onClick={handleBegin}
-            >
-              Begin
-            </button>
-          ) : (
-            <>
+      {/* Controls above site footer — nothing sits below the global footer chrome */}
+      <div className="sinkin-bottom-stack">
+        <div className="sinkin-dock sinkin-dock--inline">
+          <div className="sinkin-dock-inner">
+            {!running ? (
               <button
                 type="button"
-                className="sinkin-dock-btn"
-                onClick={handlePauseToggle}
-                title={isPaused ? "Resume" : "Pause"}
-                aria-label={isPaused ? "Resume session" : "Pause session"}
+                className="sinkin-dock-btn sinkin-dock-btn--primary"
+                disabled={stepsLen === 0}
+                onClick={handleBegin}
               >
-                {isPaused ? <SinkinResumeIcon /> : <SinkinPauseIcon />}
+                Begin
               </button>
-              <button
-                type="button"
-                className="sinkin-dock-btn sinkin-dock-btn--end"
-                onClick={handleStop}
-                aria-label="End session"
-              >
-                <span className="sinkin-dock-end-label">End session</span>
-                <span className="sinkin-stop-square" aria-hidden />
-              </button>
-            </>
-          )}
+            ) : (
+              <>
+                <button
+                  type="button"
+                  className="sinkin-dock-btn"
+                  onClick={handlePauseToggle}
+                  title={isPaused ? "Resume" : "Pause"}
+                  aria-label={isPaused ? "Resume session" : "Pause session"}
+                >
+                  {isPaused ? <SinkinResumeIcon /> : <SinkinPauseIcon />}
+                </button>
+                <button
+                  type="button"
+                  className="sinkin-dock-btn sinkin-dock-btn--end"
+                  onClick={handleStop}
+                  aria-label="End session"
+                >
+                  <span className="sinkin-dock-end-label">End session</span>
+                  <span className="sinkin-stop-square" aria-hidden />
+                </button>
+              </>
+            )}
+          </div>
         </div>
+
+        {showFooter ? (
+          <SiteFooter compact stripeText="thusness.co · sink in" />
+        ) : null}
       </div>
     </div>
   );
