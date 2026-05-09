@@ -8,15 +8,20 @@ type Props = { content: OrientContent["movement"] };
 
 const OBS_LABELS = ["~ observation i", "~ observation ii", "~ observation iii"] as const;
 
+/** SVG <text> is a single line; normalize whitespace so pasted newlines can’t stack oddly. */
+function oneLine(s: string): string {
+  return s.replace(/\s+/g, " ").trim();
+}
+
 export function MovementDiagram({ content }: Props) {
   const { items, footer } = content;
   const m0 = items[0] ?? { name: "", gloss: "" };
   const m1 = items[1] ?? { name: "", gloss: "" };
   const m2 = items[2] ?? { name: "", gloss: "" };
   const cols = [
-    { x: 200, name: m0.name, gloss: m0.gloss },
-    { x: 490, name: m1.name, gloss: m1.gloss },
-    { x: 780, name: m2.name, gloss: m2.gloss },
+    { x: 200, name: oneLine(m0.name), gloss: oneLine(m0.gloss) },
+    { x: 490, name: oneLine(m1.name), gloss: oneLine(m1.gloss) },
+    { x: 780, name: oneLine(m2.name), gloss: oneLine(m2.gloss) },
   ];
 
   return (
@@ -25,7 +30,7 @@ export function MovementDiagram({ content }: Props) {
       style={{ fontFamily: ORIENT_HELV }}
     >
       <div style={{ maxWidth: 980, margin: "0 auto" }}>
-          <svg viewBox="0 0 980 336" width="100%" height={336} aria-hidden>
+          <svg viewBox="0 0 980 352" width="100%" height={352} aria-hidden>
             <text
               x="160"
               y="40"
@@ -156,7 +161,7 @@ export function MovementDiagram({ content }: Props) {
                 </text>
                 <text
                   x={p.x}
-                  y="300"
+                  y="302"
                   textAnchor="middle"
                   fontFamily={ORIENT_HELV}
                   fontSize="18"
@@ -168,7 +173,7 @@ export function MovementDiagram({ content }: Props) {
                 </text>
                 <text
                   x={p.x}
-                  y="318"
+                  y="334"
                   textAnchor="middle"
                   fontFamily={ORIENT_HELV}
                   fontSize="13"
