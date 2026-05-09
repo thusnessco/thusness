@@ -13,16 +13,14 @@ import { adminBtnPrimary, adminFieldInput, adminFieldLabel } from "./admin-ui";
 const LABELS: Record<(typeof ORIENT_BOOKLET_SLUGS)[number], string> = {
   pillars: "01 · Three pillars",
   stages: "02 · Stages of peace",
-  recognition: "03 · Two kinds of peace",
-  movement: "04 · Movement & progression",
-  themes: "05 · Aspects of exploration",
-  nihilism: "06 · Emptiness ≠ non-existence",
+  movement: "03 · Movement & progression",
+  themes: "04 · Aspects of exploration",
+  nihilism: "05 · Emptiness ≠ non-existence",
 };
 
 const PROSE_ROUTE: Record<(typeof ORIENT_BOOKLET_SLUGS)[number], string> = {
   pillars: "/orient/pillars",
   stages: "/orient/stages",
-  recognition: "/orient/recognition",
   movement: "/orient/movement",
   themes: "/orient/themes",
   nihilism: "/orient/nihilism",
@@ -62,7 +60,7 @@ export function OrientBookletPanel({
 
       <div className="space-y-2">
         <p className="text-[11px] uppercase tracking-[0.16em] text-[var(--thusness-muted)]">
-          Page visibility ({visibleCount}/6)
+          Page visibility ({visibleCount}/5)
         </p>
         {ORIENT_BOOKLET_SLUGS.map((slug) => (
           <label

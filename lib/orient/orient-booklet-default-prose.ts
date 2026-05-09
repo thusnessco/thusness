@@ -22,24 +22,6 @@ const DEFAULTS: Record<OrientBookletSlug, OrientBookletProseBlock[]> = {
       text: "Eventually it is no longer separable from experience at all. Peace is not a quality of certain moments. It pervades. The field itself.",
     },
   ],
-  recognition: [
-    {
-      kind: "lead",
-      text: "Two kinds of peace look similar from the outside, and ask very different things of us.",
-    },
-    {
-      kind: "p",
-      text: "Felt peace is the relaxed, calm, easy version. Pleasant. It comes with a good night of sleep, a quiet morning, a body that is not in pain. It also leaves on its own schedule.",
-    },
-    {
-      kind: "p",
-      text: "The sense of peace is quieter. It does not depend on the day going well. More like a baseline that has been there all along, waiting to be noticed under whatever is happening on top of it.",
-    },
-    {
-      kind: "p",
-      text: "A common confusion: assuming we have lost recognition when we have only lost felt peace. The body got tired. The mood turned. The sense of peace did not move.",
-    },
-  ],
   pillars: [
     {
       kind: "lead",

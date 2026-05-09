@@ -405,7 +405,6 @@ export async function saveOrientBookletConfig(
 
   revalidatePath("/orient");
   revalidatePath("/orient/stages");
-  revalidatePath("/orient/recognition");
   revalidatePath("/orient/pillars");
   revalidatePath("/orient/movement");
   revalidatePath("/orient/themes");

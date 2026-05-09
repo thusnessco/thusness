@@ -3,7 +3,6 @@ export const ORIENT_BOOKLET_CONFIG_KEY = "orient_booklet_config";
 export const ORIENT_BOOKLET_SLUGS = [
   "pillars",
   "stages",
-  "recognition",
   "movement",
   "themes",
   "nihilism",
@@ -37,7 +36,6 @@ function defaultPagesVisible(): Record<OrientBookletSlug, boolean> {
   return {
     pillars: true,
     stages: true,
-    recognition: true,
     movement: true,
     themes: true,
     nihilism: true,
@@ -67,7 +65,6 @@ export function defaultOrientBookletConfig(): OrientBookletConfig {
       proseOverrides: {
         pillars: "",
         stages: "",
-        recognition: "",
         movement: "",
         themes: "",
         nihilism: "",
@@ -168,11 +165,6 @@ export function parseOrientBookletConfig(raw: unknown): OrientBookletConfig {
         "string"
           ? ((copyRaw.proseOverrides as Record<string, unknown>).stages as string)
           : d.copy.proseOverrides.stages,
-      recognition:
-        typeof (copyRaw.proseOverrides as Record<string, unknown> | undefined)
-          ?.recognition === "string"
-          ? ((copyRaw.proseOverrides as Record<string, unknown>).recognition as string)
-          : d.copy.proseOverrides.recognition,
       movement:
         typeof (copyRaw.proseOverrides as Record<string, unknown> | undefined)?.movement ===
         "string"

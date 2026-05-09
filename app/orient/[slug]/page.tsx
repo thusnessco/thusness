@@ -83,6 +83,8 @@ export default async function OrientSectionPage({
 
   const nav = neighbors(page.slug);
   const sheetHead = infographicHeadForDiagram(page.diagram, infographics.content);
+  const bookletTotal = ORIENT_BOOKLET_PAGES.length;
+  const bookletTotalStr = String(bookletTotal).padStart(2, "0");
 
   return (
     <div className="orient-page">
@@ -92,7 +94,8 @@ export default async function OrientSectionPage({
             <Wordmark size={20} tagline="~ as it is" />
           </Link>
           <div className="orient-sheet-index" aria-label="Position in orient booklet">
-            {cfg.copy.sectionSheetIndexPrefix} · {String(page.index).padStart(2, "0")} of 06
+            {cfg.copy.sectionSheetIndexPrefix} · {String(page.index).padStart(2, "0")} of{" "}
+            {bookletTotalStr}
           </div>
         </header>
 
@@ -102,7 +105,7 @@ export default async function OrientSectionPage({
             {cfg.copy.sectionContextLinkLabel}
           </Link>
           {" · "}
-          {String(page.index).padStart(2, "0")} of 06
+          {String(page.index).padStart(2, "0")} of {bookletTotalStr}
         </div>
 
         {sheetHead ? (

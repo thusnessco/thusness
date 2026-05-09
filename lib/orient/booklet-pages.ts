@@ -10,7 +10,7 @@ export type OrientBookletPageMeta = {
   diagram: OrientDiagramId;
 };
 
-/** Reading order after the giant map: pillars first (what you bring), then stages through themes; nihilism stays aside in the TOC. */
+/** Reading order after the giant map: pillars, stages, movement, themes; nihilism stays aside in the TOC. */
 export const ORIENT_BOOKLET_PAGES: OrientBookletPageMeta[] = [
   {
     slug: "pillars",
@@ -27,30 +27,23 @@ export const ORIENT_BOOKLET_PAGES: OrientBookletPageMeta[] = [
     diagram: "stages",
   },
   {
-    slug: "recognition",
-    noteSlug: "orient-recognition",
-    index: 3,
-    label: "Two kinds of peace",
-    diagram: "recognition",
-  },
-  {
     slug: "movement",
     noteSlug: "orient-movement",
-    index: 4,
+    index: 3,
     label: "Movement & progression",
     diagram: "movement",
   },
   {
     slug: "themes",
     noteSlug: "orient-themes",
-    index: 5,
+    index: 4,
     label: "Aspects of exploration",
     diagram: "themes",
   },
   {
     slug: "nihilism",
     noteSlug: "orient-nihilism",
-    index: 6,
+    index: 5,
     label: "Emptiness ≠ non-existence",
     diagram: "nihilism",
   },
