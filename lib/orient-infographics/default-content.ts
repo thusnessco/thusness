@@ -83,9 +83,9 @@ export function defaultOrientInfographics(): OrientContent {
       footer: "Carried through Recognition, Perpetuation, Integration — and beyond.",
     },
     movement: {
-      kicker: "~ With sustained peaceful stability",
-      title: "Precise seeing is possible.",
-      sub: "as perception opens, a subtle shift is invited",
+      kicker: "~ From solidity to relationship",
+      title: "From Solidity to Relationship",
+      sub: "Precise seeing is possible. As perception opens, a subtle shift is invited.",
       items: [
         {
           name: "Seeing through",

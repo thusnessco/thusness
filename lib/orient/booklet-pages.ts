@@ -30,7 +30,7 @@ export const ORIENT_BOOKLET_PAGES: OrientBookletPageMeta[] = [
     slug: "movement",
     noteSlug: "orient-movement",
     index: 3,
-    label: "Movement & progression",
+    label: "From Solidity to Relationship",
     diagram: "movement",
   },
   {

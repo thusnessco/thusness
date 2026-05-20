@@ -13,7 +13,7 @@ import { adminBtnPrimary, adminFieldInput, adminFieldLabel } from "./admin-ui";
 const LABELS: Record<(typeof ORIENT_BOOKLET_SLUGS)[number], string> = {
   pillars: "01 · Three pillars",
   stages: "02 · Stages of peace",
-  movement: "03 · Movement & progression",
+  movement: "03 · From Solidity to Relationship",
   themes: "04 · Aspects of exploration",
   nihilism: "05 · Emptiness ≠ non-existence",
 };

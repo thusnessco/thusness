@@ -26,7 +26,7 @@ export const ORIENT_DIAGRAM_CHOICES: { id: OrientDiagramId; label: string }[] = 
   { id: "pillars", label: "Three pillars" },
   { id: "stages", label: "Stages of peace" },
   { id: "recognition", label: "Recognition" },
-  { id: "movement", label: "Movement & progression" },
+  { id: "movement", label: "From Solidity to Relationship" },
   { id: "themes", label: "Themes" },
   { id: "nihilism", label: "Nihilism / dependent view" },
 ];

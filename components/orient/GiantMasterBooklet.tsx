@@ -286,7 +286,7 @@ export function GiantMasterBooklet({
         </text>
 
         <text x="80" y={490 + stageDy} fontFamily={ORIENT_HELV} fontSize="13" letterSpacing="2.4" fill={O.muted}>
-          ~ B · MOVEMENT &amp; PROGRESSION
+          ~ B · FROM SOLIDITY TO RELATIONSHIP
         </text>
         <line x1="80" y1={506 + stageDy} x2="940" y2={506 + stageDy} stroke={O.rule} strokeWidth="1" />
 
