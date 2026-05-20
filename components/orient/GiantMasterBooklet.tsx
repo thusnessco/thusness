@@ -3,8 +3,12 @@
 import { useId } from "react";
 
 import type { OrientContent } from "@/lib/orient-infographics/types";
+import { wrapTextLines } from "@/lib/orient/svg-wrap-text";
 
 import { ORIENT_HELV, orientColors as O } from "./orient-diagram-styles";
+
+const STAGE_GLOSS_WRAP_CHARS = 32;
+const STAGE_GLOSS_LINE_DY = 17;
 
 /** Giant orient map + pillars strip — matches `prototype/site/orient.jsx` `GiantMaster` inner (no OSheet). */
 export function GiantMasterBooklet({
@@ -34,6 +38,11 @@ export function GiantMasterBooklet({
   }));
 
   const themesNames = t.themes.list.slice(0, 8);
+
+  const stageGlossLines = stagesRows.map((s) => wrapTextLines(s.gloss, STAGE_GLOSS_WRAP_CHARS));
+  const maxStageGlossLines = Math.max(1, ...stageGlossLines.map((lines) => lines.length));
+  const stageDy = (maxStageGlossLines - 1) * STAGE_GLOSS_LINE_DY;
+  const svgH = 1080 + stageDy;
 
   return (
     <div style={{ width: "100%", maxWidth: "100%", margin: "0 auto", position: "relative" }}>
@@ -134,7 +143,7 @@ export function GiantMasterBooklet({
         </div>
       </div>
 
-      <svg viewBox="0 0 1180 1080" width="100%" height="auto" aria-hidden>
+      <svg viewBox={`0 0 1180 ${svgH}`} width="100%" height="auto" aria-hidden>
         <defs>
           <marker
             id={markerId}
@@ -239,27 +248,47 @@ export function GiantMasterBooklet({
             </text>
             <text
               x={s.x}
-              y="356"
+              y="360"
               textAnchor="middle"
               fontFamily={ORIENT_HELV}
               fontSize="14"
               fontStyle="italic"
               fill={O.inkSoft}
             >
-              {s.gloss}
+              {stageGlossLines[i].map((line, j) => (
+                <tspan key={j} x={s.x} dy={j === 0 ? 0 : STAGE_GLOSS_LINE_DY}>
+                  {line}
+                </tspan>
+              ))}
             </text>
           </g>
         ))}
 
-        <line x1="500" y1="380" x2="500" y2="450" stroke={O.muted} strokeWidth="1" strokeDasharray="3 5" markerEnd={`url(#${markerId})`} />
-        <text x="520" y="420" fontFamily={ORIENT_HELV} fontStyle="italic" fontSize="15" fill={O.muted}>
+        <line
+          x1="500"
+          y1={380 + stageDy}
+          x2="500"
+          y2={450 + stageDy}
+          stroke={O.muted}
+          strokeWidth="1"
+          strokeDasharray="3 5"
+          markerEnd={`url(#${markerId})`}
+        />
+        <text
+          x="520"
+          y={420 + stageDy}
+          fontFamily={ORIENT_HELV}
+          fontStyle="italic"
+          fontSize="15"
+          fill={O.muted}
+        >
           {t.giant.transition}
         </text>
 
-        <text x="80" y="490" fontFamily={ORIENT_HELV} fontSize="13" letterSpacing="2.4" fill={O.muted}>
+        <text x="80" y={490 + stageDy} fontFamily={ORIENT_HELV} fontSize="13" letterSpacing="2.4" fill={O.muted}>
           ~ B · MOVEMENT &amp; PROGRESSION
         </text>
-        <line x1="80" y1="506" x2="940" y2="506" stroke={O.rule} strokeWidth="1" />
+        <line x1="80" y1={506 + stageDy} x2="940" y2={506 + stageDy} stroke={O.rule} strokeWidth="1" />
 
         <g>
           {[
@@ -270,17 +299,40 @@ export function GiantMasterBooklet({
             [200, 588],
             [180, 618],
           ].map(([x, y], i) => (
-            <circle key={`a${i}`} cx={x} cy={y} r="4" fill={O.ink} />
+            <circle key={`a${i}`} cx={x} cy={y + stageDy} r="4" fill={O.ink} />
           ))}
-          <rect x="120" y="535" width="120" height="100" fill="none" stroke={O.rule} strokeWidth="1" />
-          <text x="180" y="660" textAnchor="middle" fontFamily={ORIENT_HELV} fontStyle="italic" fontSize="13" letterSpacing="1.6" fill={O.muted}>
+          <rect x="120" y={535 + stageDy} width="120" height="100" fill="none" stroke={O.rule} strokeWidth="1" />
+          <text
+            x="180"
+            y={660 + stageDy}
+            textAnchor="middle"
+            fontFamily={ORIENT_HELV}
+            fontStyle="italic"
+            fontSize="13"
+            letterSpacing="1.6"
+            fill={O.muted}
+          >
             ~ assumed · solid
           </text>
         </g>
 
-        <path d="M 270 580 Q 430 540, 590 580" fill="none" stroke={O.muted} strokeWidth="1" strokeDasharray="3 5" />
-        <path d="M 590 580 l -8 -3 l 0 6 z" fill={O.muted} />
-        <text x="430" y="528" textAnchor="middle" fontFamily={ORIENT_HELV} fontStyle="italic" fontSize="14" fill={O.muted}>
+        <path
+          d={`M 270 ${580 + stageDy} Q 430 ${540 + stageDy}, 590 ${580 + stageDy}`}
+          fill="none"
+          stroke={O.muted}
+          strokeWidth="1"
+          strokeDasharray="3 5"
+        />
+        <path d={`M 590 ${580 + stageDy} l -8 -3 l 0 6 z`} fill={O.muted} />
+        <text
+          x="430"
+          y={528 + stageDy}
+          textAnchor="middle"
+          fontFamily={ORIENT_HELV}
+          fontStyle="italic"
+          fontSize="14"
+          fill={O.muted}
+        >
           ~ assumption doesn&apos;t hold when looked at closely
         </text>
 
@@ -320,42 +372,51 @@ export function GiantMasterBooklet({
                   <line
                     key={`gl${i}`}
                     x1={pts[a][0]}
-                    y1={pts[a][1]}
+                    y1={pts[a][1] + stageDy}
                     x2={pts[b][0]}
-                    y2={pts[b][1]}
+                    y2={pts[b][1] + stageDy}
                     stroke={O.rule}
                     strokeWidth="1"
                     opacity="0.85"
                   />
                 ))}
                 {pts.map(([x, y], i) => (
-                  <circle key={`gp${i}`} cx={x} cy={y} r="3.5" fill={O.ink} />
+                  <circle key={`gp${i}`} cx={x} cy={y + stageDy} r="3.5" fill={O.ink} />
                 ))}
               </>
             );
           })()}
-          <text x="730" y="700" textAnchor="middle" fontFamily={ORIENT_HELV} fontStyle="italic" fontSize="13" letterSpacing="1.6" fill={O.muted}>
+          <text
+            x="730"
+            y={700 + stageDy}
+            textAnchor="middle"
+            fontFamily={ORIENT_HELV}
+            fontStyle="italic"
+            fontSize="13"
+            letterSpacing="1.6"
+            fill={O.muted}
+          >
             ~ dependent · conditioned
           </text>
         </g>
 
-        <line x1="80" y1="730" x2="940" y2="730" stroke={O.rule} strokeWidth="1" />
+        <line x1="80" y1={730 + stageDy} x2="940" y2={730 + stageDy} stroke={O.rule} strokeWidth="1" />
 
-        <text x="80" y="780" fontFamily={ORIENT_HELV} fontSize="13" letterSpacing="2.4" fill={O.muted}>
+        <text x="80" y={780 + stageDy} fontFamily={ORIENT_HELV} fontSize="13" letterSpacing="2.4" fill={O.muted}>
           ~ C · THEMES
         </text>
-        <line x1="80" y1="796" x2="940" y2="796" stroke={O.rule} strokeWidth="1" />
+        <line x1="80" y1={796 + stageDy} x2="940" y2={796 + stageDy} stroke={O.rule} strokeWidth="1" />
 
         {(() => {
           const positions = [
-            { x: 160, y: 870 },
-            { x: 320, y: 840 },
-            { x: 480, y: 870 },
-            { x: 660, y: 840 },
-            { x: 220, y: 970 },
-            { x: 400, y: 990 },
-            { x: 580, y: 970 },
-            { x: 760, y: 990 },
+            { x: 160, y: 870 + stageDy },
+            { x: 320, y: 840 + stageDy },
+            { x: 480, y: 870 + stageDy },
+            { x: 660, y: 840 + stageDy },
+            { x: 220, y: 970 + stageDy },
+            { x: 400, y: 990 + stageDy },
+            { x: 580, y: 970 + stageDy },
+            { x: 760, y: 990 + stageDy },
           ];
           const themes = themesNames.map((name, i) => ({ name, ...positions[i] }));
           const links = [
@@ -407,7 +468,15 @@ export function GiantMasterBooklet({
           );
         })()}
 
-        <text x="80" y="1040" fontFamily={ORIENT_HELV} fontStyle="italic" fontSize="13" letterSpacing="0.4" fill={O.muted}>
+        <text
+          x="80"
+          y={1040 + stageDy}
+          fontFamily={ORIENT_HELV}
+          fontStyle="italic"
+          fontSize="13"
+          letterSpacing="0.4"
+          fill={O.muted}
+        >
           {t.giant.tagline}
         </text>
       </svg>
