@@ -4,11 +4,14 @@ const PROGRAM_CARD = "thusnessProgramCard";
 const PROGRAM_ROW = "thusnessProgramRow";
 
 const CURRENT_ROWS = [
-  ["Week 4", "Guided Noticing", "Wed · May 27"],
-  ["Week 4", "Guided Noticing", "Fri · May 29"],
-  ["Week 4", "Guided Noticing", "Wed · Jun 03"],
-  ["Week 4", "Guided Noticing", "Fri · Jun 05"],
+  ["Week 5", "Guided Noticing", "Wed · May 27"],
+  ["Week 5", "Guided Noticing", "Fri · May 29"],
+  ["Week 6", "Guided Noticing", "Wed · Jun 03"],
+  ["Week 6", "Guided Noticing", "Fri · Jun 05"],
 ] as const;
+
+const CURRENT_TITLE = "A 6-week noticing is underway.";
+const CURRENT_PROGRESS = "week 5 of 6";
 
 function textNode(text: string): JSONContent {
   return { type: "text", text };
@@ -32,10 +35,18 @@ function progressNode(source: JSONContent | undefined): JSONContent {
     content: [
       {
         type: "text",
-        text: "week 4 of 4",
+        text: CURRENT_PROGRESS,
         marks: source?.content?.[0]?.marks ?? [{ type: "italic" }],
       },
     ],
+  };
+}
+
+function titleNode(source: JSONContent | undefined): JSONContent {
+  return {
+    ...(source ?? { type: "paragraph" }),
+    type: "paragraph",
+    content: [{ type: "text", text: CURRENT_TITLE }],
   };
 }
 
@@ -48,7 +59,7 @@ function normalizeCard(node: JSONContent): JSONContent {
   if (!isFourWeekNoticingCard(node)) return node;
 
   const content = node.content ?? [];
-  const beforeRows = content.slice(0, 2);
+  const beforeRows = [content[0], titleNode(content[1])].filter(Boolean);
   const afterRows = content.slice(3).filter((child) => child.type !== PROGRAM_ROW);
   const rows = CURRENT_ROWS.map(([week, title, date]) => programRow(week, title, date));
 
