@@ -4,6 +4,7 @@ import type { JSONContent } from "@tiptap/core";
 
 import { getHomepagePin } from "@/lib/data/homepage-source";
 import { getPublishedNoteBySlug } from "@/lib/data/notes-public";
+import { withCurrentHomepageProgramCard } from "@/lib/homepage/current-program-card";
 import { buildSiteTemplateDoc } from "@/lib/homepage/site-templates";
 
 export type HomepageBodyResult =
@@ -19,7 +20,7 @@ export async function getHomepageTipTapDoc(): Promise<HomepageBodyResult> {
     if (note)
       return {
         ok: true,
-        doc: note.content_json,
+        doc: withCurrentHomepageProgramCard(note.content_json),
         showBackgroundCircle: note.show_background_circle ?? false,
       };
     return { ok: false, reason: "no_home_content" };
@@ -27,6 +28,6 @@ export async function getHomepageTipTapDoc(): Promise<HomepageBodyResult> {
 
   return {
     ok: true,
-    doc: buildSiteTemplateDoc(pin.template, pin.fields),
+    doc: withCurrentHomepageProgramCard(buildSiteTemplateDoc(pin.template, pin.fields)),
   };
 }
