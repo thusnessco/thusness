@@ -3,15 +3,16 @@ import type { JSONContent } from "@tiptap/core";
 const PROGRAM_CARD = "thusnessProgramCard";
 const PROGRAM_ROW = "thusnessProgramRow";
 
+/** Wed/Fri rows from the next upcoming session (Fri Jun 12, 2026). */
 const CURRENT_ROWS = [
-  ["Week 5", "Guided Noticing", "Wed · May 27"],
-  ["Week 5", "Guided Noticing", "Fri · May 29"],
-  ["Week 6", "Guided Noticing", "Wed · Jun 03"],
-  ["Week 6", "Guided Noticing", "Fri · Jun 05"],
+  ["Week 7", "Guided Noticing", "Fri · Jun 12"],
+  ["Week 7", "Guided Noticing", "Wed · Jun 17"],
+  ["Week 8", "Guided Noticing", "Fri · Jun 19"],
+  ["Week 8", "Guided Noticing", "Wed · Jun 24"],
 ] as const;
 
-const CURRENT_TITLE = "A 6-week noticing is underway.";
-const CURRENT_PROGRESS = "week 5 of 6";
+const CURRENT_TITLE = "An 8-week noticing is underway.";
+const CURRENT_PROGRESS = "week 7 of 8";
 
 function textNode(text: string): JSONContent {
   return { type: "text", text };
@@ -50,13 +51,18 @@ function titleNode(source: JSONContent | undefined): JSONContent {
   };
 }
 
-function isFourWeekNoticingCard(node: JSONContent): boolean {
+function isGuidedNoticingProgramCard(node: JSONContent): boolean {
   if (node.type !== PROGRAM_CARD || !Array.isArray(node.content)) return false;
-  return JSON.stringify(node).includes("A 4-week noticing");
+  const blob = JSON.stringify(node);
+  return (
+    blob.includes("noticing is underway") ||
+    blob.includes("Guided Noticing") ||
+    blob.includes("thusnessProgramRow")
+  );
 }
 
 function normalizeCard(node: JSONContent): JSONContent {
-  if (!isFourWeekNoticingCard(node)) return node;
+  if (!isGuidedNoticingProgramCard(node)) return node;
 
   const content = node.content ?? [];
   const beforeRows = [content[0], titleNode(content[1])].filter(Boolean);
