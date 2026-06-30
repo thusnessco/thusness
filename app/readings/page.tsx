@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { SiteFooter } from "@/components/thusness/SiteFooter";
 import { ThusnessPageShell } from "@/components/thusness/ThusnessPageShell";
+import { getGenerosityReadingBundle } from "@/lib/data/generosity-reading";
 import { getResistancePageBundle } from "@/lib/data/resistance-page";
 import { getReadingsPublicRows } from "@/lib/data/readings-public";
 import { formatPublishedDate } from "@/lib/data/notes-public";
@@ -17,11 +18,13 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 export default async function ReadingsPage() {
-  const [rows, resistanceBundle] = await Promise.all([
+  const [rows, resistanceBundle, generosityBundle] = await Promise.all([
     getReadingsPublicRows(),
     getResistancePageBundle(),
+    getGenerosityReadingBundle(),
   ]);
   const resistance = resistanceBundle.content;
+  const generosity = generosityBundle.content;
   const curatedRows = rows.filter(
     (r) => !(r.kind === "link" && r.href === "/readings/resistance")
   );
@@ -38,6 +41,21 @@ export default async function ReadingsPage() {
 
         <section className="mt-10" aria-label="Readings list">
           <ol className="m-0 max-w-[620px] list-none divide-y divide-[var(--thusness-rule)] overflow-hidden rounded-sm border border-[var(--thusness-rule)] p-0">
+            <li>
+              <Link href="/readings/generosity" className={linkClassName}>
+                <span className="text-[11px] uppercase tracking-[2px] text-[var(--thusness-muted)]">
+                  {generosity.kicker}
+                </span>
+                <span className="mt-2 block text-[22px] font-medium leading-tight text-[var(--thusness-ink)]">
+                  {generosity.title}
+                </span>
+                {generosity.sub.trim() ? (
+                  <span className="mt-2 block text-base italic leading-snug text-[var(--thusness-ink-soft)]">
+                    {generosity.sub}
+                  </span>
+                ) : null}
+              </Link>
+            </li>
             <li>
               <Link href="/readings/resistance" className={linkClassName}>
                 <span className="text-[11px] uppercase tracking-[2px] text-[var(--thusness-muted)]">

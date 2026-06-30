@@ -1590,6 +1590,36 @@ body.thusness ::selection {
   border-bottom: 1px solid var(--thusness-rule, #c7c2b0);
 }
 
+/* —— /readings/generosity essay */
+.reading-essay-body {
+  margin-bottom: 56px;
+}
+
+.reading-essay-h2 {
+  margin: 2.4em 0 1em;
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  color: var(--thusness-ink, #1a1915);
+}
+
+.reading-dialogue {
+  margin: 0 0 1.6em;
+  padding: 0 0 0 1.25em;
+  border-left: 1px solid var(--thusness-rule, #c7c2b0);
+}
+
+.reading-dialogue p {
+  margin: 0 0 0.75em;
+  font-style: italic;
+  color: var(--thusness-ink-soft, #3d3a2f);
+}
+
+.reading-dialogue p:last-child {
+  margin-bottom: 0;
+}
+
 .resistance-tools-spacer {
   height: 48px;
 }
