@@ -5,14 +5,14 @@ const PROGRAM_ROW = "thusnessProgramRow";
 
 /** Wed/Fri rows from the next upcoming session (Wed Jul 1, 2026). */
 const CURRENT_ROWS = [
-  ["Week 7", "Deconditioning", "Wed · Jul 01"],
-  ["Week 7", "Deconditioning", "Fri · Jul 03"],
-  ["Week 8", "Deconditioning", "Wed · Jul 08"],
-  ["Week 8", "Deconditioning", "Fri · Jul 10"],
+  ["Week 1", "Deconditioning", "Wed · Jul 01"],
+  ["Week 1", "Deconditioning", "Fri · Jul 03"],
+  ["Week 2", "Deconditioning", "Wed · Jul 08"],
+  ["Week 2", "Deconditioning", "Fri · Jul 10"],
 ] as const;
 
-const CURRENT_TITLE = "An 8-week noticing is underway.";
-const CURRENT_PROGRESS = "week 7 of 8";
+const CURRENT_TITLE = "An 8-week deconditioning is underway.";
+const CURRENT_PROGRESS = "week 1 of 8";
 
 function textNode(text: string): JSONContent {
   return { type: "text", text };
@@ -56,6 +56,7 @@ function isHomepageProgramCard(node: JSONContent): boolean {
   const blob = JSON.stringify(node);
   return (
     blob.includes("noticing is underway") ||
+    blob.includes("deconditioning is underway") ||
     blob.includes("Guided Noticing") ||
     blob.includes("Deconditioning") ||
     blob.includes("thusnessProgramRow")
