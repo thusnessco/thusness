@@ -3,12 +3,12 @@ import type { JSONContent } from "@tiptap/core";
 const PROGRAM_CARD = "thusnessProgramCard";
 const PROGRAM_ROW = "thusnessProgramRow";
 
-/** Wed/Fri rows from the next upcoming session (Fri Jun 12, 2026). */
+/** Wed/Fri rows from the next upcoming session (Wed Jul 1, 2026). */
 const CURRENT_ROWS = [
-  ["Week 7", "Guided Noticing", "Fri · Jun 12"],
-  ["Week 7", "Guided Noticing", "Wed · Jun 17"],
-  ["Week 8", "Guided Noticing", "Fri · Jun 19"],
-  ["Week 8", "Guided Noticing", "Wed · Jun 24"],
+  ["Week 7", "Deconditioning", "Wed · Jul 01"],
+  ["Week 7", "Deconditioning", "Fri · Jul 03"],
+  ["Week 8", "Deconditioning", "Wed · Jul 08"],
+  ["Week 8", "Deconditioning", "Fri · Jul 10"],
 ] as const;
 
 const CURRENT_TITLE = "An 8-week noticing is underway.";
@@ -51,18 +51,19 @@ function titleNode(source: JSONContent | undefined): JSONContent {
   };
 }
 
-function isGuidedNoticingProgramCard(node: JSONContent): boolean {
+function isHomepageProgramCard(node: JSONContent): boolean {
   if (node.type !== PROGRAM_CARD || !Array.isArray(node.content)) return false;
   const blob = JSON.stringify(node);
   return (
     blob.includes("noticing is underway") ||
     blob.includes("Guided Noticing") ||
+    blob.includes("Deconditioning") ||
     blob.includes("thusnessProgramRow")
   );
 }
 
 function normalizeCard(node: JSONContent): JSONContent {
-  if (!isGuidedNoticingProgramCard(node)) return node;
+  if (!isHomepageProgramCard(node)) return node;
 
   const content = node.content ?? [];
   const beforeRows = [content[0], titleNode(content[1])].filter(Boolean);
