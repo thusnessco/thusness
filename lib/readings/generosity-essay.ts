@@ -81,10 +81,6 @@ A ripple in still water.
 
 Wish you the best in your exploration of generosity, C`;
 
-function slice(s: string, max: number): string {
-  return s.slice(0, max);
-}
-
 export function defaultGenerosityEssayContent(): GenerosityEssayContent {
   return {
     v: 2,
@@ -94,19 +90,9 @@ export function defaultGenerosityEssayContent(): GenerosityEssayContent {
 }
 
 export function parseGenerosityEssayContent(raw: unknown): GenerosityEssayContent {
-  const d = defaultGenerosityEssayContent();
-  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return d;
-  const o = raw as Record<string, unknown>;
-
-  if (typeof o.body === "string" && o.body.trim()) {
-    return {
-      v: 2,
-      title: typeof o.title === "string" ? slice(o.title, 200) : d.title,
-      body: slice(o.body, 50000),
-    };
-  }
-
-  return d;
+  // Always serve the canonical plain-text body from code.
+  void raw;
+  return defaultGenerosityEssayContent();
 }
 
 export function generosityExcerpt(content: GenerosityEssayContent, max = 140): string {
