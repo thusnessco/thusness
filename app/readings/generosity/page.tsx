@@ -11,8 +11,7 @@ export const dynamic = "force-dynamic";
 export async function generateMetadata(): Promise<Metadata> {
   const { content } = await getGenerosityReadingBundle();
   const title = `${content.title.replace(/\.$/, "")} · Readings · Thusness`;
-  const description =
-    content.sub.trim() || "A field note on miserliness, generosity, and relational giving.";
+  const description = content.body.split("\n").find((l) => l.trim()) ?? content.title;
   return {
     title,
     description,
