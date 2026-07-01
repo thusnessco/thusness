@@ -84,7 +84,7 @@ Wish you the best in your exploration of generosity, C`;
 export function defaultGenerosityEssayContent(): GenerosityEssayContent {
   return {
     v: 2,
-    title: "Generosity on the beach",
+    title: "Generosity vs. Miserliness",
     body: DEFAULT_BODY,
   };
 }
