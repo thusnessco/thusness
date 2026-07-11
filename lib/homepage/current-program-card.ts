@@ -3,16 +3,16 @@ import type { JSONContent } from "@tiptap/core";
 const PROGRAM_CARD = "thusnessProgramCard";
 const PROGRAM_ROW = "thusnessProgramRow";
 
-/** Wed/Fri rows from the next upcoming session (Wed Jul 1, 2026). */
+/** Wed/Fri rows from the next upcoming session (Wed Jul 15, 2026). */
 const CURRENT_ROWS = [
-  ["Week 1", "Deconditioning", "Wed · Jul 01"],
-  ["Week 1", "Deconditioning", "Fri · Jul 03"],
-  ["Week 2", "Deconditioning", "Wed · Jul 08 · cancelled"],
-  ["Week 2", "Deconditioning", "Fri · Jul 10"],
+  ["Week 3", "Deconditioning", "Wed · Jul 15"],
+  ["Week 3", "Deconditioning", "Fri · Jul 17"],
+  ["Week 4", "Deconditioning", "Wed · Jul 22"],
+  ["Week 4", "Deconditioning", "Fri · Jul 24"],
 ] as const;
 
 const CURRENT_TITLE = "An 8-week deconditioning is underway.";
-const CURRENT_PROGRESS = "week 1 of 8";
+const CURRENT_PROGRESS = "week 3 of 8";
 
 function textNode(text: string): JSONContent {
   return { type: "text", text };
