@@ -7,7 +7,7 @@ const PROGRAM_ROW = "thusnessProgramRow";
 const CURRENT_ROWS = [
   ["Week 3", "Deconditioning", "Wed · Jul 15"],
   ["Week 3", "Deconditioning", "Fri · Jul 17"],
-  ["Week 4", "Deconditioning", "Wed · Jul 22"],
+  ["Week 4", "Deconditioning", "Wed · Jul 22 · cancelled"],
   ["Week 4", "Deconditioning", "Fri · Jul 24"],
 ] as const;
 
