@@ -442,14 +442,25 @@ export const ThusnessProgramRow = Node.create({
 
 /**
  * Upcoming program / deepening schedule (bordered card under hero).
- * Content: kicker, title, progress, rows+, footnote, optional join phrase + welcome.
+ * Content: kicker, title, progress, optional rows, footnote, optional join phrase + welcome.
  */
 export const ThusnessProgramCard = Node.create({
   name: programCard,
   group: "block",
   content:
-    "paragraph paragraph paragraph thusnessProgramRow+ paragraph (paragraph paragraph)?",
+    "paragraph paragraph paragraph thusnessProgramRow* paragraph (paragraph paragraph)?",
   defining: true,
+  addAttributes() {
+    return {
+      hiatus: {
+        default: false,
+        parseHTML: (element) =>
+          element.getAttribute("data-hiatus") === "true",
+        renderHTML: (attributes) =>
+          attributes.hiatus ? { "data-hiatus": "true" } : {},
+      },
+    };
+  },
   parseHTML() {
     return [{ tag: `section[data-thusness-node="${programCard}"]` }];
   },
