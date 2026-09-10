@@ -3,14 +3,14 @@ import type { JSONContent } from "@tiptap/core";
 const PROGRAM_CARD = "thusnessProgramCard";
 const PROGRAM_ROW = "thusnessProgramRow";
 
-/** Wed/Fri rows from the next upcoming session (Wed Sep 2, 2026). */
+/** Wed/Fri rows from the next upcoming session (Fri Sep 11, 2026). */
 const CURRENT_ROWS = [
-  ["Week 8", "Deconditioning", "Wed · Sep 2"],
-  ["Week 8", "Deconditioning", "Fri · Sep 4"],
+  ["Next session", "Exploring the Heart Sutra", "Fri · Sep 11"],
+  ["Then", "Exploring the Heart Sutra", "Wed · Sep 16"],
 ] as const;
 
-const CURRENT_TITLE = "An 8-week deconditioning is underway.";
-const CURRENT_PROGRESS = "week 8 of 8";
+const CURRENT_TITLE = "Exploring the Heart Sutra is underway.";
+const CURRENT_PROGRESS = "Wednesdays · Fridays";
 
 function textNode(text: string): JSONContent {
   return { type: "text", text };
@@ -55,6 +55,7 @@ function isHomepageProgramCard(node: JSONContent): boolean {
   return (
     blob.includes("noticing is underway") ||
     blob.includes("deconditioning is underway") ||
+    blob.includes("Heart Sutra") ||
     blob.includes("On hiatus until") ||
     blob.includes("Guided Noticing") ||
     blob.includes("Deconditioning") ||
