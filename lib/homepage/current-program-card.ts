@@ -4,12 +4,13 @@ const PROGRAM_CARD = "thusnessProgramCard";
 const PROGRAM_ROW = "thusnessProgramRow";
 const HERO = "thusnessHero";
 
-/** Wed/Fri rows from the next upcoming session (Wed Sep 16, 2026). */
+/** Wed/Fri rows from tomorrow's cancelled sitting (Wed Sep 16, 2026). */
 const CURRENT_ROWS = [
-  ["Next session", "Motivation and Equality", "Wed · Sep 16"],
-  ["", "Awareness of Death", "Fri · Sep 18"],
-  ["", "Facing Horror", "Wed · Sep 23"],
-  ["", "Lifetimes", "Fri · Sep 25"],
+  ["Next session", "cancelled", "Wed · Sep 16 · cancelled"],
+  ["", "Motivation and Equality", "Fri · Sep 18"],
+  ["", "Awareness of Death", "Wed · Sep 23"],
+  ["", "Facing Horror", "Fri · Sep 25"],
+  ["", "Lifetimes", "Wed · Sep 30"],
 ] as const;
 
 const CURRENT_TITLE = "The Compassion Experiment is underway.";
