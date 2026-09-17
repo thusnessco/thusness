@@ -4,9 +4,8 @@ const PROGRAM_CARD = "thusnessProgramCard";
 const PROGRAM_ROW = "thusnessProgramRow";
 const HERO = "thusnessHero";
 
-/** Next sitting is Fri Sep 18; Wed Sep 16 is cancelled. */
+/** Wed/Fri rows from the next upcoming session (Fri Sep 18, 2026). */
 const CURRENT_ROWS = [
-  ["", "cancelled", "Wed · Sep 16 · cancelled"],
   ["Next session", "Motivation and Equality", "Fri · Sep 18"],
   ["", "Awareness of Death", "Wed · Sep 23"],
   ["", "Facing Horror", "Fri · Sep 25"],
