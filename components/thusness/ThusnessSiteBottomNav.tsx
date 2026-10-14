@@ -14,10 +14,6 @@ export function ThusnessSiteBottomNav() {
       <span className="thusness-bottom-nav-sep" aria-hidden>
         ·
       </span>
-      <Link href="/readings">Readings</Link>
-      <span className="thusness-bottom-nav-sep" aria-hidden>
-        ·
-      </span>
       <TelegramConnectLink bare />
     </nav>
   );
