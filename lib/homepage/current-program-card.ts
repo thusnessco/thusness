@@ -13,9 +13,10 @@ type Sitting = { title: string; date: string };
  * Pacific calendar day after it occurs, and later entries slide in.
  */
 const SCHEDULE: Sitting[] = [
-  { title: "Overview of Compassion", date: "2026-10-21" },
-  { title: "Compassion Seeing Suffering Beings", date: "2026-10-23" },
-  { title: "Compassion Seeing Evanescent Beings", date: "2026-10-28" },
+  { title: "Compassion Seeing Evanescent Beings", date: "2026-10-23" },
+  { title: "Compassion Seeing Empty Beings", date: "2026-10-28" },
+  { title: "Compassion Seeing Suffering Beings", date: "2026-10-30" },
+  { title: "Compassion and Wisdom Combined", date: "2026-11-04" },
 ];
 
 const VISIBLE_COUNT = 4;
