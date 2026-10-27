@@ -35,7 +35,7 @@ const SCHEDULE: Sitting[] = [
 
 const VISIBLE_COUNT = 4;
 
-const CURRENT_TITLE = "A Truthful Heart Compassion Practice is underway.";
+const CURRENT_TITLE = "A Truthful Heart (J. Hopkins) Compassion Practice is underway.";
 const CURRENT_PROGRESS = "Wednesdays · Fridays";
 const CURRENT_HERO_QUESTION = "What if compassion widens and strengthens?";
 
