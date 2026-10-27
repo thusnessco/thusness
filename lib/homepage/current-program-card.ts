@@ -13,17 +13,31 @@ type Sitting = { title: string; date: string };
  * Pacific calendar day after it occurs, and later entries slide in.
  */
 const SCHEDULE: Sitting[] = [
-  { title: "Compassion Seeing Evanescent Beings", date: "2026-10-23" },
-  { title: "Compassion Seeing Empty Beings", date: "2026-10-28" },
-  { title: "Compassion Seeing Suffering Beings", date: "2026-10-30" },
-  { title: "Compassion and Wisdom Combined", date: "2026-11-04" },
+  { title: "Compassion and Emptiness", date: "2026-10-28" },
+  { title: "Our Common Equality", date: "2026-10-30" },
+  { title: "Motivation for Compassion", date: "2026-11-04" },
+  { title: "Awareness of Death", date: "2026-11-06" },
+  { title: "Ill Deeds", date: "2026-11-11" },
+  { title: "Facing Horror", date: "2026-11-13" },
+  { title: "Lifetimes", date: "2026-11-18" },
+  { title: "Everyone as a Friend", date: "2026-11-20" },
+  { title: "Making Progress", date: "2026-11-25" },
+  { title: "Valuing Others", date: "2026-11-27" },
+  { title: "Ways Others are Kind", date: "2026-12-02" },
+  {
+    title: "Reciprocating on your Own Terms (Readiness to Respond)",
+    date: "2026-12-04",
+  },
+  { title: "Meditating Love", date: "2026-12-09" },
+  { title: "Overview of Compassion", date: "2026-12-11" },
+  { title: "Seeing Evanescent Beings", date: "2026-12-16" },
 ];
 
 const VISIBLE_COUNT = 4;
 
-const CURRENT_TITLE = "The Compassion Experiment is underway.";
+const CURRENT_TITLE = "A Truthful Heart Compassion Practice is underway.";
 const CURRENT_PROGRESS = "Wednesdays · Fridays";
-const CURRENT_HERO_QUESTION = "What if compassion deepens?";
+const CURRENT_HERO_QUESTION = "What if compassion widens and strengthens?";
 
 function pacificYmd(now: Date): string {
   const parts = new Intl.DateTimeFormat("en-US", {
@@ -128,6 +142,7 @@ function isHomepageProgramCard(node: JSONContent): boolean {
     blob.includes("deconditioning is underway") ||
     blob.includes("Heart Sutra") ||
     blob.includes("Compassion Experiment") ||
+    blob.includes("Truthful Heart") ||
     blob.includes("On hiatus until") ||
     blob.includes("Guided Noticing") ||
     blob.includes("Deconditioning") ||
