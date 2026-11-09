@@ -1,0 +1,229 @@
+"use client";
+
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type ChangeEvent } from "react";
+
+import { conceptById, concepts, foundations, numberingNote, points, slogans, sources, verses, type Concept, type Skill } from "@/lib/lojong/curriculum";
+import { advance, beginSession, learningState, parseProgress, respond, reviewConcepts, SESSION_LENGTH, setConfidence, type Progress } from "@/lib/lojong/engine";
+import { questionById, type Question } from "@/lib/lojong/questions";
+import { createProgressStore } from "@/lib/lojong/storage";
+import styles from "./lojong.module.css";
+
+type View = "today" | "study" | "review";
+type StudyView = "points" | "verses" | "slogans" | "foundations";
+
+export function LojongCompanion() {
+  const store = useMemo(() => createProgressStore(), []);
+  const progress = useSyncExternalStore(store.subscribe, store.getSnapshot, store.getServerSnapshot);
+  const [view, setView] = useState<View>("today");
+  const [studyView, setStudyView] = useState<StudyView>("points");
+  const [focus, setFocus] = useState<string | null>(null);
+  const [notice, setNotice] = useState("");
+  const [pendingImport, setPendingImport] = useState<Progress | null>(null);
+  const importInput = useRef<HTMLInputElement>(null);
+
+  function studyConcept(id: string) {
+    setFocus(id);
+    setStudyView(id.startsWith("point-") ? "points" : "foundations");
+    setView("study");
+  }
+
+  function exportProgress() {
+    if (!progress) return;
+    const url = URL.createObjectURL(new Blob([JSON.stringify(progress, null, 2)], { type: "application/json" }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `thusness-lojong-${new Date().toISOString().slice(0, 10)}.json`;
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    setNotice("Progress exported. Keep the file to restore this browser or move to another device.");
+  }
+
+  async function importProgress(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    if (file.size > 1_000_000) { setNotice("That file is too large. Choose an exported Lojong progress file."); return; }
+    try {
+      const parsed = parseProgress(JSON.parse(await file.text()));
+      if (!parsed) throw new Error("Invalid progress");
+      if (progress && (progress.attempts.length || progress.session)) {
+        setPendingImport(parsed);
+        setNotice("Ready to import. Replace this browser’s progress, or keep your current progress. Export first if you want to keep both.");
+        return;
+      }
+      store.update(parsed);
+      setNotice("Progress imported. Your saved session is available in Today.");
+    } catch { setNotice("That file could not be read. Choose a valid Lojong progress export; your current progress has been kept."); }
+  }
+
+  return (
+    <>
+      <div className={styles.intro}>
+        <p className={styles.eyebrow}>~ study, reflect, apply</p>
+        <h1>Lojong</h1>
+        <p className={styles.subtitle}>A little understanding.<br />A different way of meeting the day.</p>
+        <p className={styles.introText}>Train the mind in compassion and wisdom, one encounter at a time.</p>
+      </div>
+
+      <nav className={styles.tabs} aria-label="Mind training sections">
+        {(["today", "study", "review"] as View[]).map(item => (
+          <button key={item} type="button" aria-current={view === item ? "page" : undefined} onClick={() => setView(item)}>{item}</button>
+        ))}
+      </nav>
+
+      {!progress ? <p className={styles.quiet} role="status">Opening your companion…</p> : (
+        <>
+          <section hidden={view !== "today"} aria-label="Today">
+            {!progress.session ? (
+              <div className={styles.start}>
+                <p className={styles.eyebrow}>Begin where you are</p>
+                <h2>{progress.attempts.length ? "Make room for a little practice." : "What is already familiar?"}</h2>
+                <p>{progress.attempts.length ? "A short session will revisit uncertain ideas and bring familiar ones into everyday situations." : "Six gentle questions help find a starting point. No preparation needed. “Not sure” is a useful answer."}</p>
+                <button className={styles.primary} onClick={() => store.update(beginSession(progress))}>{progress.attempts.length ? "Begin a short session" : "Find my starting point"}</button>
+                <button className={styles.textButton} onClick={() => { setFocus(null); setView("study"); }}>Or explore the Seven Points</button>
+                <p className={styles.small}>About 3–5 minutes. Pause whenever you like.</p>
+              </div>
+            ) : (
+              <Quiz progress={progress} update={store.update} onStudy={studyConcept} onReview={() => setView("review")} />
+            )}
+          </section>
+
+          <section hidden={view !== "study"} aria-label="Study">
+            <div className={styles.sectionHead}>
+              <p className={styles.eyebrow}>A map, not a finish line</p>
+              <h2>Understanding the training</h2>
+              <p>Lojong is Mahayana mind training: cultivating awakening mind through compassion and wisdom. These structures help you return to the work of everyday life.</p>
+            </div>
+            <div className={styles.subnav} role="group" aria-label="Study topics">
+              {([['points', 'Seven Points'], ['verses', 'Eight Verses'], ['slogans', 'Slogans'], ['foundations', 'Key distinctions']] as [StudyView, string][]).map(([id, label]) => <button key={id} aria-pressed={studyView === id} onClick={() => { setStudyView(id); setFocus(null); }}>{label}</button>)}
+            </div>
+            {studyView === "points" ? <>
+              <p className={styles.note}>Prepare → cultivate → transform → integrate → evaluate → protect → refine. This is a memory aid for the traditional order, not a rigid sequence you must complete. Jinpa’s ten course lessons follow a different teaching order.</p>
+              <div className={styles.conceptList}>{points.map((c, i) => <ConceptItem key={`${c.id}-${focus}`} concept={c} number={i + 1} initiallyOpen={focus === c.id} />)}</div>
+            </> : null}
+            {studyView === "foundations" ? <div className={styles.conceptList}>{foundations.map(c => <ConceptItem key={`${c.id}-${focus}`} concept={c} initiallyOpen={focus === c.id} />)}</div> : null}
+            {studyView === "verses" ? <>
+              <p className={styles.note}>Langri Thangpa’s Eight Verses share the Seven Points’ cultivation of compassion and wisdom. The verses condense attitudes and practices; the Seven Points also organize lifelong integration, measures, commitments, and guidelines. These are original summaries, not a verse translation.</p>
+              <ol className={styles.verseList}>{verses.map(v => <li key={v.number}>
+                <span className={styles.number}>{String(v.number).padStart(2, "0")}</span><div><h3>{v.title}</h3><p>{v.summary}</p><div className={styles.inlineActions}><button className={styles.textButton} onClick={() => studyConcept(v.point)}>Explore Point {v.point.slice(-1)}</button><a href={v.url} target="_blank" rel="noreferrer">Read commentary ↗</a></div></div>
+              </li>)}</ol>
+            </> : null}
+            {studyView === "slogans" ? <SloganLibrary onStudy={studyConcept} /> : null}
+            {progress.session && !progress.session.finished ? <button className={styles.primary} onClick={() => setView("today")}>Return to my session</button> : null}
+            <details className={styles.sources}><summary>Sources, wording, and perspective</summary><p>{sources.jinpa}</p><p>{sources.verses} <a href="https://www.dalailama.com/teachings/training-the-mind" target="_blank" rel="noreferrer">Read the commentary ↗</a></p><p>{sources.perspective}</p><p>The recognition/application exercises assess learning only. They cannot establish meditative realization or spiritual attainment. Unaided recall is reserved for a later version and is not inferred from multiple-choice answers.</p></details>
+          </section>
+
+          <section hidden={view !== "review"} aria-label="Review">
+            <Review progress={progress} onStudy={studyConcept} onSession={() => { if (!progress.session || progress.session.finished) store.update(beginSession(progress)); setView("today"); }} />
+          </section>
+
+          <div className={styles.storage}>
+            <p>Progress stays in this browser. No account, rankings, or shared results. Export a copy to keep it or move to another device. Clearing browser data removes the saved copy.</p>
+            <div className={styles.inlineActions}><button className={styles.textButton} onClick={exportProgress}>Export progress</button><button className={styles.textButton} onClick={() => importInput.current?.click()}>Import progress</button></div>
+            <input ref={importInput} className={styles.srOnly} tabIndex={-1} type="file" accept=".json,application/json" aria-label="Import Lojong progress file" onChange={importProgress} />
+            {store.getMessage() ? <p role="alert">{store.getMessage()}</p> : null}
+            {notice ? <p role="status">{notice}</p> : null}
+            {pendingImport ? <div className={styles.inlineActions}><button className={styles.secondary} onClick={() => { store.update(pendingImport); setPendingImport(null); setNotice("Progress imported. Your saved session is available in Today."); }}>Replace saved progress</button><button className={styles.textButton} onClick={() => { setPendingImport(null); setNotice("Import cancelled. Your current progress has been kept."); }}>Keep current progress</button></div> : null}
+          </div>
+        </>
+      )}
+    </>
+  );
+}
+
+function ConceptItem({ concept: c, number, initiallyOpen = false }: { concept: Concept; number?: number; initiallyOpen?: boolean }) {
+  return <details className={styles.concept} open={initiallyOpen || undefined}>
+    <summary>{number ? <span className={styles.number}>{String(number).padStart(2, "0")}</span> : null}<span>{c.title}</span><span className={styles.expand} aria-hidden="true">+</span></summary>
+    <div className={styles.conceptBody}><p>{c.summary}</p><p>{c.why}</p><p className={styles.example}>{c.example}</p><p><span className={styles.label}>Remember</span> {c.mnemonic}</p><p><span className={styles.label}>Reflect</span> {c.check}</p><p className={styles.small}>{c.source}</p></div>
+  </details>;
+}
+
+function SloganLibrary({ onStudy }: { onStudy: (id: string) => void }) {
+  const [filter, setFilter] = useState("all");
+  const [search, setSearch] = useState("");
+  const results = slogans.filter(s => (filter === "all" || s.point === Number(filter)) && s.text.toLowerCase().includes(search.toLowerCase().trim()));
+  return <>
+    <p className={styles.note}>{numberingNote}</p>
+    <div className={styles.filters}>
+      <label>Find a slogan<input type="search" value={search} onChange={e => setSearch(e.target.value)} placeholder="A word or phrase…" /></label>
+      <label>Category<select value={filter} onChange={e => setFilter(e.target.value)}><option value="all">All Seven Points</option>{points.map((p, i) => <option key={p.id} value={i + 1}>{i + 1} · {p.title}</option>)}</select></label>
+    </div>
+    <p className={styles.small} role="status">{results.length} {results.length === 1 ? "instruction" : "instructions"}</p>
+    <ol className={styles.sloganList}>{results.map(s => <li key={s.number}><span className={styles.number}>{String(s.number).padStart(2, "0")}</span><div><p>{s.text}</p><button className={styles.textButton} onClick={() => onStudy(`point-${s.point}`)}>Point {s.point} · {points[s.point - 1].title}</button></div></li>)}</ol>
+    {!results.length ? <p>Try another phrase or choose a different category.</p> : null}
+  </>;
+}
+
+function Quiz({ progress, update, onStudy, onReview }: { progress: Progress; update: (p: Progress) => void; onStudy: (id: string) => void; onReview: () => void }) {
+  const s = progress.session!;
+  const q = questionById[s.ids.at(-1)!];
+  const concept = conceptById[q.concept];
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  const feedbackRef = useRef<HTMLParagraphElement>(null);
+  const hasResponse = Boolean(s.response);
+  useEffect(() => {
+    const target = hasResponse && !s.finished ? feedbackRef.current : headingRef.current;
+    if (target?.getClientRects().length) target.focus();
+  }, [q.id, hasResponse, s.finished]);
+  if (s.finished) {
+    const recent = progress.attempts.slice(-SESSION_LENGTH);
+    const uncertain = [...new Set(recent.filter(a => !a.correct || a.confidence !== "knew").map(a => a.concept))];
+    return <div className={styles.finish}>
+      <p className={styles.eyebrow}>A place to pause</p><h2 ref={headingRef} tabIndex={-1}>Take one idea into the day.</h2>
+      <p>{uncertain.length ? "These ideas may benefit from another look. Your next session will use different questions where possible." : "You have some useful starting points. Future sessions will revisit them and explore how to apply them."}</p>
+      {uncertain.length ? <ul className={styles.studyLinks}>{uncertain.map(id => <li key={id}><button className={styles.textButton} onClick={() => onStudy(id)}>{conceptById[id].title}</button></li>)}</ul> : null}
+      <p className={styles.example}>Before the next conversation: what would it mean to care about this person’s welfare without needing credit?</p>
+      <div className={styles.inlineActions}><button className={styles.primary} onClick={() => update(beginSession(progress))}>Another short session</button><button className={styles.textButton} onClick={onReview}>See review notes</button></div>
+    </div>;
+  }
+  return <div className={styles.quiz}>
+    <div className={styles.quizMeta}><span>{s.mode === "diagnostic" ? "Finding a starting point" : "A short session"}</span><span>{s.ids.length} of {SESSION_LENGTH}</span></div>
+    <div className={styles.progressTrack} role="progressbar" aria-label="Session progress" aria-valuemin={0} aria-valuemax={SESSION_LENGTH} aria-valuenow={s.ids.length - 1}><span style={{ width: `${((s.ids.length - 1) / SESSION_LENGTH) * 100}%` }} /></div>
+    <p className={styles.eyebrow}>{q.skill === "application" ? "Into everyday life" : "Making sense of the training"}</p>
+    <h2 className={styles.question} ref={headingRef} tabIndex={-1}>{q.prompt}</h2>
+    {!s.response ? <AnswerEditor key={q.id} question={q} onAnswer={(answer, unsure) => update(respond(progress, answer, unsure))} /> : <div className={styles.feedback} aria-live="polite">
+      <p className={styles.feedbackLabel} ref={feedbackRef} tabIndex={-1}>{s.response.confidence === "unsure" ? "A useful place to learn." : s.response.correct ? "Yes. Here’s the reasoning." : "Let’s look at the distinction."}</p>
+      <p>{q.explanation}</p><p className={styles.quiet}>{q.contrast}</p>
+      <div className={styles.correctAnswer}><p className={styles.label}>The answer</p><ol>{q.answer.map((id, i) => <li key={id}>{q.slots ? `${q.slots[i]} — ` : ""}{q.options.find(o => o.id === id)!.text}</li>)}</ol></div>
+      {s.response.correct && !s.response.confidence ? <fieldset className={styles.confidence}><legend>How did you arrive at that?</legend><button className={styles.secondary} onClick={() => update(setConfidence(progress, "knew"))}>Knew it</button><button className={styles.secondary} onClick={() => update(setConfidence(progress, "guessed"))}>Guessed</button><p className={styles.small}>A correct guess stays marked for review.</p></fieldset> : null}
+      <details className={styles.learnMore}><summary>Learn more</summary><p>{concept.summary}</p><p>{concept.why}</p><p className={styles.example}>{concept.example}</p><p><span className={styles.label}>Remember</span> {concept.mnemonic}</p><p><span className={styles.label}>Reflect</span> {concept.check}</p><p className={styles.small}>{concept.source}</p></details>
+      <div className={styles.inlineActions}>{s.response.confidence ? <button className={styles.primary} onClick={() => update(advance(progress))}>{s.ids.length === SESSION_LENGTH ? "Close this session" : "Continue"}</button> : null}<button className={styles.textButton} onClick={() => onStudy(q.concept)}>Study this idea</button></div>
+    </div>}
+    <p className={styles.small}>You can switch to Study or Review and come back. Submitted answers are saved automatically.</p>
+  </div>;
+}
+
+function AnswerEditor({ question: q, onAnswer }: { question: Question; onAnswer: (ids: string[], unsure?: boolean) => void }) {
+  const ordered = q.kind === "order" || q.kind === "match";
+  const [selection, setSelection] = useState<string[]>(ordered ? q.options.map(o => o.id) : []);
+  const [movement, setMovement] = useState("");
+  function move(index: number, direction: number) {
+    const next = [...selection];
+    [next[index], next[index + direction]] = [next[index + direction], next[index]];
+    setSelection(next);
+    setMovement(`${q.options.find(o => o.id === next[index + direction])!.text} moved to position ${index + direction + 1}.`);
+  }
+  function select(id: string) {
+    setSelection(prev => q.kind === "single" ? [id] : prev.includes(id) ? prev.filter(v => v !== id) : [...prev, id]);
+  }
+  return <form onSubmit={e => { e.preventDefault(); onAnswer(selection); }}>
+    {ordered ? <>
+      <ol className={styles.orderList}>{selection.map((id, i) => <li key={id}>
+        <div>{q.slots ? <p className={styles.slot}>{q.slots[i]}</p> : null}<span>{q.options.find(o => o.id === id)!.text}</span></div>
+        <div className={styles.moveControls}><button type="button" disabled={i === 0} onClick={() => move(i, -1)} aria-label={`Move ${q.options.find(o => o.id === id)!.text} up`}>Up</button><button type="button" disabled={i === selection.length - 1} onClick={() => move(i, 1)} aria-label={`Move ${q.options.find(o => o.id === id)!.text} down`}>Down</button></div>
+      </li>)}</ol><p className={styles.srOnly} aria-live="polite">{movement}</p>
+    </> : <fieldset className={styles.options}><legend className={styles.srOnly}>{q.kind === "multiple" ? "Choose all that apply" : "Choose one answer"}</legend>{q.options.map(o => <label key={o.id} data-selected={selection.includes(o.id)}><input type={q.kind === "multiple" ? "checkbox" : "radio"} name={q.id} checked={selection.includes(o.id)} onChange={() => select(o.id)} /><span>{o.text}</span></label>)}</fieldset>}
+    <div className={styles.inlineActions}><button className={styles.primary} type="submit" disabled={!selection.length}>Check my understanding</button><button type="button" className={styles.textButton} onClick={() => onAnswer([], true)}>Not sure</button></div>
+  </form>;
+}
+
+function Review({ progress, onStudy, onSession }: { progress: Progress; onStudy: (id: string) => void; onSession: () => void }) {
+  const reviewed = concepts.filter(c => progress.attempts.some(a => a.concept === c.id));
+  const due = reviewConcepts(progress);
+  const labels: Record<string, string> = { unexplored: "Not explored", revisit: "Revisit", uncertain: "Uncertain / guessed", demonstrated: "Demonstrated" };
+  return <>
+    <div className={styles.sectionHead}><p className={styles.eyebrow}>Return with curiosity</p><h2>What could use another look?</h2><p>{due.length ? `${due.length} ${due.length === 1 ? "idea is" : "ideas are"} ready for review.` : reviewed.length ? "No scheduled reviews are due yet. You can still explore another idea." : "Your review notes will grow as you answer questions. Start with a short session or explore the study material."}</p><button className={styles.primary} onClick={onSession}>{progress.session && !progress.session.finished ? "Resume my session" : "Begin a short session"}</button></div>
+    {reviewed.length ? <ul className={styles.reviewList}>{reviewed.map(c => <li key={c.id}><button className={styles.textButton} onClick={() => onStudy(c.id)}>{c.title}</button><dl className={styles.skillList}>{(["recognition", "recall", "application"] as Skill[]).map(skill => { const s = learningState(progress, c.id, skill); return <div key={skill}><dt>{skill === "recall" ? "Unaided recall" : skill}</dt><dd>{skill === "recall" ? "Not assessed" : labels[s.status]}{skill !== "recall" && s.status === "demonstrated" ? s.due ? " · ready to revisit" : ` · revisit ${new Date(s.dueAt!).toLocaleDateString(undefined, { month: "short", day: "numeric" })}` : ""}</dd></div>; })}</dl></li>)}</ul> : null}
+    <p className={styles.note}>These notes describe evidence from learning exercises. Recognition, unaided recall, and real-life application are different capacities. A scenario answer suggests understanding; only daily life can show how you actually respond.</p>
+  </>;
+}

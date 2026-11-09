@@ -1,0 +1,34 @@
+# Lojong companion
+
+Public, unlinked learning area at `/lojong`. Its page metadata requests `noindex,nofollow`; no public navigation or sitemap includes it. This is discoverability guidance, not access control. Anyone with the URL can visit.
+
+## Scope
+
+The existing public pages, admin editors, global CSS, Supabase data, authentication, migrations, and production deployment remain unchanged. This route reuses `ThusnessPageShell`, `SiteFooter`, and the existing design tokens. Styles are local to `lojong.module.css`.
+
+The current MVP provides Seven Points and Eight Verses overviews, Jinpa's 61-item slogan list, foundational distinctions, a six-question diagnostic, adaptive six-question sessions, single/multiple-choice, ordering, matching, missing-point, odd-one-out, and scenario exercises. Feedback and study kits are deterministic. No AI provider or new dependency is required.
+
+## Content
+
+- `lib/lojong/curriculum.ts`: concepts, Seven Points, verse paraphrases, slogans, and attribution.
+- `lib/lojong/questions.ts`: stable question IDs, answers, distractor explanations, concept/skill tags.
+- Quoted slogans follow the participant-provided Jinpa course handouts; verse summaries and explanatory material are teaching paraphrases, not canonical quotations. The UI records edition differences and the correction to slogan 61.
+- This is not a transcript distribution or replacement for the Wisdom Academy course. Course PDFs and recordings are not included.
+
+## Progress and adaptation
+
+`lib/lojong/engine.ts` keeps recognition, recall, and application separate. The MVP does not test unaided recall. Correct responses await “Knew it” or “Guessed”; guessed responses never become demonstrated knowledge. Incorrect and unsure answers prompt review. Confident responses have review intervals of 1, 3, 7, 14, then 30 days. Weak concepts are revisited through different questions, avoiding the last two concepts when possible. Application is favored after demonstrated recognition. None of these states measure spiritual attainment or actual real-world behavior.
+
+`lib/lojong/storage.ts` saves a versioned snapshot under `thusness:lojong:progress:v1` in localStorage. A submitted response and a pending confidence decision survive reloads. Export/import transfers progress manually. Import validates its schema and does not replace existing progress without confirmation. Storage failure is visible and does not prevent a session in memory. Browser data removal clears the local copy. There is no server-side learner storage or built-in analytics.
+
+## Validation
+
+```sh
+npm run lint
+sh scripts/test-lojong.sh
+npm run build
+```
+
+Open `/lojong` on mobile and desktop. Check the initial state, all confidence paths, study/quiz round trip, completed diagnostic, resumed session, ordering/matching controls, import/export, storage errors, sources, and noindex metadata. Revisit `/`, `/sinkin`, and `/orient` for regressions.
+
+Use a feature branch and Vercel preview. Production publication requires Colin's approval. Existing Vercel project: `thusness`; use its existing environment configuration. This route needs no additional environment variables or database changes.

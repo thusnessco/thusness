@@ -1,0 +1,146 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import path from 'node:path';
+import { pathToFileURL } from 'node:url';
+
+const compiled = process.env.LOJONG_COMPILED_DIR;
+if (!compiled) throw new Error('Run with scripts/test-lojong.sh');
+const { default: engine } = await import(pathToFileURL(path.join(compiled, 'engine.js')).href);
+const { default: curriculum } = await import(pathToFileURL(path.join(compiled, 'curriculum.js')).href);
+const { default: questionData } = await import(pathToFileURL(path.join(compiled, 'questions.js')).href);
+const { concepts, points, slogans, verses } = curriculum;
+const { diagnosticIds, questions, questionById } = questionData;
+const { default: storage } = await import(pathToFileURL(path.join(compiled, 'storage.js')).href);
+const now = Date.now();
+
+function answerCurrent(p, confidence = 'knew') {
+  const q = questionById[p.session.ids.at(-1)];
+  const answered = engine.respond(p, q.answer, false, now);
+  return engine.setConfidence(answered, confidence, now);
+}
+
+test('curriculum references are complete and numbering stays edition-specific', () => {
+  assert.equal(points.length, 7);
+  assert.equal(verses.length, 8);
+  assert.equal(slogans.length, 61);
+  assert.equal(slogans[60].text, 'Do not expect applause.');
+  assert.equal(new Set(questions.map(q => q.id)).size, questions.length);
+  for (const q of questions) {
+    assert.ok(concepts.some(c => c.id === q.concept), q.id);
+    assert.ok(q.answer.every(id => q.options.some(o => o.id === id)), q.id);
+    assert.ok(engine.isCorrect(q, q.answer), q.id);
+  }
+  for (const concept of concepts) assert.ok(questions.filter(q => q.concept === concept.id).length >= 2, concept.id);
+});
+
+test('a correct answer waits for confidence before creating learning evidence', () => {
+  const p = engine.beginSession(engine.emptyProgress());
+  const q = questionById[p.session.ids[0]];
+  const waiting = engine.respond(p, q.answer, false, now);
+  assert.equal(waiting.attempts.length, 0);
+  assert.deepEqual(engine.advance(waiting), waiting);
+  assert.ok(engine.parseProgress(JSON.parse(JSON.stringify(waiting))));
+});
+
+test('guessed correctness remains uncertain and never implies recall', () => {
+  const p = answerCurrent(engine.beginSession(engine.emptyProgress()), 'guessed');
+  assert.equal(engine.learningState(p, 'purpose', 'recognition', now).status, 'uncertain');
+  assert.equal(engine.learningState(p, 'purpose', 'recall', now).status, 'unexplored');
+  assert.equal(engine.learningState(p, 'purpose', 'application', now).status, 'unexplored');
+  assert.equal(engine.learningState(p, 'purpose', 'recognition', now).due, true);
+});
+
+test('not sure records missing knowledge, teaches, and permits continuation', () => {
+  const p = engine.respond(engine.beginSession(engine.emptyProgress()), [], true, now);
+  assert.equal(p.attempts[0].confidence, 'unsure');
+  assert.equal(p.attempts[0].correct, false);
+  assert.equal(engine.learningState(p, 'purpose', 'recognition', now).status, 'revisit');
+  assert.equal(engine.advance(p, now).session.ids.length, 2);
+});
+
+test('multiple select rejects extra, missing, and duplicate answers', () => {
+  const q = questionById['multi-guardrails'];
+  assert.equal(engine.isCorrect(q, ['weak', 'badge', 'reward']), true);
+  assert.equal(engine.isCorrect(q, ['weak', 'badge']), false);
+  assert.equal(engine.isCorrect(q, ['weak', 'badge', 'reward', 'joy']), false);
+  assert.equal(engine.isCorrect(q, ['badge', 'badge', 'reward']), false);
+});
+
+test('ordering and matching require correct sequence', () => {
+  for (const id of ['order-points', 'match-567', 'antidote-order']) {
+    const q = questionById[id];
+    assert.equal(engine.isCorrect(q, q.options.map(o => o.id)), false);
+    assert.equal(engine.isCorrect(q, q.answer), true);
+    assert.equal(engine.isCorrect(q, [...q.answer].reverse()), false);
+  }
+});
+
+test('a diagnostic completes once and starts adaptive review next', () => {
+  let p = engine.beginSession(engine.emptyProgress());
+  for (let i = 0; i < engine.SESSION_LENGTH; i++) {
+    assert.equal(p.session.ids.at(-1), diagnosticIds[i]);
+    p = engine.advance(answerCurrent(p), now);
+  }
+  assert.equal(p.session.finished, true);
+  assert.equal(p.completedSessions, 1);
+  assert.equal(p.attempts.length, 6);
+  assert.deepEqual(engine.advance(p), p);
+  assert.equal(engine.beginSession(p).session.mode, 'review');
+});
+
+test('duplicate submission and confidence clicks do not duplicate evidence', () => {
+  const p = answerCurrent(engine.beginSession(engine.emptyProgress()));
+  assert.equal(engine.setConfidence(p, 'knew', now).attempts.length, 1);
+  assert.equal(engine.respond(p, [], true, now).attempts.length, 1);
+});
+
+test('confident learning is scheduled later and lapses reset it', () => {
+  const p = answerCurrent(engine.beginSession(engine.emptyProgress()));
+  assert.equal(engine.learningState(p, 'purpose', 'recognition', now).due, false);
+  assert.equal(engine.learningState(p, 'purpose', 'recognition', now + 86_400_001).due, true);
+  const longer = { ...p, attempts: [...p.attempts, { ...p.attempts[0], at: now + 86_400_001 }] };
+  assert.equal(engine.learningState(longer, 'purpose', 'recognition', now + 86_400_001).dueAt, now + 4 * 86_400_000 + 1);
+  const lapse = { ...longer, attempts: [...longer.attempts, { ...p.attempts[0], correct: false, at: now + 86_400_002 }] };
+  assert.equal(engine.learningState(lapse, 'purpose', 'recognition', now + 86_400_002).streak, 0);
+  assert.equal(engine.learningState(lapse, 'purpose', 'recognition', now + 86_400_002).due, true);
+});
+
+test('adaptive selection targets weak concepts with a different question', () => {
+  const p = {
+    ...engine.emptyProgress(), completedSessions: 1,
+    attempts: [{ questionId: 'commit-a', concept: 'point-6', skill: 'recognition', correct: false, confidence: 'unsure', at: now }],
+  };
+  const next = engine.chooseNext(p, [], now);
+  assert.equal(questionById[next].concept, 'point-6');
+  assert.notEqual(next, 'commit-a');
+  assert.notEqual(engine.chooseNext(p, [next], now), next);
+  assert.notEqual(questionById[engine.chooseNext(p, [next], now)].concept, 'point-6');
+});
+
+test('valid session export roundtrips and malformed files are rejected', () => {
+  const p = answerCurrent(engine.beginSession(engine.emptyProgress()));
+  assert.deepEqual(engine.parseProgress(JSON.parse(JSON.stringify(p))), p);
+  for (const bad of [null, {}, { ...p, version: 2 }, { ...p, session: { ...p.session, ids: ['unknown'] } }, { ...p, session: { ...p.session, ids: ['toString'] } }, { ...p, completedSessions: -1 }, { ...p, attempts: [{ ...p.attempts[0], concept: 'wrong' }] }]) {
+    assert.equal(engine.parseProgress(bad), null);
+  }
+});
+
+test('browser persistence survives reloads, and storage failure keeps a working session in memory', () => {
+  const values = new Map();
+  globalThis.window = {
+    localStorage: { getItem: key => values.get(key) ?? null, setItem: (key, value) => values.set(key, value) },
+  };
+  try {
+    const first = storage.createProgressStore();
+    const p = answerCurrent(engine.beginSession(first.getSnapshot()), 'guessed');
+    first.update(p);
+    assert.deepEqual(storage.createProgressStore().getSnapshot(), p);
+    window.localStorage.setItem = () => { throw new Error('Quota exceeded'); };
+    const next = engine.advance(p);
+    first.update(next);
+    assert.deepEqual(first.getSnapshot(), next);
+    assert.match(first.getMessage(), /only in memory/);
+    values.set(storage.STORAGE_KEY, '{broken');
+    assert.deepEqual(storage.createProgressStore().getSnapshot(), engine.emptyProgress());
+  } finally { delete globalThis.window; }
+});
