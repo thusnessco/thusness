@@ -50,3 +50,5 @@ The Slideshow tab offers the 61 course slogans, optionally filtered by Point, a 
 Traditional slogan credit reads “7 Point Mind Training, Slogan N · Chekawa Yeshe Dorje.” A separate subdued course-edition link credits T. Jinpa and links to the official Wisdom Academy course. Eight Verses retain Langri Thangpa’s authorship. Tibetan spelling beside the main Lojong heading uses system font fallback; no external font is loaded.
 
 Play opens a full-window reading dialog with the instruction, small timer, subtle source/course credit, and Previous/Pause/Next/Exit controls. Settings, main navigation, explanations, and storage copy stay outside the modal. Pausing preserves the clean view. Exit or Escape stops timing and returns to setup. Native dialog focus handling keeps background controls inactive.
+
+A subtle Meaning control in slogan reading view expands the existing study explanation and pauses playback. Where there is no slogan-specific note, it explicitly labels the surrounding Point’s context. Changing slides collapses the explanation; Resume restarts timing.

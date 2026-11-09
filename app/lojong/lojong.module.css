@@ -170,3 +170,9 @@
 .heroQuote cite { font-size: 10px; color: #808080; margin-top: 16px; }
 .heroQuote cite::before { display: none; }
 .courseCredit a { text-decoration-color: var(--thusness-rule); }
+
+.readingMeaning { max-width: 620px; width: 100%; margin: 0 auto; }
+.readingMeaning summary { display: inline-block; color: #808080; font-size: 11px; cursor: pointer; padding: 12px; text-decoration: underline; text-decoration-color: var(--thusness-rule); text-underline-offset: 4px; }
+.readingMeaning > p { text-align: left; font-size: 16px; line-height: 1.75; color: var(--thusness-ink-soft); margin-top: 16px; }
+.readingMeaning > .readingMeaningNote { font-size: 10px; color: #808080; }
+.readingMeaning summary:focus-visible { outline: 2px solid var(--thusness-ink); outline-offset: 3px; }

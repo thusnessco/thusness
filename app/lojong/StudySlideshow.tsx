@@ -75,6 +75,11 @@ export function StudySlideshow({ active }: { active: boolean }) {
         <p className={styles.readingLabel}>{deck === "slogans" ? current.label.replace(/ · .* · slogan /, " · Slogan ") : `${current.label} · study summary`}</p>
         <h2>{deck === "slogans" ? `“${current.title}”` : current.title}</h2>
         {deck !== "slogans" ? <p className={styles.readingBody}>{current.body}</p> : null}
+        {deck === "slogans" ? <details className={styles.readingMeaning} key={`meaning-${deck}-${point}-${index}`} onToggle={event => { if (event.currentTarget.open) setPlaying(false); }}>
+          <summary>Meaning</summary>
+          <p>{current.body}</p>
+          <p className={styles.readingMeaningNote}>{rootNotes.some(note => note.number === slogans.filter(s => !point || s.point === point)[index].number) ? "Study explanation · adapted from T. Jinpa’s course commentary." : "Context for this Point · a study summary, not a line-by-line explanation of this slogan."}</p>
+        </details> : null}
         <p className={styles.readingCredit}>{deck === "points" ? "7 Point Mind Training · Chekawa Yeshe Dorje" : current.source}<br /><a href={jinpaCourseUrl} target="_blank" rel="noreferrer">Course edition · T. Jinpa · Wisdom Academy</a></p>
       </div>
       <div className={styles.readingControls}>
