@@ -7,10 +7,12 @@ import { advance, beginSession, learningState, parseProgress, respond, reviewCon
 import { questionById, type Question } from "@/lib/lojong/questions";
 import { createProgressStore } from "@/lib/lojong/storage";
 import styles from "./lojong.module.css";
+import { OneThingToday } from "./OneThingToday";
+import { TonglenMeditation } from "./TonglenMeditation";
 import { StudySlideshow } from "./StudySlideshow";
 import { PracticeFlow } from "./PracticeFlow";
 
-type View = "practice" | "today" | "study" | "slideshow" | "review";
+type View = "practice" | "one-thing" | "tonglen" | "today" | "study" | "slideshow" | "review";
 type StudyView = "points" | "verses" | "slogans" | "foundations";
 
 const openingQuotes = [
@@ -95,12 +97,15 @@ export function LojongCompanion() {
       </div>
 
       <nav className={styles.tabs} aria-label="Mind training sections">
-        {(["practice", "today", "study", "slideshow", "review"] as View[]).map(item => (
-          <button key={item} type="button" aria-current={view === item ? "page" : undefined} onClick={() => setView(item)}>{item === "today" ? "Learn" : item}</button>
+        {(["practice", "one-thing", "tonglen", "study", "slideshow", "review", "today"] as View[]).map(item => (
+          <button key={item} type="button" aria-current={view === item ? "page" : undefined} onClick={() => setView(item)}>{item === "today" ? "Learn" : item === "one-thing" ? "One Thing Today" : item}</button>
         ))}
       </nav>
 
       <section hidden={view !== "practice"} aria-label="Practice"><PracticeFlow active={view === "practice"} /></section>
+
+      <OneThingToday active={view === "one-thing"} onExit={() => setView("practice")} />
+      <section hidden={view !== "tonglen"} aria-label="Tonglen meditation"><TonglenMeditation active={view === "tonglen"} /></section>
 
       <section hidden={view !== "slideshow"} aria-label="Slideshow"><StudySlideshow active={view === "slideshow"} /></section>
 
@@ -114,7 +119,7 @@ export function LojongCompanion() {
                 <p>{progress.attempts.length ? "Review uncertain concepts and answer application questions." : "Six questions on Lojong. Choose “Not sure” when needed."}</p>
                 <button className={styles.primary} onClick={() => store.update(beginSession(progress))}>{progress.attempts.length ? "Start review" : "Start assessment"}</button>
                 <button className={styles.textButton} onClick={() => { setFocus(null); setView("study"); }}>Study the Seven Points</button>
-                <p className={styles.small}>About 3–5 minutes. Pause whenever you like.</p>
+                <p className={styles.small}>About 3–5 minutes.</p>
               </div>
             ) : (
               <Quiz progress={progress} update={store.update} onStudy={studyConcept} onReview={() => setView("review")} />
@@ -131,12 +136,12 @@ export function LojongCompanion() {
               {([['points', 'Seven Points'], ['verses', 'Eight Verses'], ['slogans', 'Slogans'], ['foundations', 'Key distinctions']] as [StudyView, string][]).map(([id, label]) => <button key={id} aria-pressed={studyView === id} onClick={() => { setStudyView(id); setFocus(null); }}>{label}</button>)}
             </div>
             {studyView === "points" ? <>
-              <p className={styles.note}>The Seven Points are the traditional organization of these instructions. T. Jinpa’s ten lessons follow a different teaching sequence. Explanations below are source-based summaries; quotations are attributed.</p>
+              <p className={styles.note}>Seven Points of Mind Training · study summaries.</p>
               <div className={styles.conceptList}>{points.map((c, i) => <ConceptItem key={`${c.id}-${focus}`} concept={c} number={i + 1} initiallyOpen={focus === c.id} />)}</div>
             </> : null}
             {studyView === "foundations" ? <div className={styles.conceptList}>{foundations.map(c => <ConceptItem key={`${c.id}-${focus}`} concept={c} initiallyOpen={focus === c.id} />)}</div> : null}
             {studyView === "verses" ? <>
-              <p className={styles.note}>Langri Thangpa’s Eight Verses share the Seven Points’ cultivation of compassion and wisdom. The verses condense attitudes and practices; the Seven Points also organize lifelong integration, measures, commitments, and guidelines. These are original summaries, not a verse translation.</p>
+              <p className={styles.note}>Langri Thangpa’s Eight Verses · study summaries. Each card links to the verse and commentary.</p>
               <ol className={styles.verseList}>{verses.map(v => <li key={v.number}>
                 <span className={styles.number}>{String(v.number).padStart(2, "0")}</span><div><h3>{v.title}</h3><p>{v.summary}</p><div className={styles.inlineActions}><button className={styles.textButton} onClick={() => studyConcept(v.point)}>Explore Point {v.point.slice(-1)}</button><a href={v.url} target="_blank" rel="noreferrer">Read commentary ↗</a></div></div>
               </li>)}</ol>
@@ -150,8 +155,8 @@ export function LojongCompanion() {
             <Review progress={progress} onStudy={studyConcept} onSession={() => { if (!progress.session || progress.session.finished) store.update(beginSession(progress)); setView("today"); }} />
           </section>
 
-          <div className={styles.storage} hidden={view === "practice"}>
-            <p>Progress stays in this browser. No account, rankings, or shared results. Export a copy to keep it or move to another device. Clearing browser data removes the saved copy.</p>
+          <div className={styles.storage} hidden={view === "practice" || view === "tonglen" || view === "one-thing"}>
+            <p>Learning progress is saved in this browser. Export a copy before clearing browser data.</p>
             <div className={styles.inlineActions}><button className={styles.textButton} onClick={exportProgress}>Export progress</button><button className={styles.textButton} onClick={() => importInput.current?.click()}>Import progress</button></div>
             <input ref={importInput} className={styles.srOnly} tabIndex={-1} type="file" accept=".json,application/json" aria-label="Import Lojong progress file" onChange={importProgress} />
             {store.getMessage() ? <p role="alert">{store.getMessage()}</p> : null}
@@ -214,7 +219,7 @@ function Quiz({ progress, update, onStudy, onReview }: { progress: Progress; upd
     const uncertain = [...new Set(recent.filter(a => !a.correct || a.confidence !== "knew").map(a => a.concept))];
     return <div className={styles.finish}>
       <p className={styles.eyebrow}>Session complete</p><h2 ref={headingRef} tabIndex={-1}>Session review</h2>
-      <p>{uncertain.length ? "Review the concepts below. The next session will use different questions where possible." : "Future sessions will revisit these concepts and include application questions."}</p>
+      <p>{uncertain.length ? "Review the concepts below. The next session will use different questions where possible." : "No concepts marked for review."}</p>
       {uncertain.length ? <ul className={styles.studyLinks}>{uncertain.map(id => <li key={id}><button className={styles.textButton} onClick={() => onStudy(id)}>{conceptById[id].title}</button></li>)}</ul> : null}
       <div className={styles.inlineActions}><button className={styles.primary} onClick={() => update(beginSession(progress))}>Another short session</button><button className={styles.textButton} onClick={onReview}>See review notes</button></div>
     </div>;
@@ -267,6 +272,6 @@ function Review({ progress, onStudy, onSession }: { progress: Progress; onStudy:
   return <>
     <div className={styles.sectionHead}><p className={styles.eyebrow}>Review</p><h2>Concepts to review</h2><p>{due.length ? `${due.length} ${due.length === 1 ? "concept is" : "concepts are"} ready for review.` : reviewed.length ? "No scheduled reviews are due yet." : "No learning questions answered yet."}</p><button className={styles.primary} onClick={onSession}>{progress.session && !progress.session.finished ? "Resume my session" : "Start review"}</button></div>
     {reviewed.length ? <ul className={styles.reviewList}>{reviewed.map(c => <li key={c.id}><button className={styles.textButton} onClick={() => onStudy(c.id)}>{c.title}</button><dl className={styles.skillList}>{(["recognition", "recall", "application"] as Skill[]).map(skill => { const s = learningState(progress, c.id, skill); return <div key={skill}><dt>{skill === "recall" ? "Unaided recall" : skill}</dt><dd>{skill === "recall" ? "Not assessed" : labels[s.status]}{skill !== "recall" && s.status === "demonstrated" ? s.due ? " · ready to revisit" : ` · revisit ${new Date(s.dueAt!).toLocaleDateString(undefined, { month: "short", day: "numeric" })}` : ""}</dd></div>; })}</dl></li>)}</ul> : null}
-    <p className={styles.note}>These notes describe evidence from learning exercises. Recognition, unaided recall, and real-life application are different capacities. A scenario answer suggests understanding; only daily life can show how you actually respond.</p>
+
   </>;
 }

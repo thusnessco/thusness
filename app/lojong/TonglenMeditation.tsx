@@ -67,9 +67,9 @@ export function TonglenMeditation({ active }: { active: boolean }) {
       <div className={styles.quizMeta}><span>Tonglen <span lang="bo" className={styles.tibetan}>གཏོང་ལེན་</span> · {(stage ?? 0) + 1} of {stages.length}</span><span role="timer" aria-label="Time remaining">{clock(remaining)}</span></div>
       <div className="sinkin-hero" style={{ "--sinkin-crossfade-ms": "700ms" } as CSSProperties}>
         <h3 ref={heading} tabIndex={-1} className="sinkin-hero-kicker">{finished ? "Meditation complete" : current.title}</h3>
-        <p key={stage} className="sinkin-hero-body">{finished ? "Rest for a moment. When ready, return to the situation and notice what changed, without requiring a particular result." : current.text}</p>
+        <p key={stage} className="sinkin-hero-body">{finished ? "Rest briefly, then notice how you feel." : current.text}</p>
       </div>
-      <p className={styles.small}>{finished ? "The timed practice is complete." : !active || paused ? "Paused" : auto ? "Next prompt follows the bell when the countdown ends." : "Self-paced · continue when ready."}</p>
+      <p className={styles.small}>{finished ? "The timed practice is complete." : !active || paused ? "Paused" : auto ? "Auto-advance" : "Manual advance"}</p>
       <div className={styles.inlineActions}>
         {!finished ? <button type="button" className={styles.secondary} onClick={() => setPaused(value => !value)}>{paused ? "Resume meditation" : "Pause meditation"}</button> : null}
         {stage !== null && stage > 0 ? <button type="button" className={styles.textButton} onClick={() => move(stage - 1)}>Previous prompt</button> : null}
@@ -78,7 +78,7 @@ export function TonglenMeditation({ active }: { active: boolean }) {
       </div>
     </> : <>
       <h3>Tonglen <span lang="bo" className={styles.tibetan}>གཏོང་ལེན་</span> meditation</h3>
-      <p>Giving and taking, one prompt at a time. About seven minutes, with a soft bell between prompts. You can pause or move on whenever you choose.</p>
+      <p>Seven-minute giving-and-taking practice, with a bell between prompts.</p>
       <button ref={start} type="button" className={styles.primary} onClick={begin}>Begin Tonglen meditation</button>
     </>}
     <div className={styles.meditationSettings}>

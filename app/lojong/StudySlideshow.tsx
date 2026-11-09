@@ -5,8 +5,8 @@ import { jinpaCourseUrl, sloganAttribution, points, sloganStudySlides, verses } 
 import { rootNotes } from "@/lib/lojong/practice";
 import styles from "./lojong.module.css";
 
-type Deck = "slogans" | "points" | "verses";
-const deckNames: Record<Deck, string> = { slogans: "61 slogans", points: "Seven Points overview", verses: "Eight Verses study summaries" };
+type Deck = "slogans" | "points" | "verses" | "commitments" | "guidelines";
+const deckNames: Record<Deck, string> = { slogans: "61 slogans", points: "Seven Points overview", verses: "Eight Verses study summaries", commitments: "Commitments", guidelines: "Guidelines" };
 
 export function StudySlideshow({ active }: { active: boolean }) {
   const [deck, setDeck] = useState<Deck>("slogans");
@@ -19,9 +19,11 @@ export function StudySlideshow({ active }: { active: boolean }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const [finished, setFinished] = useState(false);
   const heading = useRef<HTMLHeadingElement>(null);
-  const slides = deck === "slogans" ? sloganStudySlides.filter(s => !point || s.point === point).map(s => ({ label: `Point ${s.point} · ${points[s.point - 1].title} · slogan ${s.displayNumber}`, title: s.text, body: rootNotes.find(note => note.number === s.number)?.explanation ?? points[s.point - 1].summary, source: sloganAttribution(s.displayNumber), specific: rootNotes.some(note => s.sourceNumbers.includes(note.number)), kind: "Wording and numbering follow T. Jinpa’s course handouts. The explanation is a study paraphrase; where no specific explanation is supplied, it gives the surrounding Point’s context.", link: "" }))
-    : deck === "points" ? points.map((p, i) => ({ label: `Point ${i + 1} of 7`, title: p.title, body: p.summary, source: p.source, specific: false, kind: "Point title and overview are study summaries, not a quotation of the root text.", link: "" }))
-    : verses.map(v => ({ label: `Verse ${v.number} of 8`, title: v.title, body: v.summary, source: "Langri Thangpa · Eight Verses for Training the Mind", specific: false, kind: "Original study summary, not the verse text or a translation. Read the original alongside its commentary.", link: v.url }));
+  const isSloganDeck = deck === "slogans" || deck === "commitments" || deck === "guidelines";
+  const selectedPoint = deck === "commitments" ? 6 : deck === "guidelines" ? 7 : point;
+  const slides = isSloganDeck ? sloganStudySlides.filter(s => !selectedPoint || s.point === selectedPoint).map(s => ({ label: `Point ${s.point} · ${points[s.point - 1].title} · slogan ${s.displayNumber}`, title: s.text, body: rootNotes.find(note => note.number === s.number)?.explanation ?? points[s.point - 1].summary, source: sloganAttribution(s.displayNumber), specific: rootNotes.some(note => s.sourceNumbers.includes(note.number)), kind: "Course wording and numbering · explanations are study summaries.", link: "" }))
+    : deck === "points" ? points.map((p, i) => ({ label: `Point ${i + 1} of 7`, title: p.title, body: p.summary, source: p.source, specific: false, kind: "Study summary.", link: "" }))
+    : verses.map(v => ({ label: `Verse ${v.number} of 8`, title: v.title, body: v.summary, source: "Langri Thangpa · Eight Verses for Training the Mind", specific: false, kind: "Study summary · use the link for the verse and commentary.", link: v.url }));
   useEffect(() => {
     const element = dialog.current;
     if (focusMode && active) { if (!element?.open) element?.showModal(); }
@@ -48,8 +50,7 @@ export function StudySlideshow({ active }: { active: boolean }) {
   function reset() { setIndex(0); setRemaining(seconds); setPlaying(false); setFinished(false); }
   function move(next: number) { setIndex(next); setRemaining(seconds); setFinished(false); requestAnimationFrame(() => heading.current?.focus()); }
   return <section className={styles.practice} aria-label="Timed Lojong study slideshow">
-    <h2>Let the instructions become familiar.</h2>
-    <p className={styles.formHelp}>Read, pause, and reflect. Familiarity supports practice; remembering the words is not the same as embodying them.</p>
+    <h2>Slideshow</h2>
     <fieldset className={styles.subnav}><legend className={styles.srOnly}>Choose a slideshow</legend>{(Object.keys(deckNames) as Deck[]).map(id => <button type="button" key={id} aria-pressed={deck === id} onClick={() => { setDeck(id); setPoint(0); reset(); }}>{deckNames[id]}</button>)}</fieldset>
     <div className={styles.filters}>
       {deck === "slogans" ? <label>Choose instructions<select value={point} onChange={event => { setPoint(Number(event.target.value)); reset(); }}><option value={0}>All Seven Points · 61 slogans</option>{points.map((p, i) => <option value={i + 1} key={p.id}>Point {i + 1} · {p.title}</option>)}</select></label> : null}
@@ -58,8 +59,8 @@ export function StudySlideshow({ active }: { active: boolean }) {
     <div className={styles.meditation}>
       <div className={styles.quizMeta}><span>{index + 1} of {count}</span><span role="timer" aria-label="Slide time remaining">{remaining}s</span></div>
       <p className={styles.eyebrow}>{current.label}</p>
-      <h3 ref={heading} tabIndex={-1} className={styles.slideTitle}>{deck === "slogans" ? `“${current.title}”` : current.title}</h3>
-      {deck !== "slogans" ? <p>{current.body}</p> : <details className={styles.learnMore} key={`${deck}-${point}-${index}`}><summary>Meaning and context</summary><p>{current.body}</p><p className={styles.small}>Pause the slideshow to stay with this explanation.</p></details>}
+      <h3 ref={heading} tabIndex={-1} className={styles.slideTitle}>{isSloganDeck ? `“${current.title}”` : current.title}</h3>
+      {!isSloganDeck ? <p>{current.body}</p> : <details className={styles.learnMore} key={`${deck}-${point}-${index}`}><summary>Meaning and context</summary><p>{current.body}</p></details>}
       <p className={styles.small}>{current.source}</p><p className={styles.courseCredit}><a href={jinpaCourseUrl} target="_blank" rel="noreferrer">Course edition · T. Jinpa · Wisdom Academy</a></p><p className={styles.small}>{current.kind}</p>
       {current.link ? <p><a href={current.link} target="_blank" rel="noreferrer">Read verse and commentary</a></p> : null}
       <div className={styles.inlineActions}>
@@ -67,18 +68,18 @@ export function StudySlideshow({ active }: { active: boolean }) {
         <button type="button" className={styles.textButton} disabled={index === 0} onClick={() => move(index - 1)}>Previous slide</button>
         <button type="button" className={styles.textButton} disabled={index === count - 1} onClick={() => move(index + 1)}>Next slide</button>
       </div>
-      <p role="status" className={styles.small}>{finished ? "Deck complete. Take one instruction into your day." : playing && active ? "Advancing automatically. Pause whenever you want to reflect." : "Paused · move at your own pace."}</p>
+      <p role="status" className={styles.small}>{finished ? "Deck complete" : playing && active ? "Playing" : "Paused"}</p>
     </div>
     <dialog ref={dialog} className={styles.readingView} aria-label="Lojong slideshow reading view" onCancel={leaveReading} onClose={leaveReading}>
       <div className={styles.readingTop}><span>{index + 1} / {count}</span><span role="timer" aria-label="Reading time remaining">{remaining}s</span><button type="button" onClick={leaveReading}>Exit</button></div>
       <div className={styles.readingContent}>
-        <p className={styles.readingLabel}>{deck === "slogans" ? current.label.replace(/ · .* · slogan /, " · Slogan ") : `${current.label} · study summary`}</p>
-        <h2>{deck === "slogans" ? `“${current.title}”` : current.title}</h2>
-        {deck !== "slogans" ? <p className={styles.readingBody}>{current.body}</p> : null}
-        {deck === "slogans" ? <details className={styles.readingMeaning} key={`meaning-${deck}-${point}-${index}`} onToggle={event => { if (event.currentTarget.open) setPlaying(false); }}>
+        <p className={styles.readingLabel}>{isSloganDeck ? current.label.replace(/ · .* · slogan /, " · Slogan ") : `${current.label} · study summary`}</p>
+        <h2>{isSloganDeck ? `“${current.title}”` : current.title}</h2>
+        {!isSloganDeck ? <p className={styles.readingBody}>{current.body}</p> : null}
+        {isSloganDeck ? <details className={styles.readingMeaning} key={`meaning-${deck}-${point}-${index}`} onToggle={event => { if (event.currentTarget.open) setPlaying(false); }}>
           <summary>Meaning</summary>
           <p>{current.body}</p>
-          <p className={styles.readingMeaningNote}>{current.specific ? "Study explanation · adapted from T. Jinpa’s course commentary." : "Context for this Point · a study summary, not a line-by-line explanation of this slogan."}</p>
+          <p className={styles.readingMeaningNote}>{current.specific ? "Study explanation · adapted from T. Jinpa’s course commentary." : "Point overview · study summary."}</p>
         </details> : null}
         <p className={styles.readingCredit}>{deck === "points" ? "7 Point Mind Training · Chekawa Yeshe Dorje" : current.source}<br /><a href={jinpaCourseUrl} target="_blank" rel="noreferrer">Course edition · T. Jinpa · Wisdom Academy</a></p>
       </div>

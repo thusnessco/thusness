@@ -176,3 +176,10 @@
 .readingMeaning > p { text-align: left; font-size: 16px; line-height: 1.75; color: var(--thusness-ink-soft); margin-top: 16px; }
 .readingMeaning > .readingMeaningNote { font-size: 10px; color: #808080; }
 .readingMeaning summary:focus-visible { outline: 2px solid var(--thusness-ink); outline-offset: 3px; }
+
+.dailyContent { max-width: 700px; }
+.companion .dailyContent h2 { font-size: clamp(29px, 4vw, 46px); margin: 24px 0; }
+.dailyExplanation { font-size: clamp(18px, 2.2vw, 22px); line-height: 1.7; color: var(--thusness-ink-soft); }
+.dailyAction { text-align: left; margin: 32px auto 20px; max-width: 580px; padding-top: 24px; border-top: 1px solid var(--thusness-rule); }
+.companion .dailyAction h3 { font-size: 11px; color: var(--thusness-muted); font-weight: 400; margin-bottom: 12px; }
+.dailyAction p { font-size: 17px; line-height: 1.75; }

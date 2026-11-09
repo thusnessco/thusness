@@ -225,3 +225,14 @@ test('slideshow keeps the complete instruction numbered 11–12 together', () =>
   assert.equal(slides.length, 60);
   assert.equal(slogans.length, 61);
 });
+
+
+test('One Thing Today stays stable within a day and uses valid source instructions', () => {
+  assert.equal(practice.oneThingForDate(new Date(2026, 10, 8, 1)), practice.oneThingForDate(new Date(2026, 10, 8, 23)));
+  assert.notEqual(practice.oneThingForDate(new Date(2026, 10, 8)), practice.oneThingForDate(new Date(2026, 10, 9)));
+  for (const lesson of practice.oneThingLessons) {
+    assert.ok(slogans.some(s => s.number === lesson.slogan));
+    assert.ok(practice.rootNotes.some(n => n.number === lesson.slogan));
+    assert.ok(lesson.explanation && lesson.action && lesson.review);
+  }
+});

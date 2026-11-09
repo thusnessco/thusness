@@ -54,3 +54,7 @@ Play opens a full-window reading dialog with the instruction, small timer, subtl
 A subtle Meaning control in slogan reading view expands the existing study explanation and pauses playback. Where there is no slogan-specific note, it explicitly labels the surrounding Point’s context. Changing slides collapses the explanation; Resume restarts timing.
 
 In slideshow reading mode, course entries 11–12 appear together as one complete instruction, credited “Slogan 11–12.” The full 61-item source list remains unchanged; the complete slideshow has 60 cards covering all 61 entries.
+
+One Thing Today opens a clean reading dialog with one daily concept, one action, optional evening reflection, and the exact source slogan. Eight original study adaptations rotate by the visitor’s local calendar date and remain stable during the day; no completion or realization is inferred. Tonglen has a direct navigation tab as well as its existing situational-practice entry. Learn is last in navigation.
+
+Commitments (Point 6, slogans 24–39) and Guidelines (Point 7, slogans 40–61) also have directly selectable slideshow decks. The all-slogans deck can be filtered to any individual Point to review its constituent instructions. All decks use the existing course wording and preserve source numbers.

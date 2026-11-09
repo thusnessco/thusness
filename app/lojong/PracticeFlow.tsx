@@ -54,7 +54,7 @@ export function PracticeFlow({ active }: { active: boolean }) {
     <h2 ref={title} tabIndex={-1}>{complete ? "Practice review" : headings[step]}</h2>
 
     {complete ? <>
-      <p className={styles.small}>Your observations and selected instructions. No interpretation has been added to your account of the event.</p>
+
       <label className={styles.formLabel}>Review text<textarea ref={summaryField} readOnly className={styles.summaryText} value={summary} rows={17} /></label>
       <div className={styles.inlineActions}><button className={styles.primary} onClick={copy}>Copy summary</button><button className={styles.textButton} onClick={() => { setComplete(false); setStep(4); }}>Edit review</button><button className={styles.textButton} onClick={() => setResetPending(true)}>New situation</button></div>
       {copyStatus ? <p className={styles.small} role="status">{copyStatus}</p> : null}
@@ -65,16 +65,16 @@ export function PracticeFlow({ active }: { active: boolean }) {
         <label className={styles.formLabel}>What did your mind say about it? <span className={styles.quiet}>(optional)</span><textarea maxLength={4000} rows={3} value={reflection.interpretation} onChange={e => update("interpretation", e.target.value)} /></label>
       </> : null}
       {step === 1 ? <>
-        <p className={styles.formHelp}>Choose only what you recognize. Tension or disappointment alone does not establish an affliction.</p>
+        <p className={styles.formHelp}>Select the states you recognize.</p>
         <fieldset className={styles.checkGrid}><legend>States and attitudes</legend>{observations.map(o => <label key={o.id}><input type="checkbox" checked={reflection.states.includes(o.id)} onChange={() => update("states", toggle(reflection.states, o.id))} /><span>{o.label}</span></label>)}</fieldset>
         <details className={styles.learnMore}><summary>Notice demands or fixed views (optional)</summary><p className={styles.formHelp}>Wishing for appreciation, comfort, or a helpful outcome is not itself grasping. Look for insistence, an expected return, or a fixed view that is making it harder to respond freely. Choose only what you recognize.</p><fieldset className={styles.checkGrid}><legend>Where do you notice insistence or clinging?</legend>{expectations.map(o => <label key={o.id}><input type="checkbox" checked={reflection.motives.includes(o.id)} onChange={() => update("motives", toggle(reflection.motives, o.id))} /><span>{o.label}</span></label>)}</fieldset></details>
       </> : null}
       {step === 2 ? <>
-        <p className={styles.note}>The direction is awakening for the benefit of beings: loosening self-cherishing and cultivating compassion and wisdom. You can begin with the response that fits this moment; you do not have to produce compassion first.</p>
-        <p className={styles.formHelp}>Choose one response to practise first. These are starting points to try, rather than guarantees or demands to feel the opposite immediately.</p>
+        <p className={styles.note}>Lojong trains compassion and wisdom for the benefit of beings.</p>
+        <p className={styles.formHelp}>Choose one response to practise.</p>
         <fieldset className={`${styles.checkGrid} ${styles.practiceChoices}`}><legend>Direct responses to what you noticed</legend>{antidotes.map(item => <label key={item.state} data-selected={reflection.method === item.method}><input type="radio" name="antidote" checked={reflection.method === item.method} onChange={() => { update("method", item.method); update("outcome", ""); }} /><span>{item.label}<span className={styles.antidoteHelp}>{item.why}</span></span></label>)}</fieldset>
         <details className={styles.learnMore}><summary>Related Lojong instructions (optional)</summary>
-          <p className={styles.small}>The slogans give a wider training context. You can practise the direct response without selecting one.</p>
+          <p className={styles.small}>Select an instruction here if you want it included in your review.</p>
           <div className={styles.rootOptions}>{suggested.slice(0, 4).map(rootOption)}</div>
           {points.map((point, index) => <details className={styles.concept} key={point.id}><summary>{index + 1}. {point.title}</summary>{slogans.filter(s => s.point === index + 1 && !suggested.slice(0, 4).includes(s.number)).map(s => rootOption(s.number))}</details>)}
         </details>
@@ -87,17 +87,17 @@ export function PracticeFlow({ active }: { active: boolean }) {
       {step === 3 && method && practiceConnections[method.id] ? <details className={styles.learnMore}><summary>How this connects to Lojong</summary>
         <p>{practiceConnections[method.id].context}</p>
         {practiceConnections[method.id].instructions.map(number => { const instruction = slogans.find(item => item.number === number)!; return <p key={number}><span className={styles.rootMeta}>{sloganAttribution(number)} · Point {instruction.point}</span>“{instruction.text}”</p>; })}
-        <p className={styles.small}>The practice prompts and suggested matches are adaptations. Read the course commentary for the full meaning of these instructions.</p>
+        <p className={styles.small}>Adapted practice prompts · source commentary linked above.</p>
       </details> : null}
       {step === 3 && method?.id === "tonglen" ? <TonglenMeditation active={active} /> : null}
       {step === 4 ? <>
         <blockquote className={styles.sourceQuote}><p>“Train in the three difficult challenges.”</p><cite>7 Point Mind Training, Slogan 45 · Chekawa Yeshe Dorje<br />Recognize the affliction · apply the antidote · ensure it works</cite></blockquote>
         <fieldset className={styles.checkGrid}><legend>What effect did you observe?</legend>{outcomes.map(o => <label key={o.id}><input type="radio" name="outcome" checked={reflection.outcome === o.id} onChange={() => update("outcome", o.id)} /><span>{o.label}</span></label>)}</fieldset>
-        {reflection.outcome && reflection.outcome !== "weaker" ? <p className={styles.note}>The effect is not established. You can return to the practice step and investigate further or choose another antidote.</p> : null}
+        {reflection.outcome && reflection.outcome !== "weaker" ? <p className={styles.note}>If this did not help, return to the practice step and try another response.</p> : null}
         <label className={styles.formLabel}>What did you notice? <span className={styles.quiet}>(optional)</span><textarea maxLength={4000} rows={3} value={reflection.observation} onChange={e => update("observation", e.target.value)} /></label>
       </> : null}
       <div className={styles.inlineActions}><button type="submit" className={styles.primary} disabled={!canContinue}>{step === 4 ? "Create review text" : step === 3 ? "Check the effect" : step === 2 ? "Practise this response" : "Continue"}</button>{step > 0 ? <button type="button" className={styles.textButton} onClick={() => setStep(current => current - 1)}>Back</button> : null}</div>
     </form>}
-    <p className={styles.small}>This reflection stays in this tab and is not saved or sent to a server. Copy the review to keep it. Slogan numbering follows T. Jinpa’s course; other editions differ.</p>
+    <p className={styles.small}>This reflection is not saved. Copy the review to keep it.</p>
   </div>;
 }
