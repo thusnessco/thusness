@@ -52,3 +52,5 @@ Traditional slogan credit reads “7 Point Mind Training, Slogan N · Chekawa Ye
 Play opens a full-window reading dialog with the instruction, small timer, subtle source/course credit, and Previous/Pause/Next/Exit controls. Settings, main navigation, explanations, and storage copy stay outside the modal. Pausing preserves the clean view. Exit or Escape stops timing and returns to setup. Native dialog focus handling keeps background controls inactive.
 
 A subtle Meaning control in slogan reading view expands the existing study explanation and pauses playback. Where there is no slogan-specific note, it explicitly labels the surrounding Point’s context. Changing slides collapses the explanation; Resume restarts timing.
+
+In slideshow reading mode, course entries 11–12 appear together as one complete instruction, credited “Slogan 11–12.” The full 61-item source list remains unchanged; the complete slideshow has 60 cards covering all 61 entries.

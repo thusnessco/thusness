@@ -213,3 +213,15 @@ test('every practical outline has explicit connections to existing course instru
   }
   assert.equal(practice.suggestedAntidotes(['attachment'])[0].method, 'investigate');
 });
+
+
+test('slideshow keeps the complete instruction numbered 11–12 together', () => {
+  const slides = curriculum.sloganStudySlides;
+  const joined = slides.find(s => s.number === 11);
+  assert.equal(joined.displayNumber, '11–12');
+  assert.ok(joined.text.includes(slogans[10].text));
+  assert.ok(joined.text.includes(slogans[11].text));
+  assert.deepEqual(slides.flatMap(s => s.sourceNumbers), slogans.map(s => s.number));
+  assert.equal(slides.length, 60);
+  assert.equal(slogans.length, 61);
+});

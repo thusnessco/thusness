@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { jinpaCourseUrl, sloganAttribution, points, slogans, verses } from "@/lib/lojong/curriculum";
+import { jinpaCourseUrl, sloganAttribution, points, sloganStudySlides, verses } from "@/lib/lojong/curriculum";
 import { rootNotes } from "@/lib/lojong/practice";
 import styles from "./lojong.module.css";
 
@@ -19,9 +19,9 @@ export function StudySlideshow({ active }: { active: boolean }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const [finished, setFinished] = useState(false);
   const heading = useRef<HTMLHeadingElement>(null);
-  const slides = deck === "slogans" ? slogans.filter(s => !point || s.point === point).map(s => ({ label: `Point ${s.point} · ${points[s.point - 1].title} · slogan ${s.number}`, title: s.text, body: rootNotes.find(note => note.number === s.number)?.explanation ?? points[s.point - 1].summary, source: sloganAttribution(s.number), kind: "Wording and numbering follow T. Jinpa’s course handouts. The explanation is a study paraphrase; where no specific explanation is supplied, it gives the surrounding Point’s context.", link: "" }))
-    : deck === "points" ? points.map((p, i) => ({ label: `Point ${i + 1} of 7`, title: p.title, body: p.summary, source: p.source, kind: "Point title and overview are study summaries, not a quotation of the root text.", link: "" }))
-    : verses.map(v => ({ label: `Verse ${v.number} of 8`, title: v.title, body: v.summary, source: "Langri Thangpa · Eight Verses for Training the Mind", kind: "Original study summary, not the verse text or a translation. Read the original alongside its commentary.", link: v.url }));
+  const slides = deck === "slogans" ? sloganStudySlides.filter(s => !point || s.point === point).map(s => ({ label: `Point ${s.point} · ${points[s.point - 1].title} · slogan ${s.displayNumber}`, title: s.text, body: rootNotes.find(note => note.number === s.number)?.explanation ?? points[s.point - 1].summary, source: sloganAttribution(s.displayNumber), specific: rootNotes.some(note => s.sourceNumbers.includes(note.number)), kind: "Wording and numbering follow T. Jinpa’s course handouts. The explanation is a study paraphrase; where no specific explanation is supplied, it gives the surrounding Point’s context.", link: "" }))
+    : deck === "points" ? points.map((p, i) => ({ label: `Point ${i + 1} of 7`, title: p.title, body: p.summary, source: p.source, specific: false, kind: "Point title and overview are study summaries, not a quotation of the root text.", link: "" }))
+    : verses.map(v => ({ label: `Verse ${v.number} of 8`, title: v.title, body: v.summary, source: "Langri Thangpa · Eight Verses for Training the Mind", specific: false, kind: "Original study summary, not the verse text or a translation. Read the original alongside its commentary.", link: v.url }));
   useEffect(() => {
     const element = dialog.current;
     if (focusMode && active) { if (!element?.open) element?.showModal(); }
@@ -78,7 +78,7 @@ export function StudySlideshow({ active }: { active: boolean }) {
         {deck === "slogans" ? <details className={styles.readingMeaning} key={`meaning-${deck}-${point}-${index}`} onToggle={event => { if (event.currentTarget.open) setPlaying(false); }}>
           <summary>Meaning</summary>
           <p>{current.body}</p>
-          <p className={styles.readingMeaningNote}>{rootNotes.some(note => note.number === slogans.filter(s => !point || s.point === point)[index].number) ? "Study explanation · adapted from T. Jinpa’s course commentary." : "Context for this Point · a study summary, not a line-by-line explanation of this slogan."}</p>
+          <p className={styles.readingMeaningNote}>{current.specific ? "Study explanation · adapted from T. Jinpa’s course commentary." : "Context for this Point · a study summary, not a line-by-line explanation of this slogan."}</p>
         </details> : null}
         <p className={styles.readingCredit}>{deck === "points" ? "7 Point Mind Training · Chekawa Yeshe Dorje" : current.source}<br /><a href={jinpaCourseUrl} target="_blank" rel="noreferrer">Course edition · T. Jinpa · Wisdom Academy</a></p>
       </div>

@@ -64,4 +64,13 @@ export const numberingNote = "This companion follows T. Jinpa’s 61-item course
 
 
 export const jinpaCourseUrl = "https://wisdomexperience.org/courses/mind-training/";
-export const sloganAttribution = (number: number) => `7 Point Mind Training, Slogan ${number} · Chekawa Yeshe Dorje`;
+export const sloganAttribution = (number: number | string) => `7 Point Mind Training, Slogan ${number} · Chekawa Yeshe Dorje`;
+
+
+// Entries 11–12 form one instruction; keep their course numbers together in reading mode.
+export const sloganStudySlides = slogans.filter(s => s.number !== 12).map(s => ({
+  ...s,
+  displayNumber: s.number === 11 ? "11–12" : String(s.number),
+  sourceNumbers: s.number === 11 ? [11, 12] : [s.number],
+  text: s.number === 11 ? `${s.text} ${slogans.find(item => item.number === 12)!.text}` : s.text,
+}));
