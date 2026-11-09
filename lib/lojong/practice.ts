@@ -4,6 +4,7 @@ export const observations = [
   { id: "anger", label: "Anger / irritation" },
   { id: "resentment", label: "Resentment / keeping score" },
   { id: "attachment", label: "Attachment / craving" },
+  { id: "withholding", label: "Holding back / unwillingness to share" },
   { id: "pride", label: "Pride / superiority" },
   { id: "envy", label: "Jealousy / envy" },
   { id: "illwill", label: "Ill will / wanting to retaliate" },
@@ -57,6 +58,8 @@ export function suggestedRoots(states: string[], motives: string[]): number[] {
 }
 
 export const methods = [
+  { id: "rejoicing", title: "Rejoice in another’s good fortune", basis: "Conventional awakening mind · Point 2", steps: ["Name the happiness or success the other person has.", "Notice the feeling that their gain makes you smaller. Their happiness need not be your loss.", "Try the wish: may their happiness continue and have good causes. Begin with a small, sincere willingness rather than forcing enthusiasm.", "Notice whether you can appreciate something good for them while also caring for your own unmet needs."], source: "Adapted from Jinpa, Lesson 5, on responding to others’ achievements and good fortune with joy instead of jealousy. Prompts are study paraphrases, not quotations." },
+
   { id: "compassion", title: "Cultivate compassion", basis: "Conventional awakening mind · Point 2; single-means guidelines · Point 7 (#40–41)", steps: ["Recognize that the other person wants happiness and freedom from suffering, as you do.", "Bring their welfare to mind. Cultivate concern for their happiness and freedom from suffering and its causes.", "Consider what would actually help. Compassion does not require agreeing to every wish.", "Connect the effort to bodhicitta: the aspiration to awaken for the benefit of all beings."], source: "Based on Jinpa’s explanation of equalizing and exchanging self and others, Lesson 1, p. 6; and the single-means instructions, Lesson 3, p. 5. This is an adapted practice outline, not a quoted traditional sequence." },
   { id: "equality", title: "Equalize self and others", basis: "Conventional awakening mind · Point 2", steps: ["Recognize your own wish for happiness and freedom from suffering.", "Recognize the same wish in the other person. Jinpa explicitly describes this as ‘just like me’ in Lesson 5.", "Consider the equal importance of their welfare and yours. Equal concern does not require identical actions or agreeing with every wish.", "Examine whether treating your own satisfaction as uniquely important is sustaining the affliction."], source: "Adapted practice outline based on Jinpa, Lesson 5, pp. 3–5, explaining Shantideva’s equalizing self and others. Not a quoted traditional sequence." },
   { id: "kindness", title: "Cultivate loving-kindness", basis: "Conventional awakening mind · Point 2; giving aspect of tonglen", steps: ["Bring the person to mind and recognize their wish for happiness.", "Cultivate friendliness and concern for their well-being.", "Wish that they have happiness and its causes. Loving-kindness emphasizes happiness; compassion emphasizes relief from suffering.", "Let this intention inform a practical act of kindness, where appropriate."], source: "Adapted practice outline based on Jinpa, Lesson 5, pp. 3, 5–6, on holding others dear, loving-kindness, and giving. Not a quoted traditional sequence." },
@@ -67,6 +70,25 @@ export const methods = [
   { id: "emptiness", title: "Examine grasping through emptiness", basis: "Ultimate awakening mind · Point 2; slogans 2–4", steps: ["Examine the object: how are you apprehending the person or situation as solid and independently real?", "Examine the subject: how does the apparently solid ‘me’ who is affected appear to exist?", "Consider dependent arising. Not finding inherent existence does not negate conventional people, suffering, or responsibility.", "Release grasping at the analysis or remedy itself. Return to the situation with compassion."], source: "Practice outline based on Jinpa, Lesson 4, pp. 3–7: object, subject, and remedy. A brief inquiry does not by itself establish a realization of emptiness." },
   { id: "investigate", title: "Cultivate understanding: investigate and analyze", basis: "Guidelines · Point 7; slogan 57", steps: ["Separate what occurred from the interpretation you added.", "Observe the thoughts and emotions without deciding in advance that a particular affliction must be present.", "Examine the circumstances more closely. Identify what you know about the other person’s situation and what remains uncertain.", "Respond on the basis of that closer understanding rather than being pulled into an automatic emotional reaction."], source: "Practice outline based on Jinpa, Lesson 3, p. 7. This concerns investigation and close analysis; wisdom realizing emptiness is a separate option. Not a canonical quotation." },
 ];
+
+// Practical suggestions, not diagnoses or automatic one-to-one remedies.
+export const directAntidotes = [
+  { state: "anger", method: "patience", label: "Anger → patience", why: "Make room for the feeling without acting on the urge to hurt. Choose a response after the first surge." },
+  { state: "resentment", method: "expectation", label: "Keeping score → release the demand for a return", why: "Look at what you hoped to receive. You can loosen the demand while still addressing unfairness." },
+  { state: "attachment", method: "generosity", label: "Clinging → practise letting go", why: "Try freely sharing something small. If the attachment is to a person or outcome, investigate the demand that things must go your way." },
+  { state: "withholding", method: "generosity", label: "Holding back → generosity", why: "Offer a small amount of time, attention, help, or resources freely. Keep appropriate boundaries and provide for your needs." },
+  { state: "pride", method: "equality", label: "Superiority → equal regard", why: "Recognize the other person’s wish for happiness as equally important. You do not need to put yourself down." },
+  { state: "envy", method: "rejoicing", label: "Envy → joy in another’s good fortune", why: "Practise wishing their happiness well, without treating their success as your loss." },
+  { state: "illwill", method: "kindness", label: "Ill will → loving-kindness", why: "Try wishing them happiness and its causes. This does not require approving harm or staying in contact." },
+  { state: "indifference", method: "compassion", label: "Indifference → care and compassion", why: "Attend to their experience and consider one thing that would help." },
+  { state: "selfcherishing", method: "equality", label: "Only my welfare matters → equal concern", why: "Include their needs alongside yours, rather than excluding either person." },
+  { state: "grasping", method: "investigate", label: "A fixed picture → curiosity and investigation", why: "Separate what happened from the fixed story about who you or they are. Deeper emptiness inquiry remains optional." },
+  { state: "unsure", method: "investigate", label: "Not sure → investigate gently", why: "Look more closely before choosing a label or remedy." },
+  { state: "none", method: "kindness", label: "No affliction identified → cultivate kindness", why: "You can practise care without deciding that something is wrong." },
+];
+export function suggestedAntidotes(states: string[]) {
+  return directAntidotes.filter(item => states.includes(item.state)).filter((item, index, list) => list.findIndex(other => other.method === item.method) === index);
+}
 
 export const outcomes = [
   { id: "weaker", label: "The affliction weakened" },

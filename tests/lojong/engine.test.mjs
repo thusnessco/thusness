@@ -189,3 +189,16 @@ test('each selectable practice supplies its own instructions to the review', () 
     assert.match(summary, /Not sure yet/);
   }
 });
+
+
+test('recognized states lead to direct, available practices without duplicate choices', () => {
+  for (const state of practice.observations) {
+    const suggestions = practice.suggestedAntidotes([state.id]);
+    assert.ok(suggestions.length, state.id);
+    for (const suggestion of suggestions) assert.ok(practice.methods.some(method => method.id === suggestion.method));
+  }
+  assert.equal(practice.suggestedAntidotes(['envy'])[0].method, 'rejoicing');
+  assert.equal(practice.suggestedAntidotes(['withholding'])[0].method, 'generosity');
+  assert.equal(practice.suggestedAntidotes(['grasping'])[0].method, 'investigate');
+  assert.equal(practice.suggestedAntidotes(['pride', 'selfcherishing']).length, 1);
+});

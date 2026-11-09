@@ -2,11 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import { points, slogans } from "@/lib/lojong/curriculum";
-import { emptyReflection, expectations, methods, observations, outcomes, reflectionSummary, rootNotes, suggestedRoots, type Reflection } from "@/lib/lojong/practice";
+import { emptyReflection, expectations, methods, observations, outcomes, reflectionSummary, rootNotes, suggestedAntidotes, suggestedRoots, type Reflection } from "@/lib/lojong/practice";
 import styles from "./lojong.module.css";
 import { TonglenMeditation } from "./TonglenMeditation";
 
-const headings = ["What happened?", "What is arising?", "Which instructions apply?", "Apply an antidote", "What changed?"];
+const headings = ["What happened?", "What is arising?", "What would help?", "Apply an antidote", "What changed?"];
 
 function toggle(list: string[], id: string) {
   if (list.includes(id)) return list.filter(value => value !== id);
@@ -28,11 +28,12 @@ export function PracticeFlow({ active }: { active: boolean }) {
     wasActive.current = active;
   }, [active, step, complete]);
 
+  const antidotes = suggestedAntidotes(reflection.states);
   const suggested = suggestedRoots(reflection.states, reflection.motives);
   const method = methods.find(m => m.id === reflection.method);
   const summary = complete ? reflectionSummary(reflection) : "";
-  const canContinue = step === 0 ? Boolean(reflection.event.trim()) : step === 1 ? Boolean(reflection.states.length) : step === 2 ? Boolean(reflection.roots.length) : step === 3 ? Boolean(method) : Boolean(reflection.outcome);
-  function update<K extends keyof Reflection>(key: K, value: Reflection[K]) { setReflection(current => ({ ...current, [key]: value })); }
+  const canContinue = step === 0 ? Boolean(reflection.event.trim()) : step === 1 ? Boolean(reflection.states.length) : step === 2 ? Boolean(method) : step === 3 ? Boolean(method) : Boolean(reflection.outcome);
+  function update<K extends keyof Reflection>(key: K, value: Reflection[K]) { setReflection(current => ({ ...current, [key]: value, ...(key === "states" ? { method: "", outcome: "" } : {}) })); }
   function selectRoot(number: number) { update("roots", reflection.roots.includes(number) ? reflection.roots.filter(n => n !== number) : [...reflection.roots, number]); }
   async function copy() {
     try { await navigator.clipboard.writeText(summary); setCopyStatus("Summary copied."); }
@@ -69,9 +70,13 @@ export function PracticeFlow({ active }: { active: boolean }) {
         <details className={styles.learnMore}><summary>Examine expectations or grasping (optional)</summary><fieldset className={styles.checkGrid}><legend>What might you be holding onto?</legend>{expectations.map(o => <label key={o.id}><input type="checkbox" checked={reflection.motives.includes(o.id)} onChange={() => update("motives", toggle(reflection.motives, o.id))} /><span>{o.label}</span></label>)}</fieldset></details>
       </> : null}
       {step === 2 ? <>
-        <p className={styles.formHelp}>Select an instruction to work with. These suggestions do not establish that you violated a commitment.</p>
-        <div className={styles.rootOptions}>{suggested.slice(0, 4).map(rootOption)}</div>
-        <details className={styles.learnMore}><summary>Browse other instructions</summary>{points.map((point, index) => <details className={styles.concept} key={point.id}><summary>{index + 1}. {point.title}</summary>{slogans.filter(s => s.point === index + 1 && !suggested.slice(0, 4).includes(s.number)).map(s => rootOption(s.number))}</details>)}</details>
+        <p className={styles.formHelp}>Choose one response to practise first. These are starting points to try, rather than guarantees or demands to feel the opposite immediately.</p>
+        <fieldset className={`${styles.checkGrid} ${styles.practiceChoices}`}><legend>Direct responses to what you noticed</legend>{antidotes.map(item => <label key={item.state} data-selected={reflection.method === item.method}><input type="radio" name="antidote" checked={reflection.method === item.method} onChange={() => { update("method", item.method); update("outcome", ""); }} /><span>{item.label}<span className={styles.antidoteHelp}>{item.why}</span></span></label>)}</fieldset>
+        <details className={styles.learnMore}><summary>Related Lojong instructions (optional)</summary>
+          <p className={styles.small}>The slogans give a wider training context. You can practise the direct response without selecting one.</p>
+          <div className={styles.rootOptions}>{suggested.slice(0, 4).map(rootOption)}</div>
+          {points.map((point, index) => <details className={styles.concept} key={point.id}><summary>{index + 1}. {point.title}</summary>{slogans.filter(s => s.point === index + 1 && !suggested.slice(0, 4).includes(s.number)).map(s => rootOption(s.number))}</details>)}
+        </details>
       </> : null}
       {step === 3 ? <>
         <p className={styles.formHelp}>Choose a practice and apply it before checking its effect.</p>
@@ -85,7 +90,7 @@ export function PracticeFlow({ active }: { active: boolean }) {
         {reflection.outcome && reflection.outcome !== "weaker" ? <p className={styles.note}>The effect is not established. You can return to the practice step and investigate further or choose another antidote.</p> : null}
         <label className={styles.formLabel}>What did you notice? <span className={styles.quiet}>(optional)</span><textarea maxLength={4000} rows={3} value={reflection.observation} onChange={e => update("observation", e.target.value)} /></label>
       </> : null}
-      <div className={styles.inlineActions}><button type="submit" className={styles.primary} disabled={!canContinue}>{step === 4 ? "Create review text" : step === 3 ? "Check the effect" : "Continue"}</button>{step > 0 ? <button type="button" className={styles.textButton} onClick={() => setStep(current => current - 1)}>Back</button> : null}</div>
+      <div className={styles.inlineActions}><button type="submit" className={styles.primary} disabled={!canContinue}>{step === 4 ? "Create review text" : step === 3 ? "Check the effect" : step === 2 ? "Practise this response" : "Continue"}</button>{step > 0 ? <button type="button" className={styles.textButton} onClick={() => setStep(current => current - 1)}>Back</button> : null}</div>
     </form>}
     <p className={styles.small}>This reflection stays in this tab and is not saved or sent to a server. Copy the review to keep it. Slogan numbering follows Jinpa’s course; other editions differ.</p>
   </div>;
