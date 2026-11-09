@@ -115,7 +115,7 @@ export function LojongCompanion() {
       <section hidden={view !== "practice"} aria-label="Practice"><PracticeFlow active={view === "practice"} /></section>
 
       <OneThingToday active={view === "one-thing"} onExit={() => setView("practice")} />
-      <section hidden={view !== "tonglen"} aria-label="Tonglen meditation"><TonglenMeditation active={view === "tonglen"} /></section>
+      <section hidden={view !== "tonglen"} aria-label="Tonglen meditation"><TonglenMeditation active={view === "tonglen"} standalone onExit={() => navigateView("practice")} /></section>
 
       <section hidden={view !== "slideshow"} aria-label="Slideshow"><StudySlideshow active={view === "slideshow"} /></section>
 

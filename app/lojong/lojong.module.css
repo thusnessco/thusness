@@ -195,3 +195,9 @@
 .checklistSteps { padding: 16px 0 6px 28px; }
 .checklistSteps ol { padding-left: 18px; font-size: 15px; line-height: 1.75; }
 .checklistSteps li + li { margin-top: 12px; }
+
+.companion .tonglenReading h2 { white-space: pre-line; font-size: clamp(28px, 4.2vw, 50px); line-height: 1.55; }
+.tonglenHint { max-width: 620px; margin: 16px auto 0 !important; font-size: 14px; line-height: 1.7; color: var(--thusness-ink-soft); }
+.tonglenReading .meditationSettings { justify-content: center; color: #808080; font-size: 11px; }
+.tonglenReading .readingControls { margin-top: 24px; }
+.tonglenReading .readingLabel { margin-top: 20px; }

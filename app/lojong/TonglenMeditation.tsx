@@ -1,91 +1,91 @@
 "use client";
 
-import type { CSSProperties } from "react";
 import { useEffect, useRef, useState } from "react";
 import { playSinkInMainChimeFromGesture, playSinkInMainChimeHtml } from "@/lib/sinkin/sinkin-chime-html";
 import styles from "./lojong.module.css";
 
 const stages = [
-  { title: "Settle and set an intention", text: "Sit comfortably. Let your breathing find its own rhythm. Bring to mind the wish that beings have happiness and be free from suffering. Stay here as long as you need." },
-  { title: "Begin with giving", text: "Bring someone you care about to mind. Imagine offering them happiness, strength, well-being, and the causes of happiness. Let the wish for their welfare become the center of your attention." },
-  { title: "Gently introduce taking", text: "If it feels workable, imagine taking away their suffering and its causes. You can imagine it dissolving into an orb of white light in front of your heart. If taking feels too difficult, stay with giving. You can also begin by imagining relief for your future self before extending to others." },
-  { title: "Alternate giving and taking", text: "Continue offering happiness and imagining suffering relieved. At first, let the visualization move at its own pace. Once familiar, you may take with the in-breath and give with the out-breath. Keep breathing naturally; there is no need to slow, hold, or force it." },
-  { title: "Rest and carry the intention forward", text: "Let the visualization settle. Return to the wish that beings have happiness and be free from suffering. Notice how you feel, without requiring a particular result. Consider one small act of care you can bring into the situation." },
+  { title: "Settle", text: "Sit comfortably.\nBreathe naturally.\nWish that beings be free from suffering.", hint: "", seconds: 45 },
+  { title: "Bring someone to mind", text: "Picture someone you care about.\nThey want happiness, just as you do.", hint: "", seconds: 45 },
+  { title: "Give", text: "Imagine offering them happiness,\nstrength, and the causes of well-being.", hint: "", seconds: 75 },
+  { title: "Take · optional", text: "Imagine their suffering dissolving\ninto white light in front of your heart.", hint: "If uncomfortable, stay with giving.", seconds: 75 },
+  { title: "Give and take", text: "Continue giving happiness.\nIf comfortable, alternate with taking away suffering.", hint: "Let the imagery move at its own pace.", seconds: 90 },
+  { title: "With the breath · optional", text: "When familiar with the practice:\nbreathe in—take; breathe out—give.", hint: "Or continue without linking to the breath. Never force or hold it.", seconds: 45 },
+  { title: "Rest", text: "Let the imagery settle.\nKeep the wish for their well-being.", hint: "Carry this care into one action today.", seconds: 45 },
 ];
-
-const holds = [60, 90, 90, 120, 60];
 const clock = (seconds: number) => `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
 
-export function TonglenMeditation({ active }: { active: boolean }) {
+export function TonglenMeditation({ active, standalone = false, onExit }: { active: boolean; standalone?: boolean; onExit?: () => void }) {
   const [stage, setStage] = useState<number | null>(null);
-  const [remaining, setRemaining] = useState(holds[0]);
+  const [remaining, setRemaining] = useState(stages[0].seconds);
   const [paused, setPaused] = useState(false);
   const [auto, setAuto] = useState(true);
   const [sound, setSound] = useState(true);
   const [finished, setFinished] = useState(false);
   const [audioStatus, setAudioStatus] = useState("");
-  const deadline = useRef(0);
+  const dialog = useRef<HTMLDialogElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
-  const start = useRef<HTMLButtonElement>(null);
+  const launcher = useRef<HTMLButtonElement>(null);
   const current = stage === null ? null : stages[stage];
   const timing = active && !paused && auto && !finished;
 
+  useEffect(() => {
+    const element = dialog.current;
+    if (active && (standalone || stage !== null)) { if (!element?.open) element?.showModal(); }
+    else if (element?.open) element.close();
+  }, [active, standalone, stage]);
   useEffect(() => { if (active && stage !== null) heading.current?.focus(); }, [active, stage, finished]);
   useEffect(() => {
     if (stage === null || !timing) return;
-    // A fresh deadline preserves the remaining time after pause or tab changes.
-    deadline.current = Date.now() + remaining * 1000;
+    const deadline = Date.now() + remaining * 1000;
     const timer = window.setInterval(() => {
-      const next = Math.max(0, Math.ceil((deadline.current - Date.now()) / 1000));
+      const next = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
       setRemaining(next);
       if (next > 0) return;
       window.clearInterval(timer);
-      if (sound) void playSinkInMainChimeHtml(528).catch(() => setAudioStatus("Sound could not play. The meditation will continue silently."));
+      if (sound) void playSinkInMainChimeHtml(528).catch(() => setAudioStatus("Sound unavailable."));
       if (stage === stages.length - 1) setFinished(true);
-      else { setStage(stage + 1); setRemaining(holds[stage + 1]); }
+      else { setStage(stage + 1); setRemaining(stages[stage + 1].seconds); }
     }, 250);
     return () => window.clearInterval(timer);
-    // remaining updates the display; it must not restart the running deadline.
+    // Keep the deadline stable while the countdown display updates.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stage, timing, sound]);
+  function cue() { if (sound) playSinkInMainChimeFromGesture(528); }
+  function begin() { cue(); setAudioStatus(""); setRemaining(stages[0].seconds); setPaused(false); setFinished(false); setStage(0); }
+  function move(index: number) { cue(); setFinished(false); setStage(index); setRemaining(stages[index].seconds); }
+  function close() { setStage(null); setFinished(false); setPaused(false); onExit?.(); if (!standalone) requestAnimationFrame(() => launcher.current?.focus()); }
+  function toggleSound() { if (!sound) playSinkInMainChimeFromGesture(528); setSound(value => !value); }
 
-  function cue() {
-    if (sound) playSinkInMainChimeFromGesture(528);
-  }
-  function begin() {
-    cue(); setAudioStatus(""); setRemaining(holds[0]); setPaused(false); setFinished(false); setStage(0);
-  }
-  function move(index: number) {
-    cue(); setFinished(false); setStage(index); setRemaining(holds[index]);
-  }
-  function close() {
-    setStage(null); setFinished(false); setPaused(false);
-    requestAnimationFrame(() => start.current?.focus());
-  }
-  return <section className={styles.meditation} aria-label="Guided Tonglen meditation">
-    {current ? <>
-      <div className={styles.quizMeta}><span>Tonglen <span lang="bo" className={styles.tibetan}>གཏོང་ལེན་</span> · {(stage ?? 0) + 1} of {stages.length}</span><span role="timer" aria-label="Time remaining">{clock(remaining)}</span></div>
-      <div className="sinkin-hero" style={{ "--sinkin-crossfade-ms": "700ms" } as CSSProperties}>
-        <h3 ref={heading} tabIndex={-1} className="sinkin-hero-kicker">{finished ? "Meditation complete" : current.title}</h3>
-        <p key={stage} className="sinkin-hero-body">{finished ? "Rest briefly, then notice how you feel." : current.text}</p>
+  return <section aria-label="Guided Tonglen meditation">
+    {!standalone ? <button ref={launcher} type="button" className={styles.secondary} onClick={begin}>Begin Tonglen meditation</button> : null}
+    <dialog ref={dialog} className={styles.readingView} aria-label="Tonglen meditation reading view" onCancel={close} onClose={close}>
+      <div className={styles.readingTop}>
+        <span>Tonglen <span lang="bo" className={styles.tibetan}>གཏོང་ལེན་</span>{stage !== null ? ` · ${stage + 1}/${stages.length}` : ""}</span>
+        {current ? <span role="timer" aria-label="Time remaining">{clock(remaining)}</span> : null}
+        <button type="button" aria-label={sound ? "Mute meditation sound" : "Enable meditation sound"} onClick={toggleSound}>{sound ? "Sound on" : "Sound off"}</button>
+        <button type="button" onClick={close}>Exit</button>
       </div>
-      <p className={styles.small}>{finished ? "The timed practice is complete." : !active || paused ? "Paused" : auto ? "Auto-advance" : "Manual advance"}</p>
-      <div className={styles.inlineActions}>
-        {!finished ? <button type="button" className={styles.secondary} onClick={() => setPaused(value => !value)}>{paused ? "Resume meditation" : "Pause meditation"}</button> : null}
-        {stage !== null && stage > 0 ? <button type="button" className={styles.textButton} onClick={() => move(stage - 1)}>Previous prompt</button> : null}
-        {stage === stages.length - 1 ? <button type="button" className={styles.secondary} onClick={close}>Finish meditation</button> : <button type="button" className={styles.secondary} onClick={() => move((stage ?? 0) + 1)}>Next prompt</button>}
-        <button type="button" className={styles.textButton} onClick={close}>End meditation</button>
-      </div>
-    </> : <>
-      <h3>Tonglen <span lang="bo" className={styles.tibetan}>གཏོང་ལེན་</span> meditation</h3>
-      <p>Seven-minute giving-and-taking practice, with a bell between prompts.</p>
-      <button ref={start} type="button" className={styles.primary} onClick={begin}>Begin Tonglen meditation</button>
-    </>}
-    <div className={styles.meditationSettings}>
-      <label><input type="checkbox" checked={auto} onChange={event => setAuto(event.target.checked)} /> Auto-advance</label>
-      <label><input type="checkbox" checked={sound} onChange={event => { setSound(event.target.checked); if (event.target.checked) playSinkInMainChimeFromGesture(528); }} /> Sound</label>
-    </div>
-    {audioStatus ? <p role="status" className={styles.small}>{audioStatus}</p> : null}
-    <details className={styles.learnMore}><summary>Practice guidance</summary><p>You can remain with giving throughout. This is imaginative training in care, not a literal transfer of illness. If overwhelmed, leave the visualization and attend to your surroundings.</p><p>Breath coordination is optional and comes after familiarity.</p></details>
+      {current ? <>
+        <div className={`${styles.readingContent} ${styles.tonglenReading}`}>
+          <p className={styles.readingLabel}>{finished ? "Complete" : current.title}</p>
+          <h2 ref={heading} tabIndex={-1} key={finished ? "complete" : stage}>{finished ? "May this practice benefit all beings." : current.text}</h2>
+          {!finished && current.hint ? <p className={styles.tonglenHint}>{current.hint}</p> : null}
+        </div>
+        <div className={styles.readingControls}>
+          <button type="button" disabled={stage === 0} onClick={() => move((stage ?? 0) - 1)}>Previous</button>
+          {finished ? <button type="button" onClick={begin}>Begin again</button> : <button type="button" onClick={() => setPaused(value => !value)}>{paused ? "Resume" : "Pause"}</button>}
+          <button type="button" onClick={() => stage === stages.length - 1 ? close() : move((stage ?? 0) + 1)}>{stage === stages.length - 1 ? "Finish" : "Next"}</button>
+        </div>
+      </> : <div className={`${styles.readingContent} ${styles.tonglenReading}`}>
+        <h2>Tonglen</h2>
+        <p className={styles.readingBody}>Give happiness. Take away suffering.</p>
+        <p className={styles.readingLabel}>7 minutes</p>
+        <div className={styles.readingControls}><button type="button" onClick={begin}>Begin meditation</button></div>
+        <div className={styles.meditationSettings}><label><input type="checkbox" checked={auto} onChange={event => setAuto(event.target.checked)} /> Auto-advance</label></div>
+        <details className={styles.readingMeaning}><summary>Guidance</summary><p>Taking and breath coordination are optional. You can stay with giving. This is visualization, not a literal transfer of suffering. If overwhelmed, stop and attend to your surroundings.</p></details>
+      </div>}
+      {audioStatus ? <p role="status" className={styles.readingEnd}>{audioStatus}</p> : null}
+    </dialog>
   </section>;
 }
