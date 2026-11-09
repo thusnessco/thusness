@@ -144,3 +144,7 @@
 .quoteNext { background: transparent; border: 0; padding: 12px; margin-top: 12px; color: var(--thusness-muted); font-size: 11px !important; text-decoration: underline; text-underline-offset: 4px; }
 
 .antidoteHelp { display: block; color: var(--thusness-ink-soft); font-size: 13px; line-height: 1.6; margin-top: 8px; }
+
+.subnav:is(fieldset) { border: 0; padding: 0; }
+.companion .slideTitle { font-size: clamp(25px, 4vw, 36px); line-height: 1.45; margin: 26px 0; font-weight: 400; }
+.tabs { flex-wrap: wrap; column-gap: 22px; row-gap: 0; }

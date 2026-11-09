@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { points, slogans } from "@/lib/lojong/curriculum";
-import { emptyReflection, expectations, methods, observations, outcomes, reflectionSummary, rootNotes, suggestedAntidotes, suggestedRoots, type Reflection } from "@/lib/lojong/practice";
+import { emptyReflection, expectations, methods, observations, outcomes, reflectionSummary, rootNotes, practiceConnections, suggestedAntidotes, suggestedRoots, type Reflection } from "@/lib/lojong/practice";
 import styles from "./lojong.module.css";
 import { TonglenMeditation } from "./TonglenMeditation";
 
@@ -70,6 +70,7 @@ export function PracticeFlow({ active }: { active: boolean }) {
         <details className={styles.learnMore}><summary>Examine expectations or grasping (optional)</summary><fieldset className={styles.checkGrid}><legend>What might you be holding onto?</legend>{expectations.map(o => <label key={o.id}><input type="checkbox" checked={reflection.motives.includes(o.id)} onChange={() => update("motives", toggle(reflection.motives, o.id))} /><span>{o.label}</span></label>)}</fieldset></details>
       </> : null}
       {step === 2 ? <>
+        <p className={styles.note}>The direction is awakening for the benefit of beings: loosening self-cherishing and cultivating compassion and wisdom. You can begin with the response that fits this moment; you do not have to produce compassion first.</p>
         <p className={styles.formHelp}>Choose one response to practise first. These are starting points to try, rather than guarantees or demands to feel the opposite immediately.</p>
         <fieldset className={`${styles.checkGrid} ${styles.practiceChoices}`}><legend>Direct responses to what you noticed</legend>{antidotes.map(item => <label key={item.state} data-selected={reflection.method === item.method}><input type="radio" name="antidote" checked={reflection.method === item.method} onChange={() => { update("method", item.method); update("outcome", ""); }} /><span>{item.label}<span className={styles.antidoteHelp}>{item.why}</span></span></label>)}</fieldset>
         <details className={styles.learnMore}><summary>Related Lojong instructions (optional)</summary>
@@ -83,6 +84,11 @@ export function PracticeFlow({ active }: { active: boolean }) {
         <fieldset className={`${styles.checkGrid} ${styles.practiceChoices}`}><legend>Choose a practice</legend>{methods.map(m => <label key={m.id} data-selected={reflection.method === m.id}><input type="radio" name="practice" value={m.id} checked={reflection.method === m.id} onChange={() => { update("method", m.id); update("outcome", ""); }} /><span>{m.title}</span></label>)}</fieldset>
         {method ? <div className={styles.methodDetail} hidden={method.id === "tonglen"}><p className={styles.rootMeta}>{method.basis}</p><ol>{method.steps.map(item => <li key={item}>{item}</li>)}</ol><p className={styles.small}>{method.source}</p></div> : null}
       </> : null}
+      {step === 3 && method && practiceConnections[method.id] ? <details className={styles.learnMore}><summary>How this connects to Lojong</summary>
+        <p>{practiceConnections[method.id].context}</p>
+        {practiceConnections[method.id].instructions.map(number => { const instruction = slogans.find(item => item.number === number)!; return <p key={number}><span className={styles.rootMeta}>Point {instruction.point} · slogan {number}</span>“{instruction.text}”</p>; })}
+        <p className={styles.small}>The practice prompts and suggested matches are adaptations. Read the course commentary for the full meaning of these instructions.</p>
+      </details> : null}
       {step === 3 && method?.id === "tonglen" ? <TonglenMeditation active={active} /> : null}
       {step === 4 ? <>
         <blockquote className={styles.sourceQuote}><p>“Train in the three difficult challenges.”</p><cite>Seven-Point Mind Training · Jinpa’s course, slogan 45<br />Recognize the affliction · apply the antidote · ensure it works</cite></blockquote>

@@ -7,9 +7,10 @@ import { advance, beginSession, learningState, parseProgress, respond, reviewCon
 import { questionById, type Question } from "@/lib/lojong/questions";
 import { createProgressStore } from "@/lib/lojong/storage";
 import styles from "./lojong.module.css";
+import { StudySlideshow } from "./StudySlideshow";
 import { PracticeFlow } from "./PracticeFlow";
 
-type View = "practice" | "today" | "study" | "review";
+type View = "practice" | "today" | "study" | "slideshow" | "review";
 type StudyView = "points" | "verses" | "slogans" | "foundations";
 
 const openingQuotes = [
@@ -93,12 +94,14 @@ export function LojongCompanion() {
       </div>
 
       <nav className={styles.tabs} aria-label="Mind training sections">
-        {(["practice", "today", "study", "review"] as View[]).map(item => (
+        {(["practice", "today", "study", "slideshow", "review"] as View[]).map(item => (
           <button key={item} type="button" aria-current={view === item ? "page" : undefined} onClick={() => setView(item)}>{item === "today" ? "Learn" : item}</button>
         ))}
       </nav>
 
       <section hidden={view !== "practice"} aria-label="Practice"><PracticeFlow active={view === "practice"} /></section>
+
+      <section hidden={view !== "slideshow"} aria-label="Slideshow"><StudySlideshow active={view === "slideshow"} /></section>
 
       {!progress ? <p className={styles.quiet} role="status">Loading saved learning progress…</p> : (
         <>

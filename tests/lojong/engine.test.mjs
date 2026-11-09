@@ -202,3 +202,14 @@ test('recognized states lead to direct, available practices without duplicate ch
   assert.equal(practice.suggestedAntidotes(['grasping'])[0].method, 'investigate');
   assert.equal(practice.suggestedAntidotes(['pride', 'selfcherishing']).length, 1);
 });
+
+
+test('every practical outline has explicit connections to existing course instructions', () => {
+  for (const method of practice.methods) {
+    const connection = practice.practiceConnections[method.id];
+    assert.ok(connection?.context, method.id);
+    assert.ok(connection.instructions.length, method.id);
+    for (const number of connection.instructions) assert.ok(slogans.some(s => s.number === number), method.id);
+  }
+  assert.equal(practice.suggestedAntidotes(['attachment'])[0].method, 'investigate');
+});

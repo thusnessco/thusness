@@ -71,11 +71,24 @@ export const methods = [
   { id: "investigate", title: "Cultivate understanding: investigate and analyze", basis: "Guidelines · Point 7; slogan 57", steps: ["Separate what occurred from the interpretation you added.", "Observe the thoughts and emotions without deciding in advance that a particular affliction must be present.", "Examine the circumstances more closely. Identify what you know about the other person’s situation and what remains uncertain.", "Respond on the basis of that closer understanding rather than being pulled into an automatic emotional reaction."], source: "Practice outline based on Jinpa, Lesson 3, p. 7. This concerns investigation and close analysis; wisdom realizing emptiness is a separate option. Not a canonical quotation." },
 ];
 
+export const practiceConnections: Record<string, { instructions: number[]; context: string }> = {
+  compassion: { instructions: [40, 41], context: "Jinpa explains the single means as awakening mind. Cultivating compassion supports that larger training; it is not a required preliminary feeling before every antidote." },
+  equality: { instructions: [7, 40], context: "Equalizing self and others supports conventional awakening mind. It is preparation for exchanging self and others, not a claim that slogan 7 alone prescribes equality as a remedy for pride." },
+  kindness: { instructions: [7, 40], context: "Jinpa connects giving in tonglen with loving-kindness: wishing others happiness and its causes. This outline develops that aspect without claiming it is the full tonglen practice." },
+  generosity: { instructions: [29, 30, 61], context: "The course stresses giving and helping without expecting repayment or applause. This small offering is an adapted application of that teaching, not a separate prescribed Lojong sequence." },
+  rejoicing: { instructions: [40, 41], context: "In Lesson 5, Jinpa describes sympathetic joy in others’ good fortune as an expression of compassion. These slogans supply the broader awakening-mind context; they do not literally name rejoicing." },
+  tonglen: { instructions: [7, 8], context: "These instructions explicitly concern giving and taking, and coordinating them with the breath. The prompts follow Lesson 5’s gradual approach: giving first, optional taking, and breath coordination after familiarity." },
+  expectation: { instructions: [29, 30, 61], context: "These commitments directly address reward seeking and self-interest in helping. Use this response when an expectation of return is present; resentment can have other causes." },
+  patience: { instructions: [45, 57, 59], context: "Recognize anger, counter it, and examine whether the response works. Jinpa’s explanation of anger and investigation supports this outline; these slogans are not a complete traditional patience meditation." },
+  emptiness: { instructions: [2, 3, 4], context: "These instructions concern ultimate awakening mind: examining object, subject, and remedy. This deeper inquiry requires the commentary and is not interchangeable with simply calming down." },
+  investigate: { instructions: [57, 45], context: "Investigation and close analysis are explicit guidelines. This practical inquiry helps examine a reaction; it should not be confused with realization of emptiness." },
+};
+
 // Practical suggestions, not diagnoses or automatic one-to-one remedies.
 export const directAntidotes = [
   { state: "anger", method: "patience", label: "Anger → patience", why: "Make room for the feeling without acting on the urge to hurt. Choose a response after the first surge." },
   { state: "resentment", method: "expectation", label: "Keeping score → release the demand for a return", why: "Look at what you hoped to receive. You can loosen the demand while still addressing unfairness." },
-  { state: "attachment", method: "generosity", label: "Clinging → practise letting go", why: "Try freely sharing something small. If the attachment is to a person or outcome, investigate the demand that things must go your way." },
+  { state: "attachment", method: "investigate", label: "Clinging → examine what you are insisting on", why: "Notice what you want to possess, keep, or control. Distinguish a useful wish from the demand that things must go your way. If you are withholding something shareable, generosity is another option." },
   { state: "withholding", method: "generosity", label: "Holding back → generosity", why: "Offer a small amount of time, attention, help, or resources freely. Keep appropriate boundaries and provide for your needs." },
   { state: "pride", method: "equality", label: "Superiority → equal regard", why: "Recognize the other person’s wish for happiness as equally important. You do not need to put yourself down." },
   { state: "envy", method: "rejoicing", label: "Envy → joy in another’s good fortune", why: "Practise wishing their happiness well, without treating their success as your loss." },

@@ -38,3 +38,10 @@ npm run build
 Open `/lojong` on mobile and desktop. Check the initial state, all confidence paths, study/quiz round trip, completed diagnostic, resumed session, ordering/matching controls, import/export, storage errors, sources, and noindex metadata. Revisit `/`, `/sinkin`, and `/orient` for regressions.
 
 Use a feature branch and Vercel preview. Production publication requires Colin's approval. Existing Vercel project: `thusness`; use its existing environment configuration. This route needs no additional environment variables or database changes.
+
+
+## Source connections and slideshow
+
+The practical flow keeps awakening for the benefit of beings as its direction. Each chosen method has an optional explanation of its relationship to specific course instructions, distinguishing direct instruction (e.g. tonglen) from broader supporting context (e.g. rejoicing). Compassion is not a mandatory preliminary state in the interface. Attachment to a person or outcome first suggests investigation; generosity remains the direct suggestion for holding back.
+
+The Slideshow tab offers the 61 course slogans, optionally filtered by Point, a Seven Points overview, and Eight Verses study summaries. The latter two are labelled summaries rather than root-text quotations. Verse cards link to the existing original/commentary references. Slides support 10/20/30/60-second timing, pause, previous/next, and completion at the end of the deck. Countdown pauses when the tab is hidden. This is familiarization, not a record of recall or realization; no progress is recorded by the slideshow.
