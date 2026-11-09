@@ -72,7 +72,7 @@ export function StudySlideshow({ active }: { active: boolean }) {
     <dialog ref={dialog} className={styles.readingView} aria-label="Lojong slideshow reading view" onCancel={leaveReading} onClose={leaveReading}>
       <div className={styles.readingTop}><span>{index + 1} / {count}</span><span role="timer" aria-label="Reading time remaining">{remaining}s</span><button type="button" onClick={leaveReading}>Exit</button></div>
       <div className={styles.readingContent}>
-        <p className={styles.readingLabel}>{current.label}{deck !== "slogans" ? " · study summary" : ""}</p>
+        <p className={styles.readingLabel}>{deck === "slogans" ? current.label.replace(/ · .* · slogan /, " · Slogan ") : `${current.label} · study summary`}</p>
         <h2>{deck === "slogans" ? `“${current.title}”` : current.title}</h2>
         {deck !== "slogans" ? <p className={styles.readingBody}>{current.body}</p> : null}
         <p className={styles.readingCredit}>{deck === "points" ? "7 Point Mind Training · Chekawa Yeshe Dorje" : current.source}<br /><a href={jinpaCourseUrl} target="_blank" rel="noreferrer">Course edition · T. Jinpa · Wisdom Academy</a></p>
