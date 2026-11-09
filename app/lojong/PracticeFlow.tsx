@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { points, slogans } from "@/lib/lojong/curriculum";
 import { emptyReflection, expectations, methods, observations, outcomes, reflectionSummary, rootNotes, suggestedRoots, type Reflection } from "@/lib/lojong/practice";
 import styles from "./lojong.module.css";
+import { TonglenMeditation } from "./TonglenMeditation";
 
 const headings = ["What happened?", "What is arising?", "Which instructions apply?", "Apply an antidote", "What changed?"];
 
@@ -75,8 +76,9 @@ export function PracticeFlow({ active }: { active: boolean }) {
       {step === 3 ? <>
         <p className={styles.formHelp}>Choose a practice and apply it before checking its effect.</p>
         <label className={styles.formLabel}>Choose a practice<select aria-label="Choose a practice" value={reflection.method} onChange={event => { update("method", event.target.value); update("outcome", ""); }} required><option value="">Select a practice</option>{methods.map(m => <option key={m.id} value={m.id}>{m.title}</option>)}</select></label>
-        {method ? <div className={styles.methodDetail}><p className={styles.rootMeta}>{method.basis}</p><ol>{method.steps.map(item => <li key={item}>{item}</li>)}</ol><p className={styles.small}>{method.source}</p></div> : null}
+        {method ? <div className={styles.methodDetail} hidden={method.id === "tonglen"}><p className={styles.rootMeta}>{method.basis}</p><ol>{method.steps.map(item => <li key={item}>{item}</li>)}</ol><p className={styles.small}>{method.source}</p></div> : null}
       </> : null}
+      {step === 3 && method?.id === "tonglen" ? <TonglenMeditation active={active} /> : null}
       {step === 4 ? <>
         <blockquote className={styles.sourceQuote}><p>“Train in the three difficult challenges.”</p><cite>Seven-Point Mind Training · Jinpa’s course, slogan 45<br />Recognize the affliction · apply the antidote · ensure it works</cite></blockquote>
         <fieldset className={styles.checkGrid}><legend>What effect did you observe?</legend>{outcomes.map(o => <label key={o.id}><input type="radio" name="outcome" checked={reflection.outcome === o.id} onChange={() => update("outcome", o.id)} /><span>{o.label}</span></label>)}</fieldset>
