@@ -15,13 +15,13 @@ export const observations = [
   { id: "none", label: "No affliction identified" },
 ];
 export const expectations = [
-  { id: "appreciation", label: "Appreciation / recognition" },
-  { id: "outcome", label: "A particular outcome" },
-  { id: "control", label: "Control" },
-  { id: "right", label: "Being right" },
-  { id: "comfort", label: "Comfort / avoiding discomfort" },
-  { id: "fixedself", label: "A fixed picture of myself" },
-  { id: "fixedother", label: "A fixed picture of the other person" },
+  { id: "appreciation", label: "Needing appreciation or recognition in return" },
+  { id: "outcome", label: "Insisting on a particular outcome" },
+  { id: "control", label: "Needing to control what happens" },
+  { id: "right", label: "Insisting that I must be right" },
+  { id: "comfort", label: "Unwillingness to allow discomfort" },
+  { id: "fixedself", label: "Clinging to a fixed idea of who I am" },
+  { id: "fixedother", label: "Clinging to a fixed idea of who they are" },
   { id: "unsure", label: "Not sure" },
   { id: "none", label: "None identified" },
 ];
