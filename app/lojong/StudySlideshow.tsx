@@ -15,11 +15,19 @@ export function StudySlideshow({ active }: { active: boolean }) {
   const [seconds, setSeconds] = useState(30);
   const [remaining, setRemaining] = useState(30);
   const [playing, setPlaying] = useState(false);
+  const [focusMode, setFocusMode] = useState(false);
+  const dialog = useRef<HTMLDialogElement>(null);
   const [finished, setFinished] = useState(false);
   const heading = useRef<HTMLHeadingElement>(null);
   const slides = deck === "slogans" ? slogans.filter(s => !point || s.point === point).map(s => ({ label: `Point ${s.point} · ${points[s.point - 1].title} · slogan ${s.number}`, title: s.text, body: rootNotes.find(note => note.number === s.number)?.explanation ?? points[s.point - 1].summary, source: sloganAttribution(s.number), kind: "Wording and numbering follow T. Jinpa’s course handouts. The explanation is a study paraphrase; where no specific explanation is supplied, it gives the surrounding Point’s context.", link: "" }))
     : deck === "points" ? points.map((p, i) => ({ label: `Point ${i + 1} of 7`, title: p.title, body: p.summary, source: p.source, kind: "Point title and overview are study summaries, not a quotation of the root text.", link: "" }))
     : verses.map(v => ({ label: `Verse ${v.number} of 8`, title: v.title, body: v.summary, source: "Langri Thangpa · Eight Verses for Training the Mind", kind: "Original study summary, not the verse text or a translation. Read the original alongside its commentary.", link: v.url }));
+  useEffect(() => {
+    const element = dialog.current;
+    if (focusMode && active) { if (!element?.open) element?.showModal(); }
+    else if (element?.open) element.close();
+  }, [focusMode, active]);
+  function leaveReading() { setPlaying(false); setFocusMode(false); }
   const current = slides[index];
   const count = slides.length;
   useEffect(() => {
@@ -55,11 +63,26 @@ export function StudySlideshow({ active }: { active: boolean }) {
       <p className={styles.small}>{current.source}</p><p className={styles.courseCredit}><a href={jinpaCourseUrl} target="_blank" rel="noreferrer">Course edition · T. Jinpa · Wisdom Academy</a></p><p className={styles.small}>{current.kind}</p>
       {current.link ? <p><a href={current.link} target="_blank" rel="noreferrer">Read verse and commentary</a></p> : null}
       <div className={styles.inlineActions}>
-        <button type="button" className={styles.primary} onClick={() => { if (finished) { setIndex(0); setRemaining(seconds); setFinished(false); } setPlaying(value => !value); }}>{finished ? "Play again" : playing ? "Pause slideshow" : "Play slideshow"}</button>
+        <button type="button" className={styles.primary} onClick={() => { if (finished) { setIndex(0); setRemaining(seconds); setFinished(false); } setPlaying(value => !value); setFocusMode(true); }}>{finished ? "Play again" : playing ? "Pause slideshow" : "Play slideshow"}</button>
         <button type="button" className={styles.textButton} disabled={index === 0} onClick={() => move(index - 1)}>Previous slide</button>
         <button type="button" className={styles.textButton} disabled={index === count - 1} onClick={() => move(index + 1)}>Next slide</button>
       </div>
       <p role="status" className={styles.small}>{finished ? "Deck complete. Take one instruction into your day." : playing && active ? "Advancing automatically. Pause whenever you want to reflect." : "Paused · move at your own pace."}</p>
     </div>
+    <dialog ref={dialog} className={styles.readingView} aria-label="Lojong slideshow reading view" onCancel={leaveReading} onClose={leaveReading}>
+      <div className={styles.readingTop}><span>{index + 1} / {count}</span><span role="timer" aria-label="Reading time remaining">{remaining}s</span><button type="button" onClick={leaveReading}>Exit</button></div>
+      <div className={styles.readingContent}>
+        <p className={styles.readingLabel}>{current.label}{deck !== "slogans" ? " · study summary" : ""}</p>
+        <h2>{deck === "slogans" ? `“${current.title}”` : current.title}</h2>
+        {deck !== "slogans" ? <p className={styles.readingBody}>{current.body}</p> : null}
+        <p className={styles.readingCredit}>{deck === "points" ? "7 Point Mind Training · Chekawa Yeshe Dorje" : current.source}<br /><a href={jinpaCourseUrl} target="_blank" rel="noreferrer">Course edition · T. Jinpa · Wisdom Academy</a></p>
+      </div>
+      <div className={styles.readingControls}>
+        <button type="button" disabled={index === 0} onClick={() => move(index - 1)}>Previous</button>
+        <button type="button" onClick={() => { if (finished) { setIndex(0); setRemaining(seconds); setFinished(false); } setPlaying(value => !value); }}>{finished ? "Play again" : playing ? "Pause" : "Resume"}</button>
+        <button type="button" disabled={index === count - 1} onClick={() => move(index + 1)}>Next</button>
+      </div>
+      {finished ? <p role="status" className={styles.readingEnd}>Deck complete</p> : null}
+    </dialog>
   </section>;
 }
