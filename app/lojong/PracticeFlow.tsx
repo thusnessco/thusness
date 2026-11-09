@@ -75,7 +75,7 @@ export function PracticeFlow({ active }: { active: boolean }) {
       </> : null}
       {step === 3 ? <>
         <p className={styles.formHelp}>Choose a practice and apply it before checking its effect.</p>
-        <label className={styles.formLabel}>Choose a practice<select aria-label="Choose a practice" value={reflection.method} onChange={event => { update("method", event.target.value); update("outcome", ""); }} required><option value="">Select a practice</option>{methods.map(m => <option key={m.id} value={m.id}>{m.title}</option>)}</select></label>
+        <fieldset className={`${styles.checkGrid} ${styles.practiceChoices}`}><legend>Choose a practice</legend>{methods.map(m => <label key={m.id} data-selected={reflection.method === m.id}><input type="radio" name="practice" value={m.id} checked={reflection.method === m.id} onChange={() => { update("method", m.id); update("outcome", ""); }} /><span>{m.title}</span></label>)}</fieldset>
         {method ? <div className={styles.methodDetail} hidden={method.id === "tonglen"}><p className={styles.rootMeta}>{method.basis}</p><ol>{method.steps.map(item => <li key={item}>{item}</li>)}</ol><p className={styles.small}>{method.source}</p></div> : null}
       </> : null}
       {step === 3 && method?.id === "tonglen" ? <TonglenMeditation active={active} /> : null}

@@ -131,3 +131,10 @@
 .meditationSettings { display: flex; flex-wrap: wrap; gap: 24px; margin-top: 24px; font-size: 13px; }
 .meditationSettings label { display: flex; align-items: center; gap: 10px; min-height: 44px; }
 .meditationSettings input { accent-color: var(--thusness-red); }
+
+.practiceChoices { gap: 12px; }
+.practiceChoices label { border: 1px solid var(--thusness-rule); padding: 14px; }
+.practiceChoices label[data-selected="true"] { border-color: var(--thusness-red); }
+.practiceChoices input { appearance: none; border: 1px solid var(--thusness-muted); border-radius: 1px; }
+.practiceChoices input:checked { background: var(--thusness-red); border-color: var(--thusness-red); }
+.practiceChoices input:focus-visible { outline: 2px solid var(--thusness-ink); outline-offset: 3px; }
