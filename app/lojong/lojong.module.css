@@ -1,3 +1,4 @@
+.world { --thusness-bg: #080808; --thusness-ink: #f5f4f1; --thusness-ink-soft: #c1bdb9; --thusness-muted: #aaa39f; --thusness-rule: #383030; --thusness-red: #9d292f; --lojong-accent-text: #e77578; min-height: 100vh; width: 100%; flex: 1; background: var(--thusness-bg); color: var(--thusness-ink); color-scheme: dark; }
 .companion { max-width: var(--thusness-prose); margin: 0 auto; font-size: var(--thusness-size-base); line-height: 1.7; }
 .companion * { box-sizing: border-box; }
 .companion button, .companion input, .companion select { font: inherit; }
@@ -9,21 +10,28 @@
 .companion h3 { font-size: 18px; font-weight: 500; line-height: 1.4; }
 .companion p + p { margin-top: 16px; }
 .companion a { color: inherit; text-underline-offset: 4px; }
-.intro { text-align: center; padding: 4px 0 42px; }
-.eyebrow { font-size: 10px; letter-spacing: 2.2px; text-transform: uppercase; color: var(--thusness-ink-soft); }
-.intro h1 { font-size: clamp(46px, 10vw, 68px); font-weight: 400; letter-spacing: -2px; line-height: 1.2; margin: 20px 0 18px; }
-.subtitle { font-size: clamp(22px, 5vw, 29px); font-style: italic; line-height: 1.4; letter-spacing: -.4px; }
-.introText { max-width: 38ch; margin: 22px auto 0 !important; color: var(--thusness-ink-soft); font-size: 15px; }
+.intro { text-align: center; padding: 0 0 40px; }
+.eyebrow { font-size: 10px; letter-spacing: 2.2px; text-transform: uppercase; color: var(--lojong-accent-text); }
+.intro h1 { font-size: 30px; font-weight: 400; letter-spacing: -.5px; line-height: 1.2; margin: 12px 0 32px; }
+.heroQuote { margin: 0; padding: 16px 0 8px; width: min(1000px, calc(100vw - 48px)); position: relative; left: 50%; transform: translateX(-50%); }
+.heroQuote p { font-size: clamp(21px, 3vw, 29px); line-height: 1.55; font-weight: 400; letter-spacing: -.35px; color: var(--thusness-ink); }
+.heroQuote cite, .sourceQuote cite { display: block; margin-top: 22px; color: var(--thusness-muted); font-size: 11px; font-style: normal; line-height: 1.7; }
+.heroQuote cite::before { content: ""; display: block; width: 40px; height: 2px; background: var(--thusness-red); margin: 0 auto 18px; }
+.sourceQuote { margin: 26px 0; border-left: 2px solid var(--thusness-red); padding: 2px 0 2px 20px; }
+.sourceQuote p { font-size: 22px; line-height: 1.55; color: var(--thusness-ink); }
+.sourceQuote cite { margin-top: 12px; }
+.conceptSection { margin: 24px 0; }
+.conceptSection h3 { color: var(--thusness-ink); margin-bottom: 10px; }
 .tabs { display: flex; border-bottom: 1px solid var(--thusness-rule); gap: 32px; margin-bottom: 40px; }
 .tabs button { border: 0; border-bottom: 1px solid transparent; padding: 12px 0; margin-bottom: -1px; color: var(--thusness-ink-soft); background: transparent; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; }
-.tabs button[aria-current] { border-color: var(--thusness-ink); color: var(--thusness-ink); }
+.tabs button[aria-current] { border-color: var(--thusness-red); color: var(--thusness-ink); border-bottom-width: 2px; }
 .start, .finish { padding: 12px 0 32px; }
 .start h2, .finish h2, .sectionHead h2 { margin: 14px 0 18px; }
 .start > p:not(.eyebrow), .finish > p:not(.eyebrow), .sectionHead > p:not(.eyebrow) { color: var(--thusness-ink-soft); }
 .start .primary { display: block; margin-top: 28px; margin-bottom: 14px; }
 .small { font-size: 12px; line-height: 1.6; color: var(--thusness-ink-soft); margin-top: 18px !important; }
 .quiet { color: var(--thusness-ink-soft); }
-.primary, .secondary { display: inline-flex; justify-content: center; align-items: center; min-height: 46px; padding: 11px 19px; border: 1px solid var(--thusness-ink); border-radius: 0; background: var(--thusness-ink); color: var(--thusness-bg); font-size: 13px !important; line-height: 1.5; transition: opacity .15s; }
+.primary, .secondary { display: inline-flex; justify-content: center; align-items: center; min-height: 46px; padding: 11px 19px; border: 1px solid var(--thusness-red); border-radius: 0; background: var(--thusness-red); color: var(--thusness-ink); font-size: 13px !important; line-height: 1.5; transition: opacity .15s; }
 .primary:hover:not(:disabled), .secondary:hover:not(:disabled) { opacity: .8; }
 .secondary { background: transparent; color: var(--thusness-ink); }
 .textButton { padding: 5px 0; min-height: 36px; background: none; border: 0; border-radius: 0; color: var(--thusness-ink); font-size: 13px !important; line-height: 1.5; text-align: left; text-decoration: underline; text-decoration-color: var(--thusness-rule); text-underline-offset: 5px; }
@@ -34,7 +42,7 @@
 .sectionHead .primary { margin-top: 24px; }
 .subnav { display: flex; flex-wrap: wrap; gap: 10px 22px; margin: 28px 0; }
 .subnav button { background: transparent; border: 0; padding: 5px 0; min-height: 36px; color: var(--thusness-ink-soft); font-size: 13px; border-bottom: 1px solid transparent; }
-.subnav button[aria-pressed="true"] { color: var(--thusness-ink); border-bottom-color: var(--thusness-ink); }
+.subnav button[aria-pressed="true"] { color: var(--thusness-ink); border-bottom-color: var(--thusness-red); }
 .note { padding-left: 20px; border-left: 1px solid var(--thusness-rule); color: var(--thusness-ink-soft); font-size: 14px; margin: 24px 0 !important; }
 .conceptList { margin: 30px 0; border-bottom: 1px solid var(--thusness-rule); }
 .concept { border-top: 1px solid var(--thusness-rule); }
@@ -61,7 +69,7 @@
 .sources p, .learnMore p { margin-top: 16px; color: var(--thusness-ink-soft); }
 .quizMeta { display: flex; justify-content: space-between; gap: 12px; font-size: 11px; color: var(--thusness-ink-soft); }
 .progressTrack { height: 2px; background: var(--thusness-rule); margin: 14px 0 32px; }
-.progressTrack span { display: block; height: 100%; background: var(--thusness-ink); transition: width .2s; }
+.progressTrack span { display: block; height: 100%; background: var(--thusness-red); transition: width .2s; }
 .quiz .question { font-size: clamp(22px, 4.5vw, 27px); line-height: 1.45; margin: 16px 0 26px; }
 .options { padding: 0; margin: 0; border: 0; display: grid; gap: 12px; }
 .options label { display: flex; gap: 13px; align-items: flex-start; border: 1px solid var(--thusness-rule); padding: 16px 18px; font-size: 15px; line-height: 1.6; cursor: pointer; }
@@ -90,6 +98,31 @@
 .skillList dd { margin: 0; line-height: 1.6; }
 .storage { margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--thusness-rule); font-size: 12px; color: var(--thusness-ink-soft); }
 .storage .inlineActions { margin-top: 6px; }
+.practice h2 { margin: 0 0 26px; }
+.practice .quizMeta { color: var(--thusness-muted); }
+.formLabel { display: block; font-size: 14px; margin: 22px 0; }
+.formLabel textarea { display: block; width: 100%; resize: vertical; margin-top: 10px; padding: 14px; border: 1px solid var(--thusness-rule); border-radius: 0; background: #101010; color: var(--thusness-ink); font: inherit; font-size: 16px; line-height: 1.7; }
+.formLabel textarea:focus-visible { outline: 2px solid var(--thusness-ink); outline-offset: 3px; }
+.formHelp { color: var(--thusness-ink-soft); font-size: 14px; margin-bottom: 26px !important; }
+.checkGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 22px; border: 0; margin: 26px 0 32px; padding: 0; }
+.checkGrid legend { color: var(--thusness-ink); font-size: 14px; margin-bottom: 14px; }
+.checkGrid label { display: flex; gap: 12px; align-items: flex-start; min-height: 44px; padding: 9px 0; font-size: 14px; line-height: 1.6; cursor: pointer; }
+.checkGrid input, .rootOption input, .methodChoices input { width: 16px; height: 16px; flex: 0 0 auto; margin-top: 4px; accent-color: var(--thusness-red); }
+.rootOptions { margin: 24px 0; }
+.rootOption { border-top: 1px solid var(--thusness-rule); padding: 20px 0; }
+.rootOption label { display: flex; gap: 14px; align-items: flex-start; cursor: pointer; }
+.rootMeta { display: block; color: var(--thusness-muted); font-size: 11px; line-height: 1.6; }
+.rootText { display: block; margin-top: 9px; color: var(--thusness-ink); font-size: 20px; line-height: 1.5; }
+.rootOption details { margin: 12px 0 0 30px; font-size: 14px; color: var(--thusness-ink-soft); }
+.rootOption details summary { cursor: pointer; color: var(--thusness-muted); font-size: 12px; }
+.rootOption details p { margin-top: 12px; }
+.methodChoices { padding: 0; border: 0; margin: 20px 0; }
+.methodChoices label { display: flex; gap: 14px; align-items: flex-start; min-height: 48px; padding: 14px 0; border-top: 1px solid var(--thusness-rule); color: var(--thusness-ink-soft); font-size: 15px; cursor: pointer; }
+.methodChoices label[data-selected="true"] { color: var(--thusness-ink); }
+.methodDetail { margin: 26px 0; padding: 0 0 0 20px; border-left: 2px solid var(--thusness-red); }
+.methodDetail ol { padding-left: 20px; font-size: 16px; }
+.methodDetail li + li { margin-top: 14px; }
+.summaryText { font-size: 14px !important; }
 .srOnly { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
-@media (max-width: 540px) { .intro { padding-bottom: 30px; } .tabs { margin-bottom: 30px; } .filters { grid-template-columns: 1fr; } .conceptBody { padding-left: 0; } .skillList { grid-template-columns: 1fr; gap: 8px; } .skillList > div { display: flex; justify-content: space-between; gap: 16px; } .skillList dd { text-align: right; } .feedback { padding-left: 16px; } .inlineActions { gap: 12px 18px; } .primary { width: 100%; } .moveControls { flex-direction: column; } .quizMeta { font-size: 10px; } }
+@media (max-width: 540px) { .intro { padding-bottom: 30px; } .intro h1 { font-size: 26px; margin-bottom: 24px; } .desktopBreak { display: none; } .heroQuote { padding: 0; } .heroQuote p { font-size: 23px; } .tabs { margin-bottom: 30px; gap: 24px; } .filters, .checkGrid { grid-template-columns: 1fr; } .conceptBody { padding-left: 0; } .skillList { grid-template-columns: 1fr; gap: 8px; } .skillList > div { display: flex; justify-content: space-between; gap: 16px; } .skillList dd { text-align: right; } .feedback { padding-left: 16px; } .inlineActions { gap: 12px 18px; } .primary { width: 100%; } .moveControls { flex-direction: column; } .quizMeta { font-size: 10px; } }
 @media (prefers-reduced-motion: reduce) { .companion * { transition: none !important; } }

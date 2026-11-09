@@ -11,6 +11,7 @@ const { default: questionData } = await import(pathToFileURL(path.join(compiled,
 const { concepts, points, slogans, verses } = curriculum;
 const { diagnosticIds, questions, questionById } = questionData;
 const { default: storage } = await import(pathToFileURL(path.join(compiled, 'storage.js')).href);
+const { default: practice } = await import(pathToFileURL(path.join(compiled, 'practice.js')).href);
 const now = Date.now();
 
 function answerCurrent(p, confidence = 'knew') {
@@ -143,4 +144,36 @@ test('browser persistence survives reloads, and storage failure keeps a working 
     values.set(storage.STORAGE_KEY, '{broken');
     assert.deepEqual(storage.createProgressStore().getSnapshot(), engine.emptyProgress());
   } finally { delete globalThis.window; }
+});
+
+test('practice suggestions distinguish expectations, retaliation, and grasping', () => {
+  const reward = practice.suggestedRoots(['resentment'], ['appreciation']);
+  assert.ok(reward.includes(29) && reward.includes(61));
+  assert.ok(!reward.includes(31));
+  assert.ok(!reward.includes(2));
+  const wisdom = practice.suggestedRoots(['grasping'], []);
+  assert.ok([2, 3, 4].every(id => wisdom.includes(id)));
+  const uncertain = practice.suggestedRoots(['unsure'], []);
+  assert.ok(uncertain.includes(57));
+  assert.ok(!uncertain.includes(31));
+});
+
+test('practice review preserves the user account and does not assume the antidote worked', () => {
+  const r = { ...practice.emptyReflection(), event: 'He wanted to stay longer.', interpretation: 'I felt unappreciated.', states: ['resentment'], motives: ['appreciation'], roots: [29, 61], method: 'expectation', outcome: 'unchanged' };
+  const summary = practice.reflectionSummary(r);
+  assert.ok(summary.includes(r.event) && summary.includes(r.interpretation));
+  assert.match(summary, /No clear change/);
+  assert.match(summary, /effect is not established/);
+  assert.match(summary, /does not establish a diagnosis, a broken commitment/);
+});
+
+test('practice references resolve and the single-means approach includes bodhicitta', () => {
+  for (const note of practice.rootNotes) assert.ok(slogans.some(s => s.number === note.number));
+  const compassion = practice.methods.find(m => m.id === 'compassion');
+  assert.match(compassion.steps.join(' '), /bodhicitta/);
+  assert.match(compassion.source, /adapted practice outline/);
+  const p2 = points.find(p => p.id === 'point-2');
+  assert.equal(p2.sections.length, 2);
+  assert.match(p2.sections[0].title, /Conventional/);
+  assert.match(p2.sections[1].title, /Ultimate/);
 });

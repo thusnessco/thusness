@@ -15,11 +15,13 @@ export const metadata: Metadata = {
 
 export default function LojongPage() {
   return (
-    <ThusnessPageShell headerAside="Mind training">
-      <main className={styles.companion} id="lojong-main">
-        <LojongCompanion />
-      </main>
-      <SiteFooter />
-    </ThusnessPageShell>
+    <div className={styles.world}>
+      <ThusnessPageShell headerAside="Mind training">
+        <main className={styles.companion} id="lojong-main">
+          <LojongCompanion />
+        </main>
+        <SiteFooter />
+      </ThusnessPageShell>
+    </div>
   );
 }

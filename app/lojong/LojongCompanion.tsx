@@ -7,14 +7,15 @@ import { advance, beginSession, learningState, parseProgress, respond, reviewCon
 import { questionById, type Question } from "@/lib/lojong/questions";
 import { createProgressStore } from "@/lib/lojong/storage";
 import styles from "./lojong.module.css";
+import { PracticeFlow } from "./PracticeFlow";
 
-type View = "today" | "study" | "review";
+type View = "practice" | "today" | "study" | "review";
 type StudyView = "points" | "verses" | "slogans" | "foundations";
 
 export function LojongCompanion() {
   const store = useMemo(() => createProgressStore(), []);
   const progress = useSyncExternalStore(store.subscribe, store.getSnapshot, store.getServerSnapshot);
-  const [view, setView] = useState<View>("today");
+  const [view, setView] = useState<View>("practice");
   const [studyView, setStudyView] = useState<StudyView>("points");
   const [focus, setFocus] = useState<string | null>(null);
   const [notice, setNotice] = useState("");
@@ -59,28 +60,31 @@ export function LojongCompanion() {
   return (
     <>
       <div className={styles.intro}>
-        <p className={styles.eyebrow}>~ study, reflect, apply</p>
         <h1>Lojong</h1>
-        <p className={styles.subtitle}>A little understanding.<br />A different way of meeting the day.</p>
-        <p className={styles.introText}>Train the mind in compassion and wisdom, one encounter at a time.</p>
+        <blockquote className={styles.heroQuote}>
+          <p>“In all my activities, I shall probe my mind,<br className={styles.desktopBreak} /> and as soon as an affliction arises,<br className={styles.desktopBreak} /> since it endangers myself and others,<br className={styles.desktopBreak} /> I will train myself to confront it directly and counter it.”</p>
+          <cite>Langri Thangpa · Eight Verses, verse 3<br />Quoted by Thupten Jinpa · Lesson 1</cite>
+        </blockquote>
       </div>
 
       <nav className={styles.tabs} aria-label="Mind training sections">
-        {(["today", "study", "review"] as View[]).map(item => (
-          <button key={item} type="button" aria-current={view === item ? "page" : undefined} onClick={() => setView(item)}>{item}</button>
+        {(["practice", "today", "study", "review"] as View[]).map(item => (
+          <button key={item} type="button" aria-current={view === item ? "page" : undefined} onClick={() => setView(item)}>{item === "today" ? "Learn" : item}</button>
         ))}
       </nav>
 
-      {!progress ? <p className={styles.quiet} role="status">Opening your companion…</p> : (
+      <section hidden={view !== "practice"} aria-label="Practice"><PracticeFlow active={view === "practice"} /></section>
+
+      {!progress ? <p className={styles.quiet} role="status">Loading saved learning progress…</p> : (
         <>
           <section hidden={view !== "today"} aria-label="Today">
             {!progress.session ? (
               <div className={styles.start}>
-                <p className={styles.eyebrow}>Begin where you are</p>
-                <h2>{progress.attempts.length ? "Make room for a little practice." : "What is already familiar?"}</h2>
-                <p>{progress.attempts.length ? "A short session will revisit uncertain ideas and bring familiar ones into everyday situations." : "Six gentle questions help find a starting point. No preparation needed. “Not sure” is a useful answer."}</p>
-                <button className={styles.primary} onClick={() => store.update(beginSession(progress))}>{progress.attempts.length ? "Begin a short session" : "Find my starting point"}</button>
-                <button className={styles.textButton} onClick={() => { setFocus(null); setView("study"); }}>Or explore the Seven Points</button>
+                <p className={styles.eyebrow}>Learning</p>
+                <h2>{progress.attempts.length ? "Review session" : "Initial assessment"}</h2>
+                <p>{progress.attempts.length ? "Review uncertain concepts and answer application questions." : "Six questions on Lojong. Choose “Not sure” when needed."}</p>
+                <button className={styles.primary} onClick={() => store.update(beginSession(progress))}>{progress.attempts.length ? "Start review" : "Start assessment"}</button>
+                <button className={styles.textButton} onClick={() => { setFocus(null); setView("study"); }}>Study the Seven Points</button>
                 <p className={styles.small}>About 3–5 minutes. Pause whenever you like.</p>
               </div>
             ) : (
@@ -90,15 +94,15 @@ export function LojongCompanion() {
 
           <section hidden={view !== "study"} aria-label="Study">
             <div className={styles.sectionHead}>
-              <p className={styles.eyebrow}>A map, not a finish line</p>
-              <h2>Understanding the training</h2>
-              <p>Lojong is Mahayana mind training: cultivating awakening mind through compassion and wisdom. These structures help you return to the work of everyday life.</p>
+              <p className={styles.eyebrow}>Study</p>
+              <h2>Texts and instructions</h2>
+              <p>Seven-Point Mind Training, the Eight Verses, and explanations from Thupten Jinpa’s course.</p>
             </div>
             <div className={styles.subnav} role="group" aria-label="Study topics">
               {([['points', 'Seven Points'], ['verses', 'Eight Verses'], ['slogans', 'Slogans'], ['foundations', 'Key distinctions']] as [StudyView, string][]).map(([id, label]) => <button key={id} aria-pressed={studyView === id} onClick={() => { setStudyView(id); setFocus(null); }}>{label}</button>)}
             </div>
             {studyView === "points" ? <>
-              <p className={styles.note}>Prepare → cultivate → transform → integrate → evaluate → protect → refine. This is a memory aid for the traditional order, not a rigid sequence you must complete. Jinpa’s ten course lessons follow a different teaching order.</p>
+              <p className={styles.note}>The Seven Points are the traditional organization of these instructions. Jinpa’s ten lessons follow a different teaching sequence. Explanations below are source-based summaries; quotations are attributed.</p>
               <div className={styles.conceptList}>{points.map((c, i) => <ConceptItem key={`${c.id}-${focus}`} concept={c} number={i + 1} initiallyOpen={focus === c.id} />)}</div>
             </> : null}
             {studyView === "foundations" ? <div className={styles.conceptList}>{foundations.map(c => <ConceptItem key={`${c.id}-${focus}`} concept={c} initiallyOpen={focus === c.id} />)}</div> : null}
@@ -117,7 +121,7 @@ export function LojongCompanion() {
             <Review progress={progress} onStudy={studyConcept} onSession={() => { if (!progress.session || progress.session.finished) store.update(beginSession(progress)); setView("today"); }} />
           </section>
 
-          <div className={styles.storage}>
+          <div className={styles.storage} hidden={view === "practice"}>
             <p>Progress stays in this browser. No account, rankings, or shared results. Export a copy to keep it or move to another device. Clearing browser data removes the saved copy.</p>
             <div className={styles.inlineActions}><button className={styles.textButton} onClick={exportProgress}>Export progress</button><button className={styles.textButton} onClick={() => importInput.current?.click()}>Import progress</button></div>
             <input ref={importInput} className={styles.srOnly} tabIndex={-1} type="file" accept=".json,application/json" aria-label="Import Lojong progress file" onChange={importProgress} />
@@ -134,8 +138,19 @@ export function LojongCompanion() {
 function ConceptItem({ concept: c, number, initiallyOpen = false }: { concept: Concept; number?: number; initiallyOpen?: boolean }) {
   return <details className={styles.concept} open={initiallyOpen || undefined}>
     <summary>{number ? <span className={styles.number}>{String(number).padStart(2, "0")}</span> : null}<span>{c.title}</span><span className={styles.expand} aria-hidden="true">+</span></summary>
-    <div className={styles.conceptBody}><p>{c.summary}</p><p>{c.why}</p><p className={styles.example}>{c.example}</p><p><span className={styles.label}>Remember</span> {c.mnemonic}</p><p><span className={styles.label}>Reflect</span> {c.check}</p><p className={styles.small}>{c.source}</p></div>
+    <ConceptBody concept={c} />
   </details>;
+}
+
+function ConceptBody({ concept: c }: { concept: Concept }) {
+  return <div className={styles.conceptBody}>
+    <p>{c.summary}</p>
+    {c.sections?.map(section => <div className={styles.conceptSection} key={section.title}><h3>{section.title}</h3><p>{section.text}</p></div>)}
+    <p>{c.why}</p>
+    {c.quote ? <blockquote className={styles.sourceQuote}><p>“{c.quote.text}”</p><cite>{c.quote.attribution}</cite></blockquote> : null}
+    <p><span className={styles.label}>Study question</span><br />{c.check}</p>
+    <p className={styles.small}>{c.source}</p>
+  </div>;
 }
 
 function SloganLibrary({ onStudy }: { onStudy: (id: string) => void }) {
@@ -169,24 +184,23 @@ function Quiz({ progress, update, onStudy, onReview }: { progress: Progress; upd
     const recent = progress.attempts.slice(-SESSION_LENGTH);
     const uncertain = [...new Set(recent.filter(a => !a.correct || a.confidence !== "knew").map(a => a.concept))];
     return <div className={styles.finish}>
-      <p className={styles.eyebrow}>A place to pause</p><h2 ref={headingRef} tabIndex={-1}>Take one idea into the day.</h2>
-      <p>{uncertain.length ? "These ideas may benefit from another look. Your next session will use different questions where possible." : "You have some useful starting points. Future sessions will revisit them and explore how to apply them."}</p>
+      <p className={styles.eyebrow}>Session complete</p><h2 ref={headingRef} tabIndex={-1}>Session review</h2>
+      <p>{uncertain.length ? "Review the concepts below. The next session will use different questions where possible." : "Future sessions will revisit these concepts and include application questions."}</p>
       {uncertain.length ? <ul className={styles.studyLinks}>{uncertain.map(id => <li key={id}><button className={styles.textButton} onClick={() => onStudy(id)}>{conceptById[id].title}</button></li>)}</ul> : null}
-      <p className={styles.example}>Before the next conversation: what would it mean to care about this person’s welfare without needing credit?</p>
       <div className={styles.inlineActions}><button className={styles.primary} onClick={() => update(beginSession(progress))}>Another short session</button><button className={styles.textButton} onClick={onReview}>See review notes</button></div>
     </div>;
   }
   return <div className={styles.quiz}>
-    <div className={styles.quizMeta}><span>{s.mode === "diagnostic" ? "Finding a starting point" : "A short session"}</span><span>{s.ids.length} of {SESSION_LENGTH}</span></div>
+    <div className={styles.quizMeta}><span>{s.mode === "diagnostic" ? "Initial assessment" : "Review session"}</span><span>{s.ids.length} of {SESSION_LENGTH}</span></div>
     <div className={styles.progressTrack} role="progressbar" aria-label="Session progress" aria-valuemin={0} aria-valuemax={SESSION_LENGTH} aria-valuenow={s.ids.length - 1}><span style={{ width: `${((s.ids.length - 1) / SESSION_LENGTH) * 100}%` }} /></div>
-    <p className={styles.eyebrow}>{q.skill === "application" ? "Into everyday life" : "Making sense of the training"}</p>
+    <p className={styles.eyebrow}>{q.skill === "application" ? "Application" : "Understanding"}</p>
     <h2 className={styles.question} ref={headingRef} tabIndex={-1}>{q.prompt}</h2>
     {!s.response ? <AnswerEditor key={q.id} question={q} onAnswer={(answer, unsure) => update(respond(progress, answer, unsure))} /> : <div className={styles.feedback} aria-live="polite">
-      <p className={styles.feedbackLabel} ref={feedbackRef} tabIndex={-1}>{s.response.confidence === "unsure" ? "A useful place to learn." : s.response.correct ? "Yes. Here’s the reasoning." : "Let’s look at the distinction."}</p>
+      <p className={styles.feedbackLabel} ref={feedbackRef} tabIndex={-1}>{s.response.confidence === "unsure" ? "Review the explanation" : s.response.correct ? "Correct" : "Review the answer"}</p>
       <p>{q.explanation}</p><p className={styles.quiet}>{q.contrast}</p>
       <div className={styles.correctAnswer}><p className={styles.label}>The answer</p><ol>{q.answer.map((id, i) => <li key={id}>{q.slots ? `${q.slots[i]} — ` : ""}{q.options.find(o => o.id === id)!.text}</li>)}</ol></div>
       {s.response.correct && !s.response.confidence ? <fieldset className={styles.confidence}><legend>How did you arrive at that?</legend><button className={styles.secondary} onClick={() => update(setConfidence(progress, "knew"))}>Knew it</button><button className={styles.secondary} onClick={() => update(setConfidence(progress, "guessed"))}>Guessed</button><p className={styles.small}>A correct guess stays marked for review.</p></fieldset> : null}
-      <details className={styles.learnMore}><summary>Learn more</summary><p>{concept.summary}</p><p>{concept.why}</p><p className={styles.example}>{concept.example}</p><p><span className={styles.label}>Remember</span> {concept.mnemonic}</p><p><span className={styles.label}>Reflect</span> {concept.check}</p><p className={styles.small}>{concept.source}</p></details>
+      <details className={styles.learnMore}><summary>Read the source-based explanation</summary><ConceptBody concept={concept} /></details>
       <div className={styles.inlineActions}>{s.response.confidence ? <button className={styles.primary} onClick={() => update(advance(progress))}>{s.ids.length === SESSION_LENGTH ? "Close this session" : "Continue"}</button> : null}<button className={styles.textButton} onClick={() => onStudy(q.concept)}>Study this idea</button></div>
     </div>}
     <p className={styles.small}>You can switch to Study or Review and come back. Submitted answers are saved automatically.</p>
@@ -222,7 +236,7 @@ function Review({ progress, onStudy, onSession }: { progress: Progress; onStudy:
   const due = reviewConcepts(progress);
   const labels: Record<string, string> = { unexplored: "Not explored", revisit: "Revisit", uncertain: "Uncertain / guessed", demonstrated: "Demonstrated" };
   return <>
-    <div className={styles.sectionHead}><p className={styles.eyebrow}>Return with curiosity</p><h2>What could use another look?</h2><p>{due.length ? `${due.length} ${due.length === 1 ? "idea is" : "ideas are"} ready for review.` : reviewed.length ? "No scheduled reviews are due yet. You can still explore another idea." : "Your review notes will grow as you answer questions. Start with a short session or explore the study material."}</p><button className={styles.primary} onClick={onSession}>{progress.session && !progress.session.finished ? "Resume my session" : "Begin a short session"}</button></div>
+    <div className={styles.sectionHead}><p className={styles.eyebrow}>Review</p><h2>Concepts to review</h2><p>{due.length ? `${due.length} ${due.length === 1 ? "concept is" : "concepts are"} ready for review.` : reviewed.length ? "No scheduled reviews are due yet." : "No learning questions answered yet."}</p><button className={styles.primary} onClick={onSession}>{progress.session && !progress.session.finished ? "Resume my session" : "Start review"}</button></div>
     {reviewed.length ? <ul className={styles.reviewList}>{reviewed.map(c => <li key={c.id}><button className={styles.textButton} onClick={() => onStudy(c.id)}>{c.title}</button><dl className={styles.skillList}>{(["recognition", "recall", "application"] as Skill[]).map(skill => { const s = learningState(progress, c.id, skill); return <div key={skill}><dt>{skill === "recall" ? "Unaided recall" : skill}</dt><dd>{skill === "recall" ? "Not assessed" : labels[s.status]}{skill !== "recall" && s.status === "demonstrated" ? s.due ? " · ready to revisit" : ` · revisit ${new Date(s.dueAt!).toLocaleDateString(undefined, { month: "short", day: "numeric" })}` : ""}</dd></div>; })}</dl></li>)}</ul> : null}
     <p className={styles.note}>These notes describe evidence from learning exercises. Recognition, unaided recall, and real-life application are different capacities. A scenario answer suggests understanding; only daily life can show how you actually respond.</p>
   </>;

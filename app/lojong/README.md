@@ -4,9 +4,15 @@ Public, unlinked learning area at `/lojong`. Its page metadata requests `noindex
 
 ## Scope
 
-The existing public pages, admin editors, global CSS, Supabase data, authentication, migrations, and production deployment remain unchanged. This route reuses `ThusnessPageShell`, `SiteFooter`, and the existing design tokens. Styles are local to `lojong.module.css`.
+The existing public pages, admin editors, global CSS, Supabase data, authentication, and migrations remain unchanged. This route reuses `ThusnessPageShell`, `SiteFooter`, and the existing design tokens. At Colin's request, a route-local wrapper overrides colors to black, white, and dark red. No global color or public navigation changes are needed.
 
-The current MVP provides Seven Points and Eight Verses overviews, Jinpa's 61-item slogan list, foundational distinctions, a six-question diagnostic, adaptive six-question sessions, single/multiple-choice, ordering, matching, missing-point, odd-one-out, and scenario exercises. Feedback and study kits are deterministic. No AI provider or new dependency is required.
+The current version provides a five-step situational practice flow, Seven Points and Eight Verses overviews, Jinpa's 61-item slogan list, foundational distinctions, a six-question diagnostic, adaptive six-question sessions, single/multiple-choice, ordering, matching, missing-point, odd-one-out, and scenario exercises. Feedback, practice suggestions, and review text are deterministic. No AI provider or new dependency is required.
+
+## Situational practice
+
+The Practice tab is the default entry point. `lib/lojong/practice.ts` supplies observations, possible expectations, source-based root-instruction notes, practice outlines, and review formatting. The user describes an event, selects states they actually recognize, chooses relevant instructions and a practice, and reports the effect. Suggestions are not diagnoses or findings of broken commitments. Practices include compassion and equalizing self and others, releasing expectations of reward, patience, emptiness inquiry, and further investigation. Adaptations are explicitly distinguished from quotations.
+
+The situation and review remain in component memory only. They are not written to localStorage, sent to a server, or included in learning exports. Switching tabs preserves them while the component is mounted; reloading or leaving the page loses them. Copy the review to keep it. Resetting requires an inline confirmation. An unchanged, stronger, or uncertain result never becomes a claim of successful transformation.
 
 ## Content
 
