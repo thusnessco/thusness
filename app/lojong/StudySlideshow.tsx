@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { sloganAttribution, points, sloganStudySlides, verses } from "@/lib/lojong/curriculum";
 import { rootNotes } from "@/lib/lojong/practice";
+import { playSinkInMainChimeFromGesture, playSinkInMainChimeHtml } from "@/lib/sinkin/sinkin-chime-html";
 import styles from "./lojong.module.css";
 
 type Deck = "slogans" | "points" | "verses" | "commitments" | "guidelines";
@@ -14,6 +15,7 @@ export function StudySlideshow({ active }: { active: boolean }) {
   const [index, setIndex] = useState(0);
   const [seconds, setSeconds] = useState(30);
   const [remaining, setRemaining] = useState(30);
+  const [sound, setSound] = useState(true);
   const [playing, setPlaying] = useState(false);
   const [focusMode, setFocusMode] = useState(false);
   const dialog = useRef<HTMLDialogElement>(null);
@@ -40,15 +42,22 @@ export function StudySlideshow({ active }: { active: boolean }) {
       setRemaining(next);
       if (next > 0) return;
       window.clearInterval(timer);
+      if (sound) void playSinkInMainChimeHtml(528).catch(() => {});
       if (index === count - 1) { setPlaying(false); setFinished(true); }
       else { setIndex(index + 1); setRemaining(seconds); }
     }, 250);
     return () => window.clearInterval(timer);
     // Keep one deadline per slide; countdown updates do not restart it.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [active, playing, finished, index, count, seconds]);
+  }, [active, playing, finished, index, count, seconds, sound]);
   function reset() { setIndex(0); setRemaining(seconds); setPlaying(false); setFinished(false); }
-  function move(next: number) { setIndex(next); setRemaining(seconds); setFinished(false); requestAnimationFrame(() => heading.current?.focus()); }
+  function move(next: number) { if (sound) playSinkInMainChimeFromGesture(528); setIndex(next); setRemaining(seconds); setFinished(false); requestAnimationFrame(() => heading.current?.focus()); }
+  function togglePlayback() {
+    if (!playing && sound) playSinkInMainChimeFromGesture(528);
+    if (finished) { setIndex(0); setRemaining(seconds); setFinished(false); }
+    setPlaying(value => !value);
+  }
+  function toggleSound() { if (!sound) playSinkInMainChimeFromGesture(528); setSound(value => !value); }
   return <section className={styles.practice} aria-label="Timed Lojong study slideshow">
     <h2>Slideshow</h2>
     <fieldset className={styles.subnav}><legend className={styles.srOnly}>Choose a slideshow</legend>{(Object.keys(deckNames) as Deck[]).map(id => <button type="button" key={id} aria-pressed={deck === id} onClick={() => { setDeck(id); setPoint(0); reset(); }}>{deckNames[id]}</button>)}</fieldset>
@@ -56,6 +65,7 @@ export function StudySlideshow({ active }: { active: boolean }) {
       {deck === "slogans" ? <label>Choose instructions<select value={point} onChange={event => { setPoint(Number(event.target.value)); reset(); }}><option value={0}>All Seven Points · 61 slogans</option>{points.map((p, i) => <option value={i + 1} key={p.id}>Point {i + 1} · {p.title}</option>)}</select></label> : null}
       <label>Time per slide<select value={seconds} onChange={event => { const value = Number(event.target.value); setSeconds(value); setRemaining(value); }}>{[10, 20, 30, 60].map(value => <option key={value} value={value}>{value} seconds</option>)}</select></label>
     </div>
+    <div className={styles.meditationSettings}><label><input type="checkbox" checked={sound} onChange={toggleSound} /> Sound</label></div>
     <div className={styles.meditation}>
       <div className={styles.quizMeta}><span>{index + 1} of {count}</span><span role="timer" aria-label="Slide time remaining">{remaining}s</span></div>
       <p className={styles.eyebrow}>{current.label}</p>
@@ -64,14 +74,14 @@ export function StudySlideshow({ active }: { active: boolean }) {
       <p className={styles.small}>{current.source}</p><p className={styles.small}>{current.kind}</p>
       {current.link ? <p><a href={current.link} target="_blank" rel="noreferrer">Read verse and commentary</a></p> : null}
       <div className={styles.inlineActions}>
-        <button type="button" className={styles.primary} onClick={() => { if (finished) { setIndex(0); setRemaining(seconds); setFinished(false); } setPlaying(value => !value); setFocusMode(true); }}>{finished ? "Play again" : playing ? "Pause slideshow" : "Play slideshow"}</button>
+        <button type="button" className={styles.primary} onClick={() => { togglePlayback(); setFocusMode(true); }}>{finished ? "Play again" : playing ? "Pause slideshow" : "Play slideshow"}</button>
         <button type="button" className={styles.textButton} disabled={index === 0} onClick={() => move(index - 1)}>Previous slide</button>
         <button type="button" className={styles.textButton} disabled={index === count - 1} onClick={() => move(index + 1)}>Next slide</button>
       </div>
       <p role="status" className={styles.small}>{finished ? "Deck complete" : playing && active ? "Playing" : "Paused"}</p>
     </div>
     <dialog ref={dialog} className={styles.readingView} aria-label="Lojong slideshow reading view" onCancel={leaveReading} onClose={leaveReading}>
-      <div className={styles.readingTop}><span>{index + 1} / {count}</span><span role="timer" aria-label="Reading time remaining">{remaining}s</span><button type="button" onClick={leaveReading}>Exit</button></div>
+      <div className={styles.readingTop}><span>{index + 1} / {count}</span><span role="timer" aria-label="Reading time remaining">{remaining}s</span><button type="button" aria-label={sound ? "Mute slideshow sound" : "Enable slideshow sound"} onClick={toggleSound}>{sound ? "Sound on" : "Sound off"}</button><button type="button" onClick={leaveReading}>Exit</button></div>
       <div className={styles.readingContent}>
         <p className={styles.readingLabel}>{isSloganDeck ? current.label.replace(/ · .* · slogan /, " · Slogan ") : `${current.label} · study summary`}</p>
         <h2>{isSloganDeck ? `“${current.title}”` : current.title}</h2>
@@ -85,7 +95,7 @@ export function StudySlideshow({ active }: { active: boolean }) {
       </div>
       <div className={styles.readingControls}>
         <button type="button" disabled={index === 0} onClick={() => move(index - 1)}>Previous</button>
-        <button type="button" onClick={() => { if (finished) { setIndex(0); setRemaining(seconds); setFinished(false); } setPlaying(value => !value); }}>{finished ? "Play again" : playing ? "Pause" : "Resume"}</button>
+        <button type="button" onClick={togglePlayback}>{finished ? "Play again" : playing ? "Pause" : "Resume"}</button>
         <button type="button" disabled={index === count - 1} onClick={() => move(index + 1)}>Next</button>
       </div>
       {finished ? <p role="status" className={styles.readingEnd}>Deck complete</p> : null}

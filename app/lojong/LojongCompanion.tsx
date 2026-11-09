@@ -43,6 +43,17 @@ export function LojongCompanion() {
   const store = useMemo(() => createProgressStore(), []);
   const progress = useSyncExternalStore(store.subscribe, store.getSnapshot, store.getServerSnapshot);
   const [view, setView] = useState<View>("practice");
+  useEffect(() => {
+    const openLinkedMeditation = () => { if (window.location.hash === "#tonglen") setView("tonglen"); };
+    const frame = requestAnimationFrame(openLinkedMeditation);
+    window.addEventListener("hashchange", openLinkedMeditation);
+    return () => { cancelAnimationFrame(frame); window.removeEventListener("hashchange", openLinkedMeditation); };
+  }, []);
+  function navigateView(next: View) {
+    setView(next);
+    if (next === "tonglen") window.history.replaceState(null, "", "#tonglen");
+    else if (window.location.hash === "#tonglen") window.history.replaceState(null, "", window.location.pathname + window.location.search);
+  }
   const [studyView, setStudyView] = useState<StudyView>("points");
   const [focus, setFocus] = useState<string | null>(null);
   const [notice, setNotice] = useState("");
@@ -97,7 +108,7 @@ export function LojongCompanion() {
 
       <nav className={styles.tabs} aria-label="Mind training sections">
         {(["practice", "one-thing", "tonglen", "study", "slideshow", "review", "today"] as View[]).map(item => (
-          <button key={item} type="button" aria-current={view === item ? "page" : undefined} onClick={() => setView(item)}>{item === "today" ? "Learn" : item === "one-thing" ? "One Thing Today" : item}</button>
+          <button key={item} type="button" aria-current={view === item ? "page" : undefined} onClick={() => navigateView(item)}>{item === "today" ? "Learn" : item === "one-thing" ? "One Thing Today" : item === "tonglen" ? "Tonglen Meditation" : item}</button>
         ))}
       </nav>
 

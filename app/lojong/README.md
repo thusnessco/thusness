@@ -60,3 +60,5 @@ One Thing Today opens a clean reading dialog with one daily concept, one action,
 Commitments (Point 6, slogans 24–39) and Guidelines (Point 7, slogans 40–61) also have directly selectable slideshow decks. The all-slogans deck can be filtered to any individual Point to review its constituent instructions. All decks use the existing course wording and preserve source numbers.
 
 Visible course-edition links, teacher/lesson citations, and repeated course references are temporarily removed at Colin’s request. Internal source fields remain in the content data for a future credits location. Traditional text titles, author credits, and slogan numbers remain visible.
+
+Tonglen Meditation is a direct navigation tab and can be opened with `/lojong#tonglen`. All slideshow decks reuse Notice’s shared chime player on start/resume, manual navigation, timed advances, and completion. Sound can be toggled in setup or reading view; failed audio playback never blocks the timer.
