@@ -103,11 +103,12 @@
 .formLabel { display: block; font-size: 14px; margin: 22px 0; }
 .formLabel textarea { display: block; width: 100%; resize: vertical; margin-top: 10px; padding: 14px; border: 1px solid var(--thusness-rule); border-radius: 0; background: #101010; color: var(--thusness-ink); font: inherit; font-size: 16px; line-height: 1.7; }
 .formLabel textarea:focus-visible { outline: 2px solid var(--thusness-ink); outline-offset: 3px; }
+.formLabel select { display: block; width: 100%; min-width: 0; margin-top: 10px; padding: 14px; border: 1px solid var(--thusness-rule); border-radius: 0; background: #101010; color: var(--thusness-ink); font-size: 16px; }
 .formHelp { color: var(--thusness-ink-soft); font-size: 14px; margin-bottom: 26px !important; }
 .checkGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 22px; border: 0; margin: 26px 0 32px; padding: 0; }
 .checkGrid legend { color: var(--thusness-ink); font-size: 14px; margin-bottom: 14px; }
 .checkGrid label { display: flex; gap: 12px; align-items: flex-start; min-height: 44px; padding: 9px 0; font-size: 14px; line-height: 1.6; cursor: pointer; }
-.checkGrid input, .rootOption input, .methodChoices input { width: 16px; height: 16px; flex: 0 0 auto; margin-top: 4px; accent-color: var(--thusness-red); }
+.checkGrid input, .rootOption input { width: 16px; height: 16px; flex: 0 0 auto; margin-top: 4px; accent-color: var(--thusness-red); }
 .rootOptions { margin: 24px 0; }
 .rootOption { border-top: 1px solid var(--thusness-rule); padding: 20px 0; }
 .rootOption label { display: flex; gap: 14px; align-items: flex-start; cursor: pointer; }
@@ -116,9 +117,6 @@
 .rootOption details { margin: 12px 0 0 30px; font-size: 14px; color: var(--thusness-ink-soft); }
 .rootOption details summary { cursor: pointer; color: var(--thusness-muted); font-size: 12px; }
 .rootOption details p { margin-top: 12px; }
-.methodChoices { padding: 0; border: 0; margin: 20px 0; }
-.methodChoices label { display: flex; gap: 14px; align-items: flex-start; min-height: 48px; padding: 14px 0; border-top: 1px solid var(--thusness-rule); color: var(--thusness-ink-soft); font-size: 15px; cursor: pointer; }
-.methodChoices label[data-selected="true"] { color: var(--thusness-ink); }
 .methodDetail { margin: 26px 0; padding: 0 0 0 20px; border-left: 2px solid var(--thusness-red); }
 .methodDetail ol { padding-left: 20px; font-size: 16px; }
 .methodDetail li + li { margin-top: 14px; }

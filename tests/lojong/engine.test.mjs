@@ -177,3 +177,15 @@ test('practice references resolve and the single-means approach includes bodhici
   assert.match(p2.sections[0].title, /Conventional/);
   assert.match(p2.sections[1].title, /Ultimate/);
 });
+
+test('each selectable practice supplies its own instructions to the review', () => {
+  const ids = ['equality', 'tonglen', 'compassion', 'patience', 'investigate', 'kindness', 'generosity', 'emptiness', 'expectation'];
+  assert.equal(new Set(practice.methods.map(m => m.id)).size, practice.methods.length);
+  for (const id of ids) {
+    const method = practice.methods.find(m => m.id === id);
+    assert.ok(method?.steps.length && method.source, id);
+    const summary = practice.reflectionSummary({ ...practice.emptyReflection(), method: id, outcome: 'unsure' });
+    assert.ok(summary.includes(method.title) && summary.includes(method.steps[0]), id);
+    assert.match(summary, /Not sure yet/);
+  }
+});
