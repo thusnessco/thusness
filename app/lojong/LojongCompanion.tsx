@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type ChangeEvent } from "react";
 
-import { jinpaCourseUrl, sloganAttribution, conceptById, concepts, foundations, numberingNote, points, slogans, sources, verses, type Concept, type Skill } from "@/lib/lojong/curriculum";
+import { sloganAttribution, conceptById, concepts, foundations, points, slogans, verses, type Concept, type Skill } from "@/lib/lojong/curriculum";
 import { advance, beginSession, learningState, parseProgress, respond, reviewConcepts, SESSION_LENGTH, setConfidence, type Progress } from "@/lib/lojong/engine";
 import { questionById, type Question } from "@/lib/lojong/questions";
 import { createProgressStore } from "@/lib/lojong/storage";
@@ -16,9 +16,9 @@ type View = "practice" | "one-thing" | "tonglen" | "today" | "study" | "slidesho
 type StudyView = "points" | "verses" | "slogans" | "foundations";
 
 const openingQuotes = [
-  { text: "In all my activities, I shall probe my mind, and as soon as an affliction arises, since it endangers myself and others, I will train myself to confront it directly and counter it.", attribution: "Langri Thangpa · Eight Verses, verse 3 · quoted by T. Jinpa, Lesson 1" },
+  { text: "In all my activities, I shall probe my mind, and as soon as an affliction arises, since it endangers myself and others, I will train myself to confront it directly and counter it.", attribution: "Langri Thangpa · Eight Verses, verse 3" },
   ...[12, 14, 22, 50].map(number => { const slogan = slogans.find(item => item.number === number)!; return { text: slogan.text, attribution: sloganAttribution(number) }; }),
-  { text: "Until you have gained stability, adversities become unfavorable conditions to you. Once you gain stability, there is no such thing as unfavorable conditions.", attribution: "Earlier Lojong instruction quoted by T. Jinpa · Lesson 1, p. 8" },
+  { text: "Until you have gained stability, adversities become unfavorable conditions to you. Once you gain stability, there is no such thing as unfavorable conditions.", attribution: "" },
 ];
 
 export function LojongCompanion() {
@@ -90,9 +90,8 @@ export function LojongCompanion() {
         <h1><a href="/lojong" aria-label="Lojong — start over" style={{ textDecoration: "none" }}>Lojong <span lang="bo" className={styles.tibetan}>བློ་སྦྱོང་</span></a></h1>
         <blockquote className={styles.heroQuote}>
           <p>“{openingQuote.text}”</p>
-          <cite>{openingQuote.attribution}</cite>
+          {openingQuote.attribution ? <cite>{openingQuote.attribution}</cite> : null}
         </blockquote>
-        <p className={styles.courseCredit}><a href={jinpaCourseUrl} target="_blank" rel="noreferrer">Course edition · T. Jinpa · Wisdom Academy</a></p>
         <button type="button" className={styles.quoteNext} onClick={nextQuote}>Another reflection</button>
       </div>
 
@@ -130,7 +129,7 @@ export function LojongCompanion() {
             <div className={styles.sectionHead}>
               <p className={styles.eyebrow}>Study</p>
               <h2>Texts and instructions</h2>
-              <p>Seven-Point Mind Training, the Eight Verses, and explanations from T. Jinpa’s course.</p>
+              <p>Seven-Point Mind Training and the Eight Verses.</p>
             </div>
             <div className={styles.subnav} role="group" aria-label="Study topics">
               {([['points', 'Seven Points'], ['verses', 'Eight Verses'], ['slogans', 'Slogans'], ['foundations', 'Key distinctions']] as [StudyView, string][]).map(([id, label]) => <button key={id} aria-pressed={studyView === id} onClick={() => { setStudyView(id); setFocus(null); }}>{label}</button>)}
@@ -148,7 +147,6 @@ export function LojongCompanion() {
             </> : null}
             {studyView === "slogans" ? <SloganLibrary onStudy={studyConcept} /> : null}
             {progress.session && !progress.session.finished ? <button className={styles.primary} onClick={() => setView("today")}>Return to my session</button> : null}
-            <details className={styles.sources}><summary>Sources, wording, and perspective</summary><p>{sources.jinpa} <a href={jinpaCourseUrl} target="_blank" rel="noreferrer">Visit T. Jinpa’s course ↗</a></p><p>The Seven-Point compilation is traditionally credited to Chekawa Yeshe Dorje, following Atiśa’s tradition. Slogan wording and numbering here follow T. Jinpa’s course materials; editions differ.</p><p>{sources.verses} <a href="https://www.dalailama.com/teachings/training-the-mind" target="_blank" rel="noreferrer">Read the commentary ↗</a></p><p>{sources.perspective}</p><p>The recognition/application exercises assess learning only. They cannot establish meditative realization or spiritual attainment. Unaided recall is reserved for a later version and is not inferred from multiple-choice answers.</p></details>
           </section>
 
           <section hidden={view !== "review"} aria-label="Review">
@@ -181,9 +179,8 @@ function ConceptBody({ concept: c }: { concept: Concept }) {
     <p>{c.summary}</p>
     {c.sections?.map(section => <div className={styles.conceptSection} key={section.title}><h3>{section.title}</h3><p>{section.text}</p></div>)}
     <p>{c.why}</p>
-    {c.quote ? <blockquote className={styles.sourceQuote}><p>“{c.quote.text}”</p><cite>{c.quote.attribution}</cite></blockquote> : null}
+    {c.quote && !/Jinpa|Lesson|course/i.test(c.quote.attribution) ? <blockquote className={styles.sourceQuote}><p>“{c.quote.text}”</p><cite>{c.quote.attribution}</cite></blockquote> : null}
     <p><span className={styles.label}>Study question</span><br />{c.check}</p>
-    <p className={styles.small}>{c.source}</p>
   </div>;
 }
 
@@ -192,7 +189,7 @@ function SloganLibrary({ onStudy }: { onStudy: (id: string) => void }) {
   const [search, setSearch] = useState("");
   const results = slogans.filter(s => (filter === "all" || s.point === Number(filter)) && s.text.toLowerCase().includes(search.toLowerCase().trim()));
   return <>
-    <p className={styles.note}>{numberingNote}</p>
+    <p className={styles.note}>61 numbered instructions. Editions differ; entries 11–12 form one instruction.</p>
     <div className={styles.filters}>
       <label>Find a slogan<input type="search" value={search} onChange={e => setSearch(e.target.value)} placeholder="A word or phrase…" /></label>
       <label>Category<select value={filter} onChange={e => setFilter(e.target.value)}><option value="all">All Seven Points</option>{points.map((p, i) => <option key={p.id} value={i + 1}>{i + 1} · {p.title}</option>)}</select></label>

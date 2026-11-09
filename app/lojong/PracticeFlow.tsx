@@ -44,7 +44,7 @@ export function PracticeFlow({ active }: { active: boolean }) {
     const note = rootNotes.find(item => item.number === number);
     return <div className={styles.rootOption} key={number}>
       <label><input type="checkbox" checked={reflection.roots.includes(number)} onChange={() => selectRoot(number)} /><span><span className={styles.rootMeta}>Point {s.point} · {points[s.point - 1].title} · #{number}</span><span className={styles.rootText}>“{s.text}”</span></span></label>
-      {note ? <details><summary>Read explanation</summary><p>{note.explanation}</p><p className={styles.small}>T. Jinpa · {note.source}. Explanation summarized from the course.</p></details> : null}
+      {note ? <details><summary>Read explanation</summary><p>{note.explanation}</p></details> : null}
     </div>;
   }
 
@@ -82,12 +82,12 @@ export function PracticeFlow({ active }: { active: boolean }) {
       {step === 3 ? <>
         <p className={styles.formHelp}>Choose a practice and apply it before checking its effect.</p>
         <fieldset className={`${styles.checkGrid} ${styles.practiceChoices}`}><legend>Choose a practice</legend>{methods.map(m => <label key={m.id} data-selected={reflection.method === m.id}><input type="radio" name="practice" value={m.id} checked={reflection.method === m.id} onChange={() => { update("method", m.id); update("outcome", ""); }} /><span>{m.title}</span></label>)}</fieldset>
-        {method ? <div className={styles.methodDetail} hidden={method.id === "tonglen"}><p className={styles.rootMeta}>{method.basis}</p><ol>{method.steps.map(item => <li key={item}>{item}</li>)}</ol><p className={styles.small}>{method.source}</p></div> : null}
+        {method ? <div className={styles.methodDetail} hidden={method.id === "tonglen"}><p className={styles.rootMeta}>{method.basis}</p><ol>{method.steps.map(item => <li key={item}>{item}</li>)}</ol></div> : null}
       </> : null}
       {step === 3 && method && practiceConnections[method.id] ? <details className={styles.learnMore}><summary>How this connects to Lojong</summary>
         <p>{practiceConnections[method.id].context}</p>
         {practiceConnections[method.id].instructions.map(number => { const instruction = slogans.find(item => item.number === number)!; return <p key={number}><span className={styles.rootMeta}>{sloganAttribution(number)} · Point {instruction.point}</span>“{instruction.text}”</p>; })}
-        <p className={styles.small}>Adapted practice prompts · source commentary linked above.</p>
+
       </details> : null}
       {step === 3 && method?.id === "tonglen" ? <TonglenMeditation active={active} /> : null}
       {step === 4 ? <>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { jinpaCourseUrl, sloganAttribution, points, sloganStudySlides, verses } from "@/lib/lojong/curriculum";
+import { sloganAttribution, points, sloganStudySlides, verses } from "@/lib/lojong/curriculum";
 import { rootNotes } from "@/lib/lojong/practice";
 import styles from "./lojong.module.css";
 
@@ -21,8 +21,8 @@ export function StudySlideshow({ active }: { active: boolean }) {
   const heading = useRef<HTMLHeadingElement>(null);
   const isSloganDeck = deck === "slogans" || deck === "commitments" || deck === "guidelines";
   const selectedPoint = deck === "commitments" ? 6 : deck === "guidelines" ? 7 : point;
-  const slides = isSloganDeck ? sloganStudySlides.filter(s => !selectedPoint || s.point === selectedPoint).map(s => ({ label: `Point ${s.point} · ${points[s.point - 1].title} · slogan ${s.displayNumber}`, title: s.text, body: rootNotes.find(note => note.number === s.number)?.explanation ?? points[s.point - 1].summary, source: sloganAttribution(s.displayNumber), specific: rootNotes.some(note => s.sourceNumbers.includes(note.number)), kind: "Course wording and numbering · explanations are study summaries.", link: "" }))
-    : deck === "points" ? points.map((p, i) => ({ label: `Point ${i + 1} of 7`, title: p.title, body: p.summary, source: p.source, specific: false, kind: "Study summary.", link: "" }))
+  const slides = isSloganDeck ? sloganStudySlides.filter(s => !selectedPoint || s.point === selectedPoint).map(s => ({ label: `Point ${s.point} · ${points[s.point - 1].title} · slogan ${s.displayNumber}`, title: s.text, body: rootNotes.find(note => note.number === s.number)?.explanation ?? points[s.point - 1].summary, source: sloganAttribution(s.displayNumber), specific: rootNotes.some(note => s.sourceNumbers.includes(note.number)), kind: "Explanations are study summaries.", link: "" }))
+    : deck === "points" ? points.map((p, i) => ({ label: `Point ${i + 1} of 7`, title: p.title, body: p.summary, source: "7 Point Mind Training · Chekawa Yeshe Dorje", specific: false, kind: "Study summary.", link: "" }))
     : verses.map(v => ({ label: `Verse ${v.number} of 8`, title: v.title, body: v.summary, source: "Langri Thangpa · Eight Verses for Training the Mind", specific: false, kind: "Study summary · use the link for the verse and commentary.", link: v.url }));
   useEffect(() => {
     const element = dialog.current;
@@ -61,7 +61,7 @@ export function StudySlideshow({ active }: { active: boolean }) {
       <p className={styles.eyebrow}>{current.label}</p>
       <h3 ref={heading} tabIndex={-1} className={styles.slideTitle}>{isSloganDeck ? `“${current.title}”` : current.title}</h3>
       {!isSloganDeck ? <p>{current.body}</p> : <details className={styles.learnMore} key={`${deck}-${point}-${index}`}><summary>Meaning and context</summary><p>{current.body}</p></details>}
-      <p className={styles.small}>{current.source}</p><p className={styles.courseCredit}><a href={jinpaCourseUrl} target="_blank" rel="noreferrer">Course edition · T. Jinpa · Wisdom Academy</a></p><p className={styles.small}>{current.kind}</p>
+      <p className={styles.small}>{current.source}</p><p className={styles.small}>{current.kind}</p>
       {current.link ? <p><a href={current.link} target="_blank" rel="noreferrer">Read verse and commentary</a></p> : null}
       <div className={styles.inlineActions}>
         <button type="button" className={styles.primary} onClick={() => { if (finished) { setIndex(0); setRemaining(seconds); setFinished(false); } setPlaying(value => !value); setFocusMode(true); }}>{finished ? "Play again" : playing ? "Pause slideshow" : "Play slideshow"}</button>
@@ -79,9 +79,9 @@ export function StudySlideshow({ active }: { active: boolean }) {
         {isSloganDeck ? <details className={styles.readingMeaning} key={`meaning-${deck}-${point}-${index}`} onToggle={event => { if (event.currentTarget.open) setPlaying(false); }}>
           <summary>Meaning</summary>
           <p>{current.body}</p>
-          <p className={styles.readingMeaningNote}>{current.specific ? "Study explanation · adapted from T. Jinpa’s course commentary." : "Point overview · study summary."}</p>
+          <p className={styles.readingMeaningNote}>{current.specific ? "Study explanation." : "Point overview · study summary."}</p>
         </details> : null}
-        <p className={styles.readingCredit}>{deck === "points" ? "7 Point Mind Training · Chekawa Yeshe Dorje" : current.source}<br /><a href={jinpaCourseUrl} target="_blank" rel="noreferrer">Course edition · T. Jinpa · Wisdom Academy</a></p>
+        <p className={styles.readingCredit}>{deck === "points" ? "7 Point Mind Training · Chekawa Yeshe Dorje" : current.source}</p>
       </div>
       <div className={styles.readingControls}>
         <button type="button" disabled={index === 0} onClick={() => move(index - 1)}>Previous</button>

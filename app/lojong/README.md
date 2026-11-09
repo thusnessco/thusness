@@ -58,3 +58,5 @@ In slideshow reading mode, course entries 11–12 appear together as one complet
 One Thing Today opens a clean reading dialog with one daily concept, one action, optional evening reflection, and the exact source slogan. Eight original study adaptations rotate by the visitor’s local calendar date and remain stable during the day; no completion or realization is inferred. Tonglen has a direct navigation tab as well as its existing situational-practice entry. Learn is last in navigation.
 
 Commitments (Point 6, slogans 24–39) and Guidelines (Point 7, slogans 40–61) also have directly selectable slideshow decks. The all-slogans deck can be filtered to any individual Point to review its constituent instructions. All decks use the existing course wording and preserve source numbers.
+
+Visible course-edition links, teacher/lesson citations, and repeated course references are temporarily removed at Colin’s request. Internal source fields remain in the content data for a future credits location. Traditional text titles, author credits, and slogan numbers remain visible.

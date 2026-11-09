@@ -86,6 +86,6 @@ export function TonglenMeditation({ active }: { active: boolean }) {
       <label><input type="checkbox" checked={sound} onChange={event => { setSound(event.target.checked); if (event.target.checked) playSinkInMainChimeFromGesture(528); }} /> Sound</label>
     </div>
     {audioStatus ? <p role="status" className={styles.small}>{audioStatus}</p> : null}
-    <details className={styles.learnMore}><summary>Practice guidance and source</summary><p>You can remain with giving throughout. This is imaginative training in care, not a literal transfer of illness. If overwhelmed, leave the visualization and attend to your surroundings.</p><p>Adapted from T. Jinpa’s Lesson 5, pp. 5–6 and 9. Written prompts and timings are study aids, not quotations or a recording of the course. Breath coordination is optional and comes after familiarity.</p></details>
+    <details className={styles.learnMore}><summary>Practice guidance</summary><p>You can remain with giving throughout. This is imaginative training in care, not a literal transfer of illness. If overwhelmed, leave the visualization and attend to your surroundings.</p><p>Breath coordination is optional and comes after familiarity.</p></details>
   </section>;
 }
