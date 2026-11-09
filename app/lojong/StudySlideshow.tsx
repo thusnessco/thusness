@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { sloganAttribution, points, sloganStudySlides, verses } from "@/lib/lojong/curriculum";
 import { rootNotes } from "@/lib/lojong/practice";
 import { playSinkInMainChimeFromGesture, playSinkInMainChimeHtml } from "@/lib/sinkin/sinkin-chime-html";
+import { PracticeChecklist } from "./PracticeChecklist";
 import styles from "./lojong.module.css";
 
 type Deck = "slogans" | "points" | "verses" | "commitments" | "guidelines";
@@ -23,9 +24,9 @@ export function StudySlideshow({ active }: { active: boolean }) {
   const heading = useRef<HTMLHeadingElement>(null);
   const isSloganDeck = deck === "slogans" || deck === "commitments" || deck === "guidelines";
   const selectedPoint = deck === "commitments" ? 6 : deck === "guidelines" ? 7 : point;
-  const slides = isSloganDeck ? sloganStudySlides.filter(s => !selectedPoint || s.point === selectedPoint).map(s => ({ label: `Point ${s.point} · ${points[s.point - 1].title} · slogan ${s.displayNumber}`, title: s.text, body: rootNotes.find(note => note.number === s.number)?.explanation ?? points[s.point - 1].summary, source: sloganAttribution(s.displayNumber), specific: rootNotes.some(note => s.sourceNumbers.includes(note.number)), kind: "Explanations are study summaries.", link: "" }))
-    : deck === "points" ? points.map((p, i) => ({ label: `Point ${i + 1} of 7`, title: p.title, body: p.summary, source: "7 Point Mind Training · Chekawa Yeshe Dorje", specific: false, kind: "Study summary.", link: "" }))
-    : verses.map(v => ({ label: `Verse ${v.number} of 8`, title: v.title, body: v.summary, source: "Langri Thangpa · Eight Verses for Training the Mind", specific: false, kind: "Study summary · use the link for the verse and commentary.", link: v.url }));
+  const slides = isSloganDeck ? sloganStudySlides.filter(s => !selectedPoint || s.point === selectedPoint).map(s => ({ label: `Point ${s.point} · ${points[s.point - 1].title} · slogan ${s.displayNumber}`, title: s.text, body: rootNotes.find(note => note.number === s.number)?.explanation ?? points[s.point - 1].summary, source: sloganAttribution(s.displayNumber), sloganNumber: s.number, specific: rootNotes.some(note => s.sourceNumbers.includes(note.number)), kind: "Explanations are study summaries.", link: "" }))
+    : deck === "points" ? points.map((p, i) => ({ label: `Point ${i + 1} of 7`, title: p.title, body: p.summary, source: "7 Point Mind Training · Chekawa Yeshe Dorje", sloganNumber: 0, specific: false, kind: "Study summary.", link: "" }))
+    : verses.map(v => ({ label: `Verse ${v.number} of 8`, title: v.title, body: v.summary, source: "Langri Thangpa · Eight Verses for Training the Mind", sloganNumber: 0, specific: false, kind: "Study summary · use the link for the verse and commentary.", link: v.url }));
   useEffect(() => {
     const element = dialog.current;
     if (focusMode && active) { if (!element?.open) element?.showModal(); }
@@ -90,6 +91,7 @@ export function StudySlideshow({ active }: { active: boolean }) {
           <summary>Meaning</summary>
           <p>{current.body}</p>
           <p className={styles.readingMeaningNote}>{current.specific ? "Study explanation." : "Point overview · study summary."}</p>
+          <PracticeChecklist key={current.sloganNumber} slogan={current.sloganNumber} />
         </details> : null}
         <p className={styles.readingCredit}>{deck === "points" ? "7 Point Mind Training · Chekawa Yeshe Dorje" : current.source}</p>
       </div>

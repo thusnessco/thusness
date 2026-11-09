@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { sloganAttribution, points, slogans } from "@/lib/lojong/curriculum";
 import { emptyReflection, expectations, methods, observations, outcomes, reflectionSummary, rootNotes, practiceConnections, suggestedAntidotes, suggestedRoots, type Reflection } from "@/lib/lojong/practice";
+import { PracticeChecklist } from "./PracticeChecklist";
 import styles from "./lojong.module.css";
 import { TonglenMeditation } from "./TonglenMeditation";
 
@@ -84,6 +85,7 @@ export function PracticeFlow({ active }: { active: boolean }) {
         <fieldset className={`${styles.checkGrid} ${styles.practiceChoices}`}><legend>Choose a practice</legend>{methods.map(m => <label key={m.id} data-selected={reflection.method === m.id}><input type="radio" name="practice" value={m.id} checked={reflection.method === m.id} onChange={() => { update("method", m.id); update("outcome", ""); }} /><span>{m.title}</span></label>)}</fieldset>
         {method ? <div className={styles.methodDetail} hidden={method.id === "tonglen"}><p className={styles.rootMeta}>{method.basis}</p><ol>{method.steps.map(item => <li key={item}>{item}</li>)}</ol></div> : null}
       </> : null}
+      {step === 3 && method ? <PracticeChecklist key={method.id} slogan={practiceConnections[method.id]?.instructions[0] ?? 45} /> : null}
       {step === 3 && method && practiceConnections[method.id] ? <details className={styles.learnMore}><summary>How this connects to Lojong</summary>
         <p>{practiceConnections[method.id].context}</p>
         {practiceConnections[method.id].instructions.map(number => { const instruction = slogans.find(item => item.number === number)!; return <p key={number}><span className={styles.rootMeta}>{sloganAttribution(number)} · Point {instruction.point}</span>“{instruction.text}”</p>; })}

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { points, sloganAttribution, slogans } from "@/lib/lojong/curriculum";
 import { oneThingForDate } from "@/lib/lojong/practice";
+import { PracticeChecklist } from "./PracticeChecklist";
 import styles from "./lojong.module.css";
 
 export function OneThingToday({ active, onExit }: { active: boolean; onExit: () => void }) {
@@ -29,6 +30,7 @@ export function OneThingToday({ active, onExit }: { active: boolean; onExit: () 
       <h2>{lesson.title}</h2>
       <p className={styles.dailyExplanation}>{lesson.explanation}</p>
       <div className={styles.dailyAction}><h3>Try this today</h3><p>{lesson.action}</p></div>
+      <PracticeChecklist key={`checklist-${lesson.slogan}-${active}`} slogan={lesson.slogan} />
       <details className={styles.readingMeaning} key={`review-${lesson.slogan}-${active}`}><summary>A question for tonight</summary><p>{lesson.review}</p></details>
       <details className={styles.readingMeaning} key={`source-${lesson.slogan}-${active}`}><summary>The Lojong instruction</summary><p>“{slogan.text}”</p><p className={styles.readingMeaningNote}>{sloganAttribution(slogan.number)}</p></details>
     </div> : <p className={styles.readingBody}>Preparing today’s practice…</p>}

@@ -62,3 +62,5 @@ Commitments (Point 6, slogans 24–39) and Guidelines (Point 7, slogans 40–61)
 Visible course-edition links, teacher/lesson citations, and repeated course references are temporarily removed at Colin’s request. Internal source fields remain in the content data for a future credits location. Traditional text titles, author credits, and slogan numbers remain visible.
 
 Tonglen Meditation is a direct navigation tab and can be opened with `/lojong#tonglen`. All slideshow decks reuse Notice’s shared chime player on start/resume, manual navigation, timed advances, and completion. Sound can be toggled in setup or reading view; failed audio playback never blocks the timer.
+
+Daily lessons, situational practice outlines, and slogan meanings offer an expandable Practice checklist: comprehension, recognition, a choice among all ten practice outlines, and checking the effect. Relevant methods appear first. Choices are alternatives, not a mandatory sequence; marking a box does not create learning evidence or a claim of successful transformation. Checklist state stays in memory.

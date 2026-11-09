@@ -183,3 +183,15 @@
 .dailyAction { text-align: left; margin: 32px auto 20px; max-width: 580px; padding-top: 24px; border-top: 1px solid var(--thusness-rule); }
 .companion .dailyAction h3 { font-size: 11px; color: var(--thusness-muted); font-weight: 400; margin-bottom: 12px; }
 .dailyAction p { font-size: 17px; line-height: 1.75; }
+
+.practiceChecklist { text-align: left; max-width: 640px; width: 100%; margin: 12px auto; font-size: 14px; }
+.practiceChecklist > summary { color: #808080; cursor: pointer; padding: 12px 0; font-size: 11px; text-align: center; text-decoration: underline; text-decoration-color: var(--thusness-rule); text-underline-offset: 4px; }
+.practiceChecklist .checkGrid { grid-template-columns: 1fr; margin: 20px 0; }
+.checklistMethods { border: 0; padding: 0; margin: 24px 0; }
+.checklistMethods legend { font-size: 14px; }
+.checklistMethod { border-bottom: 1px solid var(--thusness-rule); padding: 12px 0; }
+.checklistMethod label { display: flex; gap: 12px; align-items: flex-start; cursor: pointer; line-height: 1.6; }
+.checklistMethod input { width: 16px; height: 16px; flex: 0 0 auto; margin-top: 4px; accent-color: var(--thusness-red); }
+.checklistSteps { padding: 16px 0 6px 28px; }
+.checklistSteps ol { padding-left: 18px; font-size: 15px; line-height: 1.75; }
+.checklistSteps li + li { margin-top: 12px; }

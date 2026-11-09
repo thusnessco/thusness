@@ -236,3 +236,14 @@ test('One Thing Today stays stable within a day and uses valid source instructio
     assert.ok(lesson.explanation && lesson.action && lesson.review);
   }
 });
+
+
+test('daily lessons and slogans can offer the full antidote checklist with relevant methods first', () => {
+  for (const lesson of practice.oneThingLessons) {
+    const choices = practice.checklistMethodsForSlogan(lesson.slogan);
+    assert.deepEqual(new Set(choices.map(m => m.id)), new Set(practice.methods.map(m => m.id)));
+    assert.equal(choices.length, practice.methods.length);
+  }
+  assert.equal(practice.checklistMethodsForSlogan(59)[0].id, 'patience');
+  assert.equal(practice.checklistMethodsForSlogan(29)[0].id, 'generosity');
+});

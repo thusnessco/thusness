@@ -140,3 +140,18 @@ export function oneThingForDate(date: Date) {
   const day = Math.floor(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / 86_400_000);
   return oneThingLessons[((day % oneThingLessons.length) + oneThingLessons.length) % oneThingLessons.length];
 }
+
+
+export function checklistMethodsForSlogan(number: number) {
+  const priority: Record<number, string[]> = {
+    2: ["emptiness", "investigate"], 3: ["emptiness", "investigate"], 4: ["emptiness", "investigate"],
+    7: ["tonglen", "kindness", "compassion"], 8: ["tonglen", "kindness", "compassion"],
+    28: ["investigate", "patience", "compassion"], 29: ["generosity", "expectation"],
+    30: ["expectation", "equality", "compassion"], 40: ["compassion", "equality", "kindness"],
+    41: ["compassion", "tonglen", "investigate"], 42: ["compassion", "equality", "investigate"],
+    45: ["investigate", "patience", "compassion"], 57: ["investigate", "emptiness"],
+    59: ["patience", "compassion", "equality", "investigate"], 61: ["expectation", "generosity", "compassion"],
+  };
+  const ids = [...new Set([...(priority[number] ?? []), ...methods.map(m => m.id)])];
+  return ids.map(id => methods.find(m => m.id === id)!);
+}
