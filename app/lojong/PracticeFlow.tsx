@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { points, slogans } from "@/lib/lojong/curriculum";
+import { sloganAttribution, points, slogans } from "@/lib/lojong/curriculum";
 import { emptyReflection, expectations, methods, observations, outcomes, reflectionSummary, rootNotes, practiceConnections, suggestedAntidotes, suggestedRoots, type Reflection } from "@/lib/lojong/practice";
 import styles from "./lojong.module.css";
 import { TonglenMeditation } from "./TonglenMeditation";
@@ -44,7 +44,7 @@ export function PracticeFlow({ active }: { active: boolean }) {
     const note = rootNotes.find(item => item.number === number);
     return <div className={styles.rootOption} key={number}>
       <label><input type="checkbox" checked={reflection.roots.includes(number)} onChange={() => selectRoot(number)} /><span><span className={styles.rootMeta}>Point {s.point} · {points[s.point - 1].title} · #{number}</span><span className={styles.rootText}>“{s.text}”</span></span></label>
-      {note ? <details><summary>Read explanation</summary><p>{note.explanation}</p><p className={styles.small}>Thupten Jinpa · {note.source}. Explanation summarized from the course.</p></details> : null}
+      {note ? <details><summary>Read explanation</summary><p>{note.explanation}</p><p className={styles.small}>T. Jinpa · {note.source}. Explanation summarized from the course.</p></details> : null}
     </div>;
   }
 
@@ -86,18 +86,18 @@ export function PracticeFlow({ active }: { active: boolean }) {
       </> : null}
       {step === 3 && method && practiceConnections[method.id] ? <details className={styles.learnMore}><summary>How this connects to Lojong</summary>
         <p>{practiceConnections[method.id].context}</p>
-        {practiceConnections[method.id].instructions.map(number => { const instruction = slogans.find(item => item.number === number)!; return <p key={number}><span className={styles.rootMeta}>Point {instruction.point} · slogan {number}</span>“{instruction.text}”</p>; })}
+        {practiceConnections[method.id].instructions.map(number => { const instruction = slogans.find(item => item.number === number)!; return <p key={number}><span className={styles.rootMeta}>{sloganAttribution(number)} · Point {instruction.point}</span>“{instruction.text}”</p>; })}
         <p className={styles.small}>The practice prompts and suggested matches are adaptations. Read the course commentary for the full meaning of these instructions.</p>
       </details> : null}
       {step === 3 && method?.id === "tonglen" ? <TonglenMeditation active={active} /> : null}
       {step === 4 ? <>
-        <blockquote className={styles.sourceQuote}><p>“Train in the three difficult challenges.”</p><cite>Seven-Point Mind Training · Jinpa’s course, slogan 45<br />Recognize the affliction · apply the antidote · ensure it works</cite></blockquote>
+        <blockquote className={styles.sourceQuote}><p>“Train in the three difficult challenges.”</p><cite>7 Point Mind Training, Slogan 45 · Chekawa Yeshe Dorje<br />Recognize the affliction · apply the antidote · ensure it works</cite></blockquote>
         <fieldset className={styles.checkGrid}><legend>What effect did you observe?</legend>{outcomes.map(o => <label key={o.id}><input type="radio" name="outcome" checked={reflection.outcome === o.id} onChange={() => update("outcome", o.id)} /><span>{o.label}</span></label>)}</fieldset>
         {reflection.outcome && reflection.outcome !== "weaker" ? <p className={styles.note}>The effect is not established. You can return to the practice step and investigate further or choose another antidote.</p> : null}
         <label className={styles.formLabel}>What did you notice? <span className={styles.quiet}>(optional)</span><textarea maxLength={4000} rows={3} value={reflection.observation} onChange={e => update("observation", e.target.value)} /></label>
       </> : null}
       <div className={styles.inlineActions}><button type="submit" className={styles.primary} disabled={!canContinue}>{step === 4 ? "Create review text" : step === 3 ? "Check the effect" : step === 2 ? "Practise this response" : "Continue"}</button>{step > 0 ? <button type="button" className={styles.textButton} onClick={() => setStep(current => current - 1)}>Back</button> : null}</div>
     </form>}
-    <p className={styles.small}>This reflection stays in this tab and is not saved or sent to a server. Copy the review to keep it. Slogan numbering follows Jinpa’s course; other editions differ.</p>
+    <p className={styles.small}>This reflection stays in this tab and is not saved or sent to a server. Copy the review to keep it. Slogan numbering follows T. Jinpa’s course; other editions differ.</p>
   </div>;
 }

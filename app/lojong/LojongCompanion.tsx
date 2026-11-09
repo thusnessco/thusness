@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type ChangeEvent } from "react";
 
-import { conceptById, concepts, foundations, numberingNote, points, slogans, sources, verses, type Concept, type Skill } from "@/lib/lojong/curriculum";
+import { jinpaCourseUrl, sloganAttribution, conceptById, concepts, foundations, numberingNote, points, slogans, sources, verses, type Concept, type Skill } from "@/lib/lojong/curriculum";
 import { advance, beginSession, learningState, parseProgress, respond, reviewConcepts, SESSION_LENGTH, setConfidence, type Progress } from "@/lib/lojong/engine";
 import { questionById, type Question } from "@/lib/lojong/questions";
 import { createProgressStore } from "@/lib/lojong/storage";
@@ -14,9 +14,9 @@ type View = "practice" | "today" | "study" | "slideshow" | "review";
 type StudyView = "points" | "verses" | "slogans" | "foundations";
 
 const openingQuotes = [
-  { text: "In all my activities, I shall probe my mind, and as soon as an affliction arises, since it endangers myself and others, I will train myself to confront it directly and counter it.", attribution: "Langri Thangpa · Eight Verses, verse 3 · quoted by Jinpa, Lesson 1" },
-  ...[12, 14, 22, 50].map(number => { const slogan = slogans.find(item => item.number === number)!; return { text: slogan.text, attribution: `Seven-Point Mind Training · Jinpa’s course, slogan ${number}` }; }),
-  { text: "Until you have gained stability, adversities become unfavorable conditions to you. Once you gain stability, there is no such thing as unfavorable conditions.", attribution: "Earlier Lojong instruction quoted by Thupten Jinpa · Lesson 1, p. 8" },
+  { text: "In all my activities, I shall probe my mind, and as soon as an affliction arises, since it endangers myself and others, I will train myself to confront it directly and counter it.", attribution: "Langri Thangpa · Eight Verses, verse 3 · quoted by T. Jinpa, Lesson 1" },
+  ...[12, 14, 22, 50].map(number => { const slogan = slogans.find(item => item.number === number)!; return { text: slogan.text, attribution: sloganAttribution(number) }; }),
+  { text: "Until you have gained stability, adversities become unfavorable conditions to you. Once you gain stability, there is no such thing as unfavorable conditions.", attribution: "Earlier Lojong instruction quoted by T. Jinpa · Lesson 1, p. 8" },
 ];
 
 export function LojongCompanion() {
@@ -85,11 +85,12 @@ export function LojongCompanion() {
   return (
     <>
       <div className={styles.intro}>
-        <h1><a href="/lojong" aria-label="Lojong — start over" style={{ textDecoration: "none" }}>Lojong</a></h1>
+        <h1><a href="/lojong" aria-label="Lojong — start over" style={{ textDecoration: "none" }}>Lojong <span lang="bo" className={styles.tibetan}>བློ་སྦྱོང་</span></a></h1>
         <blockquote className={styles.heroQuote}>
           <p>“{openingQuote.text}”</p>
           <cite>{openingQuote.attribution}</cite>
         </blockquote>
+        <p className={styles.courseCredit}><a href={jinpaCourseUrl} target="_blank" rel="noreferrer">Course edition · T. Jinpa · Wisdom Academy</a></p>
         <button type="button" className={styles.quoteNext} onClick={nextQuote}>Another reflection</button>
       </div>
 
@@ -124,13 +125,13 @@ export function LojongCompanion() {
             <div className={styles.sectionHead}>
               <p className={styles.eyebrow}>Study</p>
               <h2>Texts and instructions</h2>
-              <p>Seven-Point Mind Training, the Eight Verses, and explanations from Thupten Jinpa’s course.</p>
+              <p>Seven-Point Mind Training, the Eight Verses, and explanations from T. Jinpa’s course.</p>
             </div>
             <div className={styles.subnav} role="group" aria-label="Study topics">
               {([['points', 'Seven Points'], ['verses', 'Eight Verses'], ['slogans', 'Slogans'], ['foundations', 'Key distinctions']] as [StudyView, string][]).map(([id, label]) => <button key={id} aria-pressed={studyView === id} onClick={() => { setStudyView(id); setFocus(null); }}>{label}</button>)}
             </div>
             {studyView === "points" ? <>
-              <p className={styles.note}>The Seven Points are the traditional organization of these instructions. Jinpa’s ten lessons follow a different teaching sequence. Explanations below are source-based summaries; quotations are attributed.</p>
+              <p className={styles.note}>The Seven Points are the traditional organization of these instructions. T. Jinpa’s ten lessons follow a different teaching sequence. Explanations below are source-based summaries; quotations are attributed.</p>
               <div className={styles.conceptList}>{points.map((c, i) => <ConceptItem key={`${c.id}-${focus}`} concept={c} number={i + 1} initiallyOpen={focus === c.id} />)}</div>
             </> : null}
             {studyView === "foundations" ? <div className={styles.conceptList}>{foundations.map(c => <ConceptItem key={`${c.id}-${focus}`} concept={c} initiallyOpen={focus === c.id} />)}</div> : null}
@@ -142,7 +143,7 @@ export function LojongCompanion() {
             </> : null}
             {studyView === "slogans" ? <SloganLibrary onStudy={studyConcept} /> : null}
             {progress.session && !progress.session.finished ? <button className={styles.primary} onClick={() => setView("today")}>Return to my session</button> : null}
-            <details className={styles.sources}><summary>Sources, wording, and perspective</summary><p>{sources.jinpa}</p><p>{sources.verses} <a href="https://www.dalailama.com/teachings/training-the-mind" target="_blank" rel="noreferrer">Read the commentary ↗</a></p><p>{sources.perspective}</p><p>The recognition/application exercises assess learning only. They cannot establish meditative realization or spiritual attainment. Unaided recall is reserved for a later version and is not inferred from multiple-choice answers.</p></details>
+            <details className={styles.sources}><summary>Sources, wording, and perspective</summary><p>{sources.jinpa} <a href={jinpaCourseUrl} target="_blank" rel="noreferrer">Visit T. Jinpa’s course ↗</a></p><p>The Seven-Point compilation is traditionally credited to Chekawa Yeshe Dorje, following Atiśa’s tradition. Slogan wording and numbering here follow T. Jinpa’s course materials; editions differ.</p><p>{sources.verses} <a href="https://www.dalailama.com/teachings/training-the-mind" target="_blank" rel="noreferrer">Read the commentary ↗</a></p><p>{sources.perspective}</p><p>The recognition/application exercises assess learning only. They cannot establish meditative realization or spiritual attainment. Unaided recall is reserved for a later version and is not inferred from multiple-choice answers.</p></details>
           </section>
 
           <section hidden={view !== "review"} aria-label="Review">
@@ -192,7 +193,7 @@ function SloganLibrary({ onStudy }: { onStudy: (id: string) => void }) {
       <label>Category<select value={filter} onChange={e => setFilter(e.target.value)}><option value="all">All Seven Points</option>{points.map((p, i) => <option key={p.id} value={i + 1}>{i + 1} · {p.title}</option>)}</select></label>
     </div>
     <p className={styles.small} role="status">{results.length} {results.length === 1 ? "instruction" : "instructions"}</p>
-    <ol className={styles.sloganList}>{results.map(s => <li key={s.number}><span className={styles.number}>{String(s.number).padStart(2, "0")}</span><div><p>{s.text}</p><button className={styles.textButton} onClick={() => onStudy(`point-${s.point}`)}>Point {s.point} · {points[s.point - 1].title}</button></div></li>)}</ol>
+    <ol className={styles.sloganList}>{results.map(s => <li key={s.number}><span className={styles.number}>{String(s.number).padStart(2, "0")}</span><div><p>{s.text}</p><p className={styles.small}>{sloganAttribution(s.number)}</p><button className={styles.textButton} onClick={() => onStudy(`point-${s.point}`)}>Point {s.point} · {points[s.point - 1].title}</button></div></li>)}</ol>
     {!results.length ? <p>Try another phrase or choose a different category.</p> : null}
   </>;
 }

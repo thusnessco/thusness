@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { points, slogans, verses } from "@/lib/lojong/curriculum";
+import { jinpaCourseUrl, sloganAttribution, points, slogans, verses } from "@/lib/lojong/curriculum";
 import { rootNotes } from "@/lib/lojong/practice";
 import styles from "./lojong.module.css";
 
@@ -17,7 +17,7 @@ export function StudySlideshow({ active }: { active: boolean }) {
   const [playing, setPlaying] = useState(false);
   const [finished, setFinished] = useState(false);
   const heading = useRef<HTMLHeadingElement>(null);
-  const slides = deck === "slogans" ? slogans.filter(s => !point || s.point === point).map(s => ({ label: `Point ${s.point} · ${points[s.point - 1].title} · slogan ${s.number}`, title: s.text, body: rootNotes.find(note => note.number === s.number)?.explanation ?? points[s.point - 1].summary, source: `Jinpa’s course · Seven-Point Mind Training, slogan ${s.number}`, kind: "Slogan wording follows the course handouts. The explanation is a study paraphrase; where no specific explanation is supplied, it gives the surrounding Point’s context.", link: "" }))
+  const slides = deck === "slogans" ? slogans.filter(s => !point || s.point === point).map(s => ({ label: `Point ${s.point} · ${points[s.point - 1].title} · slogan ${s.number}`, title: s.text, body: rootNotes.find(note => note.number === s.number)?.explanation ?? points[s.point - 1].summary, source: sloganAttribution(s.number), kind: "Wording and numbering follow T. Jinpa’s course handouts. The explanation is a study paraphrase; where no specific explanation is supplied, it gives the surrounding Point’s context.", link: "" }))
     : deck === "points" ? points.map((p, i) => ({ label: `Point ${i + 1} of 7`, title: p.title, body: p.summary, source: p.source, kind: "Point title and overview are study summaries, not a quotation of the root text.", link: "" }))
     : verses.map(v => ({ label: `Verse ${v.number} of 8`, title: v.title, body: v.summary, source: "Langri Thangpa · Eight Verses for Training the Mind", kind: "Original study summary, not the verse text or a translation. Read the original alongside its commentary.", link: v.url }));
   const current = slides[index];
@@ -52,7 +52,7 @@ export function StudySlideshow({ active }: { active: boolean }) {
       <p className={styles.eyebrow}>{current.label}</p>
       <h3 ref={heading} tabIndex={-1} className={styles.slideTitle}>{deck === "slogans" ? `“${current.title}”` : current.title}</h3>
       {deck !== "slogans" ? <p>{current.body}</p> : <details className={styles.learnMore} key={`${deck}-${point}-${index}`}><summary>Meaning and context</summary><p>{current.body}</p><p className={styles.small}>Pause the slideshow to stay with this explanation.</p></details>}
-      <p className={styles.small}>{current.source}<br />{current.kind}</p>
+      <p className={styles.small}>{current.source}</p><p className={styles.courseCredit}><a href={jinpaCourseUrl} target="_blank" rel="noreferrer">Course edition · T. Jinpa · Wisdom Academy</a></p><p className={styles.small}>{current.kind}</p>
       {current.link ? <p><a href={current.link} target="_blank" rel="noreferrer">Read verse and commentary</a></p> : null}
       <div className={styles.inlineActions}>
         <button type="button" className={styles.primary} onClick={() => { if (finished) { setIndex(0); setRemaining(seconds); setFinished(false); } setPlaying(value => !value); }}>{finished ? "Play again" : playing ? "Pause slideshow" : "Play slideshow"}</button>
