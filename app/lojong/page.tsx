@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 export default function LojongPage() {
   return (
     <div className={styles.world}>
-      <ThusnessPageShell headerAside="Mind training">
+      <ThusnessPageShell headerAside={<a href="/lojong" aria-label="Mind training — start over" style={{ color: "inherit", textDecoration: "none" }}>Mind training</a>}>
         <main className={styles.companion} id="lojong-main">
           <LojongCompanion />
         </main>

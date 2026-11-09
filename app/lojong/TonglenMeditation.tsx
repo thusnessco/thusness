@@ -64,7 +64,7 @@ export function TonglenMeditation({ active }: { active: boolean }) {
   }
   return <section className={styles.meditation} aria-label="Guided Tonglen meditation">
     {current ? <>
-      <div className={styles.quizMeta}><span>Tonglen · {(stage ?? 0) + 1} of {stages.length}</span><span role="timer" aria-label="Time remaining">{clock(remaining)}</span></div>
+      <div className={styles.quizMeta}><span>Tonglen <span lang="bo" className={styles.tibetan}>གཏོང་ལེན་</span> · {(stage ?? 0) + 1} of {stages.length}</span><span role="timer" aria-label="Time remaining">{clock(remaining)}</span></div>
       <div className="sinkin-hero" style={{ "--sinkin-crossfade-ms": "700ms" } as CSSProperties}>
         <h3 ref={heading} tabIndex={-1} className="sinkin-hero-kicker">{finished ? "Meditation complete" : current.title}</h3>
         <p key={stage} className="sinkin-hero-body">{finished ? "Rest for a moment. When ready, return to the situation and notice what changed, without requiring a particular result." : current.text}</p>
@@ -77,7 +77,7 @@ export function TonglenMeditation({ active }: { active: boolean }) {
         <button type="button" className={styles.textButton} onClick={close}>End meditation</button>
       </div>
     </> : <>
-      <h3>Tonglen meditation</h3>
+      <h3>Tonglen <span lang="bo" className={styles.tibetan}>གཏོང་ལེན་</span> meditation</h3>
       <p>Giving and taking, one prompt at a time. About seven minutes, with a soft bell between prompts. You can pause or move on whenever you choose.</p>
       <button ref={start} type="button" className={styles.primary} onClick={begin}>Begin Tonglen meditation</button>
     </>}

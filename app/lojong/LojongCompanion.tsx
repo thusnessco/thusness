@@ -12,7 +12,31 @@ import { PracticeFlow } from "./PracticeFlow";
 type View = "practice" | "today" | "study" | "review";
 type StudyView = "points" | "verses" | "slogans" | "foundations";
 
+const openingQuotes = [
+  { text: "In all my activities, I shall probe my mind, and as soon as an affliction arises, since it endangers myself and others, I will train myself to confront it directly and counter it.", attribution: "Langri Thangpa · Eight Verses, verse 3 · quoted by Jinpa, Lesson 1" },
+  ...[12, 14, 22, 50].map(number => { const slogan = slogans.find(item => item.number === number)!; return { text: slogan.text, attribution: `Seven-Point Mind Training · Jinpa’s course, slogan ${number}` }; }),
+  { text: "Until you have gained stability, adversities become unfavorable conditions to you. Once you gain stability, there is no such thing as unfavorable conditions.", attribution: "Earlier Lojong instruction quoted by Thupten Jinpa · Lesson 1, p. 8" },
+];
+
 export function LojongCompanion() {
+  const [quoteIndex, setQuoteIndex] = useState(0);
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      try {
+        const saved = Number(sessionStorage.getItem("thusness:lojong:opening-quote") ?? -1);
+        const next = Number.isInteger(saved) && saved >= -1 ? (saved + 1) % openingQuotes.length : 0;
+        setQuoteIndex(next);
+        sessionStorage.setItem("thusness:lojong:opening-quote", String(next));
+      } catch { /* The first quote remains available when browser storage is blocked. */ }
+    });
+    return () => cancelAnimationFrame(frame);
+  }, []);
+  const openingQuote = openingQuotes[quoteIndex];
+  function nextQuote() {
+    const next = (quoteIndex + 1) % openingQuotes.length;
+    setQuoteIndex(next);
+    try { sessionStorage.setItem("thusness:lojong:opening-quote", String(next)); } catch {}
+  }
   const store = useMemo(() => createProgressStore(), []);
   const progress = useSyncExternalStore(store.subscribe, store.getSnapshot, store.getServerSnapshot);
   const [view, setView] = useState<View>("practice");
@@ -60,11 +84,12 @@ export function LojongCompanion() {
   return (
     <>
       <div className={styles.intro}>
-        <h1>Lojong</h1>
+        <h1><a href="/lojong" aria-label="Lojong — start over" style={{ textDecoration: "none" }}>Lojong</a></h1>
         <blockquote className={styles.heroQuote}>
-          <p>“In all my activities, I shall probe my mind,<br className={styles.desktopBreak} /> and as soon as an affliction arises,<br className={styles.desktopBreak} /> since it endangers myself and others,<br className={styles.desktopBreak} /> I will train myself to confront it directly and counter it.”</p>
-          <cite>Langri Thangpa · Eight Verses, verse 3<br />Quoted by Thupten Jinpa · Lesson 1</cite>
+          <p>“{openingQuote.text}”</p>
+          <cite>{openingQuote.attribution}</cite>
         </blockquote>
+        <button type="button" className={styles.quoteNext} onClick={nextQuote}>Another reflection</button>
       </div>
 
       <nav className={styles.tabs} aria-label="Mind training sections">

@@ -138,3 +138,7 @@
 .practiceChoices input { appearance: none; border: 1px solid var(--thusness-muted); border-radius: 1px; }
 .practiceChoices input:checked { background: var(--thusness-red); border-color: var(--thusness-red); }
 .practiceChoices input:focus-visible { outline: 2px solid var(--thusness-ink); outline-offset: 3px; }
+
+.tibetan { font-size: 1.15em; font-weight: 400; letter-spacing: normal; margin-inline: .3em; }
+
+.quoteNext { background: transparent; border: 0; padding: 12px; margin-top: 12px; color: var(--thusness-muted); font-size: 11px !important; text-decoration: underline; text-underline-offset: 4px; }
