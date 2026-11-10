@@ -201,3 +201,13 @@
 .tonglenReading .meditationSettings { justify-content: center; color: #808080; font-size: 11px; }
 .tonglenReading .readingControls { margin-top: 24px; }
 .tonglenReading .readingLabel { margin-top: 20px; }
+
+.studyFullList { margin-top: 32px; max-width: 900px; }
+.studyFullList section { margin-top: 40px; }
+.studyFullList h4 { font-size: 16px; font-weight: 400; color: var(--thusness-ink-soft); }
+.studyList { list-style: none; padding: 0; margin: 20px 0; }
+.studyList li { display: grid; grid-template-columns: 48px 1fr; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--thusness-rule); line-height: 1.6; }
+.studyListNumber { font-size: 12px; color: var(--thusness-ink-soft); padding-top: 4px; }
+.studyOverview { padding-left: 24px; }
+.studyOverview li { padding: 16px 0 16px 8px; border-bottom: 1px solid var(--thusness-rule); }
+.studyOverview p { font-size: 16px; line-height: 1.7; color: var(--thusness-ink-soft); }

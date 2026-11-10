@@ -8,10 +8,11 @@ import { PracticeChecklist } from "./PracticeChecklist";
 import styles from "./lojong.module.css";
 
 type Deck = "slogans" | "points" | "verses" | "commitments" | "guidelines";
-const deckNames: Record<Deck, string> = { slogans: "61 slogans", points: "Seven Points overview", verses: "Eight Verses study summaries", commitments: "Commitments", guidelines: "Guidelines" };
+const deckNames: Record<Deck, string> = { slogans: "61 slogans", points: "Seven Points overview", verses: "Eight Verses study summaries", commitments: "Commitments", guidelines: "Precepts / Guidelines" };
 
 export function StudySlideshow({ active }: { active: boolean }) {
   const [deck, setDeck] = useState<Deck>("slogans");
+  const [showList, setShowList] = useState(false);
   const [point, setPoint] = useState(0);
   const [index, setIndex] = useState(0);
   const [seconds, setSeconds] = useState(30);
@@ -62,6 +63,23 @@ export function StudySlideshow({ active }: { active: boolean }) {
   return <section className={styles.practice} aria-label="Timed Lojong study slideshow">
     <h2>Slideshow</h2>
     <fieldset className={styles.subnav}><legend className={styles.srOnly}>Choose a slideshow</legend>{(Object.keys(deckNames) as Deck[]).map(id => <button type="button" key={id} aria-pressed={deck === id} onClick={() => { setDeck(id); setPoint(0); reset(); }}>{deckNames[id]}</button>)}</fieldset>
+    <div className={styles.inlineActions}>
+      <button type="button" className={styles.textButton} aria-expanded={showList} aria-controls="study-full-list" onClick={() => { setPlaying(false); setShowList(value => !value); }}>{showList ? "Back to slideshow" : "Full list"}</button>
+    </div>
+    {showList ? <div id="study-full-list" className={styles.studyFullList}>
+      <h3>{deck === "commitments" ? "16 commitments" : deck === "guidelines" ? "22 precepts" : deckNames[deck]}</h3>
+      {deck === "commitments" ? <p className={styles.small}>Refrain from conduct that contradicts the spirit of mind training.</p> : deck === "guidelines" ? <p className={styles.small}>Cultivate habits that protect and strengthen mind training.</p> : null}
+      {isSloganDeck ? points.map((p, i) => {
+        const entries = sloganStudySlides.filter(s => s.point === i + 1 && (deck === "slogans" || s.point === selectedPoint));
+        if (!entries.length) return null;
+        return <section key={p.id}>
+          <h4>Point {i + 1} · {p.title}</h4>
+          {i === 1 ? <p className={styles.small}>Ultimate awakening mind · slogans 2–6<br />Conventional awakening mind · slogans 7–10</p> : null}
+          <ul className={styles.studyList}>{entries.map(s => <li key={s.number}><span className={styles.studyListNumber}>{s.displayNumber}</span><span>{s.text}</span></li>)}</ul>
+        </section>;
+      }) : deck === "points" ? <ol className={styles.studyOverview}>{points.map(p => <li key={p.id}><h4>{p.title}</h4><p>{p.summary}</p></li>)}</ol>
+        : <ol className={styles.studyOverview}>{verses.map(v => <li key={v.number}><h4>{v.title}</h4><p>{v.summary}</p></li>)}</ol>}
+    </div> : <>
     <div className={styles.filters}>
       {deck === "slogans" ? <label>Choose instructions<select value={point} onChange={event => { setPoint(Number(event.target.value)); reset(); }}><option value={0}>All Seven Points · 61 slogans</option>{points.map((p, i) => <option value={i + 1} key={p.id}>Point {i + 1} · {p.title}</option>)}</select></label> : null}
       <label>Time per slide<select value={seconds} onChange={event => { const value = Number(event.target.value); setSeconds(value); setRemaining(value); }}>{[10, 20, 30, 60].map(value => <option key={value} value={value}>{value} seconds</option>)}</select></label>
@@ -81,6 +99,7 @@ export function StudySlideshow({ active }: { active: boolean }) {
       </div>
       <p role="status" className={styles.small}>{finished ? "Deck complete" : playing && active ? "Playing" : "Paused"}</p>
     </div>
+    </>}
     <dialog ref={dialog} className={styles.readingView} aria-label="Lojong slideshow reading view" onCancel={leaveReading} onClose={leaveReading}>
       <div className={styles.readingTop}><span>{index + 1} / {count}</span><span role="timer" aria-label="Reading time remaining">{remaining}s</span><button type="button" aria-label={sound ? "Mute slideshow sound" : "Enable slideshow sound"} onClick={toggleSound}>{sound ? "Sound on" : "Sound off"}</button><button type="button" onClick={leaveReading}>Exit</button></div>
       <div className={styles.readingContent}>
