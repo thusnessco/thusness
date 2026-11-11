@@ -66,3 +66,6 @@ Tonglen Meditation is a direct navigation tab and can be opened with `/lojong#to
 Daily lessons, situational practice outlines, and slogan meanings offer an expandable Practice checklist: comprehension, recognition, a choice among all ten practice outlines, and checking the effect. Relevant methods appear first. Choices are alternatives, not a mandatory sequence; marking a box does not create learning evidence or a claim of successful transformation. Checklist state stays in memory.
 
 Tonglen opens directly into a full-window reading dialog from its tab or deep link. The setup has a Begin control, sound, and auto-advance. Seven concise prompts total seven minutes: settle, bring someone to mind, give, optional take, alternate, optional breath coordination, and rest. Playback shows only one prompt, a small timer and hint, and previous/pause/next/exit controls. The situational-practice launcher opens the same dialog.
+
+
+Memorize opens the guided Eight Verses journey at `/lojong#memorize`: original visual cues, concise meanings, optional full translation, self-assessed cover/reveal recall, an eight-anchor quiz, personal connections and local review dates. Uses its own versioned browser store, separate from Learn progress. No background notifications or server writes.
