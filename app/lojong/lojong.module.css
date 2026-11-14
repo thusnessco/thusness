@@ -211,3 +211,20 @@
 .studyOverview { padding-left: 24px; }
 .studyOverview li { padding: 16px 0 16px 8px; border-bottom: 1px solid var(--thusness-rule); }
 .studyOverview p { font-size: 16px; line-height: 1.7; color: var(--thusness-ink-soft); }
+
+.exchangeReading .readingTop,
+.exchangeReading .readingControls {
+  flex-shrink: 0;
+}
+
+.exchangeReading .readingContent {
+  min-height: 0;
+  overflow-y: auto;
+  display: block;
+  align-content: safe center;
+  padding: 16px 0;
+}
+
+.exchangeReading .readingControls {
+  gap: clamp(4px, 4vw, 30px);
+}

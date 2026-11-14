@@ -24,6 +24,7 @@ export function StudySlideshow({ active }: { active: boolean }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const [finished, setFinished] = useState(false);
   const heading = useRef<HTMLHeadingElement>(null);
+  const readingHeading = useRef<HTMLHeadingElement>(null);
   const isSloganDeck = deck === "slogans" || deck === "commitments" || deck === "guidelines";
   const selectedPoint = deck === "commitments" ? 6 : deck === "guidelines" ? 7 : point;
   const slides = isSloganDeck ? sloganStudySlides.filter(s => !selectedPoint || s.point === selectedPoint).map(s => ({ label: `Point ${s.point} · ${points[s.point - 1].title} · slogan ${s.displayNumber}`, title: s.text, body: rootNotes.find(note => note.number === s.number)?.explanation ?? points[s.point - 1].summary, source: sloganAttribution(s.displayNumber), sloganNumber: s.number, specific: rootNotes.some(note => s.sourceNumbers.includes(note.number)), kind: "Explanations are study summaries.", link: "" }))
@@ -55,7 +56,7 @@ export function StudySlideshow({ active }: { active: boolean }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active, playing, finished, index, count, seconds, sound]);
   function reset() { setIndex(0); setRemaining(seconds); setPlaying(false); setFinished(false); }
-  function move(next: number) { if (sound) playSinkInMainChimeFromGesture(528); setIndex(next); setRemaining(seconds); setFinished(false); requestAnimationFrame(() => heading.current?.focus()); }
+  function move(next: number) { if (sound) playSinkInMainChimeFromGesture(528); setIndex(next); setRemaining(seconds); setFinished(false); requestAnimationFrame(() => (focusMode ? readingHeading : heading).current?.focus()); }
   function togglePlayback() {
     if (!playing && sound) playSinkInMainChimeFromGesture(528);
     if (finished) { setIndex(0); setRemaining(seconds); setFinished(false); }
@@ -103,11 +104,11 @@ export function StudySlideshow({ active }: { active: boolean }) {
       <p role="status" className={styles.small}>{finished ? "Deck complete" : playing && active ? "Playing" : "Paused"}</p>
     </div>
     </>}
-    <dialog ref={dialog} className={styles.readingView} aria-label="Lojong slideshow reading view" onCancel={leaveReading} onClose={leaveReading}>
+    <dialog ref={dialog} className={`${styles.readingView} ${deck === "exchange" ? styles.exchangeReading : ""}`} aria-label="Lojong slideshow reading view" onCancel={leaveReading} onClose={leaveReading}>
       <div className={styles.readingTop}><span>{index + 1} / {count}</span><span role="timer" aria-label="Reading time remaining">{remaining}s</span><button type="button" aria-label={sound ? "Mute slideshow sound" : "Enable slideshow sound"} onClick={toggleSound}>{sound ? "Sound on" : "Sound off"}</button><button type="button" onClick={leaveReading}>Exit</button></div>
       <div className={styles.readingContent}>
         <p className={styles.readingLabel}>{isSloganDeck ? current.label.replace(/ · .* · slogan /, " · Slogan ") : `${current.label}${deck === "exchange" ? "" : " · study summary"}`}</p>
-        <h2>{isSloganDeck ? `“${current.title}”` : current.title}</h2>
+        <h2 ref={readingHeading} tabIndex={-1}>{isSloganDeck ? `“${current.title}”` : current.title}</h2>
         {!isSloganDeck ? <p className={styles.readingBody}>{current.body}</p> : null}
         {isSloganDeck ? <details className={styles.readingMeaning} key={`meaning-${deck}-${point}-${index}`} onToggle={event => { if (event.currentTarget.open) setPlaying(false); }}>
           <summary>Meaning</summary>
