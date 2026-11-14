@@ -22,6 +22,29 @@ const lessonFiveSlides = {
 };
 
 
+const practiceInstructions: Partial<Record<Deck, string[]>> = {
+  exchange: [
+    "Choose a situation above. Keep the same scene as you imagine it from three different positions: someone with less standing in that situation, a peer, and someone with more standing.",
+    "From each position, use “I” for the person whose perspective you’re taking. Look back at your usual self and notice how envy, rivalry, or pride feels from there. At the end, identify one thing you could do differently.",
+  ],
+  immeasurables: [
+    "Start with equanimity. Give a friend, a stranger, and a mildly difficult person a few breaths of attention each. Notice how your reactions differ and remember that each person’s welfare matters.",
+    "Wish someone happiness and the conditions that support it. Then wish them relief from a difficulty. Recall a piece of good fortune and take a moment to enjoy it with them. Gradually extend those wishes to the wider circle.",
+  ],
+  "three-poisons": [
+    "Recall three ordinary moments: one you wanted to hold on to, one you wanted to push away, and one you barely noticed.",
+    "Try appreciating the pleasant moment without needing it to continue, responding to irritation without adding hostility, and giving the overlooked moment fresh attention. Choose one of these responses to try during the day.",
+  ],
+  "practice-phrases": [
+    "Choose a short wish you can mean, such as “May you have the help you need.” Bring a specific person to mind and pause after saying it silently so the wish has time to register.",
+    "Pick an everyday cue that can bring the words back to mind. When it happens, say the phrase once and let the intention guide what you do next.",
+  ],
+  "future-self": [
+    "Imagine yourself facing an ordinary difficulty in the future. Picture lifting that burden from your future self and offering them what would help. If it feels natural, use the in-breath for taking and the out-breath for giving.",
+    "Over several sittings, widen the practice to a loved one, a stranger, a difficult person, and eventually all beings. Spend time at each stage.",
+  ],
+};
+
 export function StudySlideshow({ active, tonglenOpen, onTonglen, onTonglenExit }: { active: boolean; tonglenOpen: boolean; onTonglen: () => void; onTonglenExit: () => void }) {
   const [deck, setDeck] = useState<Deck>("immeasurables");
   const [scenarioIndex, setScenarioIndex] = useState(0);
@@ -111,6 +134,15 @@ export function StudySlideshow({ active, tonglenOpen, onTonglen, onTonglenExit }
       <p className={styles.small}>These everyday scenarios adapt Śāntideva’s themes of recognition, social standing, and who does the work.</p>
     </div> : null}
     {deck in lessonFiveSlides ? <p className={styles.small}>Adapted from Thupten Jinpa’s <cite>Mind Training</cite>, Lesson 5. <a href="https://wisdomexperience.org/lessons/mind-training-l5/" target="_blank" rel="noreferrer">Open Lesson 5</a>.</p> : null}
+    <details key={deck} className={styles.learnMore}>
+      <summary>Tonglen instructions</summary>
+      <p>Bring someone facing difficulty to mind. On the in-breath, imagine taking away their suffering and see them relieved. On the out-breath, imagine offering whatever would support their well-being.</p>
+      <p>Give and take at a pace that lets you picture each step clearly. You can do the visualization separately from the breath.</p>
+    </details>
+    {practiceInstructions[deck] && <details key={`instructions-${deck}`} className={styles.learnMore}>
+      <summary>How to practice {deckNames[deck]}</summary>
+      {practiceInstructions[deck].map(instruction => <p key={instruction}>{instruction}</p>)}
+    </details>}
     <div className={styles.inlineActions}>
       <button type="button" className={styles.textButton} aria-expanded={showList} aria-controls="study-full-list" onClick={() => { setPlaying(false); setShowList(value => !value); }}>{showList ? "Back to slideshow" : "Full list"}</button>
     </div>
