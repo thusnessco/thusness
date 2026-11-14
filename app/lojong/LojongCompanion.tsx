@@ -95,6 +95,11 @@ export function LojongCompanion() {
     } catch { setNotice("That file could not be read. Choose a valid Lojong progress export; your current progress has been kept."); }
   }
 
+  const practiceArea = view === "practice" || view === "one-thing" || view === "slideshow" || view === "tonglen";
+  const options: [View, string][] = practiceArea
+    ? [["practice", "Work with a situation"], ["one-thing", "One Thing Today"], ["slideshow", "Guided practices"]]
+    : [["study", "Texts and instructions"], ["memorize", "Memorize Eight Verses"], ["today", "Quiz"], ["review", "Review progress"]];
+
   return (
     <>
       <div className={styles.intro}>
@@ -107,8 +112,13 @@ export function LojongCompanion() {
       </div>
 
       <nav className={styles.tabs} aria-label="Mind training sections">
-        {(["practice", "one-thing", "slideshow", "study", "memorize", "today", "review"] as View[]).map(item => (
-          <button key={item} type="button" aria-current={(view === item || (view === "tonglen" && item === "slideshow")) ? "page" : undefined} onClick={() => navigateView(item)}>{item === "today" ? "Learn" : item === "one-thing" ? "One Thing Today" : item}</button>
+        <button type="button" aria-current={practiceArea ? "page" : undefined} onClick={() => navigateView("practice")}>Practice</button>
+        <button type="button" aria-current={!practiceArea ? "page" : undefined} onClick={() => navigateView("study")}>Study</button>
+      </nav>
+
+      <nav className={styles.subnav} aria-label={practiceArea ? "Practice options" : "Study options"}>
+        {options.map(([id, label]) => (
+          <button key={id} type="button" aria-pressed={view === id || (view === "tonglen" && id === "slideshow")} onClick={() => navigateView(id)}>{label}</button>
         ))}
       </nav>
 
@@ -118,7 +128,7 @@ export function LojongCompanion() {
 
       <section hidden={view !== "memorize"} aria-label="Memorize eight verses"><VerseMemory /></section>
 
-      <section hidden={view !== "slideshow" && view !== "tonglen"} aria-label="Slideshow"><StudySlideshow active={view === "slideshow"} tonglenOpen={view === "tonglen"} onTonglen={() => navigateView("tonglen")} onTonglenExit={() => navigateView("slideshow")} /></section>
+      <section hidden={view !== "slideshow" && view !== "tonglen"} aria-label="Guided practices"><StudySlideshow active={view === "slideshow"} tonglenOpen={view === "tonglen"} onTonglen={() => navigateView("tonglen")} onTonglenExit={() => navigateView("slideshow")} /></section>
 
       {!progress ? <p className={styles.quiet} role="status">Loading saved learning progress…</p> : (
         <>
@@ -165,7 +175,7 @@ export function LojongCompanion() {
             <Review progress={progress} onStudy={studyConcept} onSession={() => { if (!progress.session || progress.session.finished) store.update(beginSession(progress)); setView("today"); }} />
           </section>
 
-          <div className={styles.storage} hidden={view === "practice" || view === "tonglen" || view === "one-thing"}>
+          <div className={styles.storage} hidden={practiceArea}>
             <p>Learning progress is saved in this browser. Export a copy before clearing browser data.</p>
             <div className={styles.inlineActions}><button className={styles.textButton} onClick={exportProgress}>Export progress</button><button className={styles.textButton} onClick={() => importInput.current?.click()}>Import progress</button></div>
             <input ref={importInput} className={styles.srOnly} tabIndex={-1} type="file" accept=".json,application/json" aria-label="Import Lojong progress file" onChange={importProgress} />

@@ -23,13 +23,13 @@ const lessonFiveSlides = {
 
 
 export function StudySlideshow({ active, tonglenOpen, onTonglen, onTonglenExit }: { active: boolean; tonglenOpen: boolean; onTonglen: () => void; onTonglenExit: () => void }) {
-  const [deck, setDeck] = useState<Deck>("slogans");
+  const [deck, setDeck] = useState<Deck>("immeasurables");
   const [scenarioIndex, setScenarioIndex] = useState(0);
   const [showList, setShowList] = useState(false);
   const [point, setPoint] = useState(0);
   const [index, setIndex] = useState(0);
-  const [seconds, setSeconds] = useState(30);
-  const [remaining, setRemaining] = useState(30);
+  const [seconds, setSeconds] = useState(60);
+  const [remaining, setRemaining] = useState(60);
   const [sound, setSound] = useState(true);
   const [playing, setPlaying] = useState(false);
   const [focusMode, setFocusMode] = useState(false);
@@ -87,17 +87,20 @@ export function StudySlideshow({ active, tonglenOpen, onTonglen, onTonglenExit }
     setPlaying(value => !value);
   }
   function toggleSound() { if (!sound) playSinkInMainChimeFromGesture(528); setSound(value => !value); }
-  return <section className={styles.practice} aria-label="Timed Lojong study slideshow">
-    <h2>Slideshow</h2>
-    <fieldset className={styles.subnav}>
-      <legend className={styles.srOnly}>Choose a study slideshow</legend>
-      {studyDecks.map(id => <button type="button" key={id} aria-pressed={deck === id} onClick={() => chooseDeck(id)}>{deckNames[id]}</button>)}
-    </fieldset>
+  return <section className={styles.practice} aria-label="Guided Lojong practices">
+    <h2>Guided practices</h2>
     <fieldset className={styles.subnav}>
       <legend>Conventional Awakening Mind</legend>
       <button type="button" aria-haspopup="dialog" onClick={() => { setPlaying(false); onTonglen(); }}>Tonglen Meditation</button>
       {conventionalDecks.map(id => <button type="button" key={id} aria-pressed={deck === id} onClick={() => chooseDeck(id)}>{deckNames[id]}</button>)}
     </fieldset>
+    <details className={styles.learnMore} open={!isMeditation}>
+      <summary>Timed readings of the Lojong texts</summary>
+      <fieldset className={styles.subnav}>
+        <legend className={styles.srOnly}>Choose a timed reading</legend>
+        {studyDecks.map(id => <button type="button" key={id} aria-pressed={deck === id} onClick={() => chooseDeck(id)}>{deckNames[id]}</button>)}
+      </fieldset>
+    </details>
     {deck === "exchange" ? <p className={styles.small}>Adapted from Śāntideva’s <cite>The Way of the Bodhisattva</cite>, chapter 8, verses 140–158. <a href={exchangeSource} target="_blank" rel="noreferrer">Read the root verses</a>.</p> : null}
     {deck === "exchange" ? <div className={styles.filters}>
       <label>Choose a situation
