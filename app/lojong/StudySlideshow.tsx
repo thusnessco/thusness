@@ -6,6 +6,7 @@ import { rootNotes } from "@/lib/lojong/practice";
 import { playSinkInMainChimeFromGesture, playSinkInMainChimeHtml } from "@/lib/sinkin/sinkin-chime-html";
 import { exchangeScenarios, exchangeSource, getExchangeSlides } from "./exchange-meditation";
 import { futureSelfSlides, immeasurablesSlides, practicePhrasesSlides, threePoisonsSlides } from "./immeasurables-meditation";
+import { TonglenMeditation } from "./TonglenMeditation";
 import { PracticeChecklist } from "./PracticeChecklist";
 import styles from "./lojong.module.css";
 
@@ -21,7 +22,7 @@ const lessonFiveSlides = {
 };
 
 
-export function StudySlideshow({ active }: { active: boolean }) {
+export function StudySlideshow({ active, tonglenOpen, onTonglen, onTonglenExit }: { active: boolean; tonglenOpen: boolean; onTonglen: () => void; onTonglenExit: () => void }) {
   const [deck, setDeck] = useState<Deck>("slogans");
   const [scenarioIndex, setScenarioIndex] = useState(0);
   const [showList, setShowList] = useState(false);
@@ -94,6 +95,7 @@ export function StudySlideshow({ active }: { active: boolean }) {
     </fieldset>
     <fieldset className={styles.subnav}>
       <legend>Conventional Awakening Mind</legend>
+      <button type="button" aria-haspopup="dialog" onClick={() => { setPlaying(false); onTonglen(); }}>Tonglen Meditation</button>
       {conventionalDecks.map(id => <button type="button" key={id} aria-pressed={deck === id} onClick={() => chooseDeck(id)}>{deckNames[id]}</button>)}
     </fieldset>
     {deck === "exchange" ? <p className={styles.small}>Adapted from Śāntideva’s <cite>The Way of the Bodhisattva</cite>, chapter 8, verses 140–158. <a href={exchangeSource} target="_blank" rel="noreferrer">Read the root verses</a>.</p> : null}
@@ -164,5 +166,6 @@ export function StudySlideshow({ active }: { active: boolean }) {
       </div>
       {finished ? <p role="status" className={styles.readingEnd}>Deck complete</p> : null}
     </dialog>
+    <TonglenMeditation active={tonglenOpen} standalone onExit={onTonglenExit} />
   </section>;
 }

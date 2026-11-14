@@ -8,7 +8,6 @@ import { questionById, type Question } from "@/lib/lojong/questions";
 import { createProgressStore } from "@/lib/lojong/storage";
 import styles from "./lojong.module.css";
 import { OneThingToday } from "./OneThingToday";
-import { TonglenMeditation } from "./TonglenMeditation";
 import { StudySlideshow } from "./StudySlideshow";
 import { VerseMemory } from "./VerseMemory";
 import { PracticeFlow } from "./PracticeFlow";
@@ -45,15 +44,15 @@ export function LojongCompanion() {
   const progress = useSyncExternalStore(store.subscribe, store.getSnapshot, store.getServerSnapshot);
   const [view, setView] = useState<View>("practice");
   useEffect(() => {
-    const openLinkedMeditation = () => { if (window.location.hash === "#tonglen") setView("tonglen"); else if (window.location.hash === "#memorize") setView("memorize"); };
+    const openLinkedMeditation = () => { if (window.location.hash === "#tonglen") setView("tonglen"); else if (window.location.hash === "#memorize") setView("memorize"); else if (window.location.hash === "#slideshow") setView("slideshow"); };
     const frame = requestAnimationFrame(openLinkedMeditation);
     window.addEventListener("hashchange", openLinkedMeditation);
     return () => { cancelAnimationFrame(frame); window.removeEventListener("hashchange", openLinkedMeditation); };
   }, []);
   function navigateView(next: View) {
     setView(next);
-    if (next === "tonglen" || next === "memorize") window.history.replaceState(null, "", "#" + next);
-    else if (["#tonglen", "#memorize"].includes(window.location.hash)) window.history.replaceState(null, "", window.location.pathname + window.location.search);
+    if (next === "tonglen" || next === "memorize" || next === "slideshow") window.history.replaceState(null, "", "#" + next);
+    else if (["#tonglen", "#memorize", "#slideshow"].includes(window.location.hash)) window.history.replaceState(null, "", window.location.pathname + window.location.search);
   }
   const [studyView, setStudyView] = useState<StudyView>("points");
   const [focus, setFocus] = useState<string | null>(null);
@@ -108,19 +107,18 @@ export function LojongCompanion() {
       </div>
 
       <nav className={styles.tabs} aria-label="Mind training sections">
-        {(["practice", "one-thing", "tonglen", "study", "memorize", "slideshow", "review", "today"] as View[]).map(item => (
-          <button key={item} type="button" aria-current={view === item ? "page" : undefined} onClick={() => navigateView(item)}>{item === "today" ? "Learn" : item === "one-thing" ? "One Thing Today" : item === "tonglen" ? "Tonglen Meditation" : item}</button>
+        {(["practice", "one-thing", "slideshow", "study", "memorize", "today", "review"] as View[]).map(item => (
+          <button key={item} type="button" aria-current={(view === item || (view === "tonglen" && item === "slideshow")) ? "page" : undefined} onClick={() => navigateView(item)}>{item === "today" ? "Learn" : item === "one-thing" ? "One Thing Today" : item}</button>
         ))}
       </nav>
 
       <section hidden={view !== "practice"} aria-label="Practice"><PracticeFlow active={view === "practice"} /></section>
 
       <OneThingToday active={view === "one-thing"} onExit={() => setView("practice")} />
-      <section hidden={view !== "tonglen"} aria-label="Tonglen meditation"><TonglenMeditation active={view === "tonglen"} standalone onExit={() => navigateView("practice")} /></section>
 
       <section hidden={view !== "memorize"} aria-label="Memorize eight verses"><VerseMemory /></section>
 
-      <section hidden={view !== "slideshow"} aria-label="Slideshow"><StudySlideshow active={view === "slideshow"} /></section>
+      <section hidden={view !== "slideshow" && view !== "tonglen"} aria-label="Slideshow"><StudySlideshow active={view === "slideshow"} tonglenOpen={view === "tonglen"} onTonglen={() => navigateView("tonglen")} onTonglenExit={() => navigateView("slideshow")} /></section>
 
       {!progress ? <p className={styles.quiet} role="status">Loading saved learning progress…</p> : (
         <>
