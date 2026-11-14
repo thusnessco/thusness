@@ -7,13 +7,15 @@ import { playSinkInMainChimeFromGesture, playSinkInMainChimeHtml } from "@/lib/s
 import { exchangeScenarios, exchangeSource, getExchangeSlides } from "./exchange-meditation";
 import { futureSelfSlides, immeasurablesSlides, practicePhrasesSlides, threePoisonsSlides } from "./immeasurables-meditation";
 import { TonglenMeditation } from "./TonglenMeditation";
+import { ultimateSlides } from "./ultimate-meditation";
 import { PracticeChecklist } from "./PracticeChecklist";
 import styles from "./lojong.module.css";
 
-type Deck = "slogans" | "points" | "verses" | "commitments" | "guidelines" | "exchange" | "immeasurables" | "three-poisons" | "practice-phrases" | "future-self";
-const deckNames: Record<Deck, string> = { slogans: "61 slogans", points: "Seven Points overview", verses: "Eight Verses study summaries", commitments: "Commitments", guidelines: "Precepts / Guidelines", exchange: "Exchanging Self and Others", immeasurables: "Four Immeasurables", "three-poisons": "Working with the Three Poisons", "practice-phrases": "Training with Practice Phrases", "future-self": "Tonglen for Your Future Self" };
+type Deck = "slogans" | "points" | "verses" | "commitments" | "guidelines" | "exchange" | "immeasurables" | "three-poisons" | "practice-phrases" | "future-self" | keyof typeof ultimateSlides;
+const deckNames: Record<Deck, string> = { slogans: "61 slogans", points: "Seven Points overview", verses: "Eight Verses study summaries", commitments: "Commitments", guidelines: "Precepts / Guidelines", exchange: "Exchanging Self and Others", immeasurables: "Four Immeasurables", "three-poisons": "Working with the Three Poisons", "practice-phrases": "Training with Practice Phrases", "future-self": "Tonglen for Your Future Self", "analyze-and-rest": "Analyze and Rest", "mind-like-space": "Mind Like Space", "illusion-like": "Illusion-Like in Daily Life" };
 const studyDecks: Deck[] = ["slogans", "points", "verses", "commitments", "guidelines"];
 const conventionalDecks: Deck[] = ["exchange", "immeasurables", "three-poisons", "practice-phrases", "future-self"];
+const ultimateDecks = Object.keys(ultimateSlides) as (keyof typeof ultimateSlides)[];
 const lessonFiveSlides = {
   immeasurables: immeasurablesSlides,
   "three-poisons": threePoisonsSlides,
@@ -23,6 +25,9 @@ const lessonFiveSlides = {
 
 
 const practiceInstructions: Partial<Record<Deck, string[]>> = {
+  "analyze-and-rest": ["Examine the object, the mind that knows it, and the understanding of emptiness itself. Alternate short periods of inquiry and alert resting, then close with compassion."],
+  "mind-like-space": ["Use the image of a wide sky to observe thoughts as they arise and pass. Jinpa presents this as a way to prepare for inquiry into emptiness."],
+  "illusion-like": ["Between sittings, notice how appearances depend on conditions. Let that understanding inform how you respond to suffering and what your actions set in motion."],
   exchange: [
     "Choose a situation above. Keep the same scene as you imagine it from three different positions: someone with less standing in that situation, a peer, and someone with more standing.",
     "From each position, use “I” for the person whose perspective you’re taking. Look back at your usual self and notice how envy, rivalry, or pride feels from there. At the end, identify one thing you could do differently.",
@@ -61,12 +66,13 @@ export function StudySlideshow({ active, tonglenOpen, onTonglen, onTonglenExit }
   const heading = useRef<HTMLHeadingElement>(null);
   const readingHeading = useRef<HTMLHeadingElement>(null);
   const isSloganDeck = deck === "slogans" || deck === "commitments" || deck === "guidelines";
-  const isMeditation = conventionalDecks.includes(deck);
+  const isMeditation = conventionalDecks.includes(deck) || deck in ultimateSlides;
   const selectedPoint = deck === "commitments" ? 6 : deck === "guidelines" ? 7 : point;
   const slides = isSloganDeck ? sloganStudySlides.filter(s => !selectedPoint || s.point === selectedPoint).map(s => ({ label: `Point ${s.point} · ${points[s.point - 1].title} · slogan ${s.displayNumber}`, title: s.text, body: rootNotes.find(note => note.number === s.number)?.explanation ?? points[s.point - 1].summary, source: sloganAttribution(s.displayNumber), sloganNumber: s.number, specific: rootNotes.some(note => s.sourceNumbers.includes(note.number)), kind: "Explanations are study summaries.", link: "" }))
     : deck === "points" ? points.map((p, i) => ({ label: `Point ${i + 1} of 7`, title: p.title, body: p.summary, source: "7 Point Mind Training · Chekawa Yeshe Dorje", sloganNumber: 0, specific: false, kind: "Study summary.", link: "" }))
     : deck === "exchange" ? getExchangeSlides(exchangeScenarios[scenarioIndex])
     : deck in lessonFiveSlides ? lessonFiveSlides[deck as keyof typeof lessonFiveSlides]
+    : deck in ultimateSlides ? ultimateSlides[deck as keyof typeof ultimateSlides]
     : verses.map(v => ({ label: `Verse ${v.number} of 8`, title: v.title, body: v.summary, source: "Langri Thangpa · Eight Verses for Training the Mind", sloganNumber: 0, specific: false, kind: "Study summary · use the link for the verse and commentary.", link: v.url }));
   useEffect(() => {
     const element = dialog.current;
@@ -98,7 +104,7 @@ export function StudySlideshow({ active, tonglenOpen, onTonglen, onTonglenExit }
     setPoint(0);
     setShowList(false);
     reset();
-    if (conventionalDecks.includes(id)) {
+    if (conventionalDecks.includes(id) || id in ultimateSlides) {
       setSeconds(60);
       setRemaining(60);
     }
@@ -117,6 +123,11 @@ export function StudySlideshow({ active, tonglenOpen, onTonglen, onTonglenExit }
       <button type="button" aria-haspopup="dialog" onClick={() => { setPlaying(false); onTonglen(); }}>Tonglen Meditation</button>
       {conventionalDecks.map(id => <button type="button" key={id} aria-pressed={deck === id} onClick={() => chooseDeck(id)}>{deckNames[id]}</button>)}
     </fieldset>
+    <fieldset className={styles.subnav}>
+      <legend>Ultimate Awakening Mind</legend>
+      {ultimateDecks.map(id => <button type="button" key={id} aria-pressed={deck === id} onClick={() => chooseDeck(id)}>{deckNames[id]}</button>)}
+    </fieldset>
+    {deck in ultimateSlides ? <p className={styles.small}>Adapted from Thupten Jinpa’s <cite>Mind Training</cite>, Lesson 4. <a href="https://wisdomexperience.org/lessons/mind-training-l4/" target="_blank" rel="noreferrer">Open Lesson 4</a>.</p> : null}
     <details className={styles.learnMore} open={!isMeditation}>
       <summary>Timed readings of the Lojong texts</summary>
       <fieldset className={styles.subnav}>
