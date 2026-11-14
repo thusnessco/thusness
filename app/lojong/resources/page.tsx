@@ -13,12 +13,12 @@ const anthology = "https://wisdomexperience.org/ebook/mind-training/contents/";
 const readings = [
   ["Origins and source texts", "Introduction to Mind Training: The Great Collection; Atiśa’s Root Lines of Mahayana Mind Training and Annotated Root Lines; Langri Thangpa’s Eight Verses; Chekawa’s commentary on the Eight Verses."],
   ["The Wheel of Sharp Weapons", "Dharmarakṣita’s The Wheel of Sharp Weapons and The Peacock’s Neutralizing of Poison."],
-  ["Seven-Point Mind Training", "Chekawa’s Seven-Point Mind Training; Sé Chilbu’s commentary; the version transmitted by Gyalsé Thokmé Zangpo; Atiśa’s Seven-Point Mind Training."],
+  ["Seven-Point Mind Training", "Chekawa’s Seven-Point Mind Training; Sé Chilbu’s commentary; Gyalsé Thokmé Zangpo’s Unlocking in Few Words the Orally Transmitted Lines of the Seven-Point Mind Training; Jinpa’s slogan breakdown and Commitments and Precepts handouts; Atiśa’s Seven-Point Mind Training."],
   ["Ultimate awakening mind", "Sé Chilbu’s commentary; Nāgārjuna’s Commentary on the Awakening Mind (traditional attribution); Candrakīrti’s Entering the Middle Way; Tsongkhapa’s commentary on Entering the Middle Way."],
-  ["Conventional awakening mind", "Śāntideva’s The Way of the Bodhisattva, chapter 8; Nāgārjuna’s Precious Garland; Ornament of the Mahāyāna Sūtras (traditionally attributed to Maitreya); Mahayana Mind Training; Public Explication of Mind Training; Jinpa’s essay on Śāntideva and exchanging self and others."],
+  ["Conventional awakening mind", "Śāntideva’s The Way of the Bodhisattva, chapter 8; Nāgārjuna’s Precious Garland; Ornament of the Mahāyāna Sūtras (traditionally attributed to Maitreya); Mahayana Mind Training; Public Explication of Mind Training; Bodhisattva Samantabhadra’s Mind Training; Eight Sessions Mind Training; the sūtra on purifying a bodhisattva’s field of experience and Patrul Rinpoche’s verse commentary; Jinpa’s essay on Śāntideva and exchanging self and others."],
   ["Transforming adversity", "Sé Chilbu’s commentary; Leveling Out All Conceptions; Mind Training Taking Joys and Pains onto the Path; teachings associated with Serlingpa, Chengapa, and Thokmé Zangpo."],
-  ["Leveling Out All Conceptions", "Leveling Out All Conceptions and its commentary; Mind Training in a Single Session."],
-  ["A lifetime of practice", "Sé Chilbu’s commentary on the five powers and measures of progress; the Dalai Lama’s Healing Anger, a commentary on chapter 6 of The Way of the Bodhisattva."],
+  ["Leveling Out All Conceptions", "Leveling Out All Conceptions and its commentary; Thokmé Zangpo’s How to Take Sicknesses and So Forth into the Path; Mind Training in a Single Session."],
+  ["A lifetime of practice", "Sé Chilbu’s commentary on the five powers and measures of progress; Geshe Potowa’s Essential Drops Epistle; the Dalai Lama’s Healing Anger, a commentary on chapter 6 of The Way of the Bodhisattva."],
   ["How mind training transforms experience", "Seven-Point Mind Training and the Great Collection commentaries on the commitments and precepts."],
   ["Daily practice", "Atiśa’s Bodhisattva’s Jewel Garland; Mind Training in a Single Session; Eight Sessions Mind Training; Bodhisattva Samantabhadra’s Mind Training."],
 ];
