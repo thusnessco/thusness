@@ -23,7 +23,7 @@
 .conceptSection { margin: 24px 0; }
 .conceptSection h3 { color: var(--thusness-ink); margin-bottom: 10px; }
 .tabs { display: flex; border-bottom: 1px solid var(--thusness-rule); gap: 32px; margin-bottom: 40px; }
-.tabs button { border: 0; border-bottom: 1px solid transparent; padding: 12px 0; margin-bottom: -1px; color: var(--thusness-ink-soft); background: transparent; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; }
+.tabs button, .tabs a { border: 0; border-bottom: 1px solid transparent; padding: 12px 0; margin-bottom: -1px; color: var(--thusness-ink-soft); background: transparent; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; text-decoration: none; }
 .tabs button[aria-current] { border-color: var(--thusness-red); color: var(--thusness-ink); border-bottom-width: 2px; }
 .start, .finish { padding: 12px 0 32px; }
 .start h2, .finish h2, .sectionHead h2 { margin: 14px 0 18px; }

@@ -75,6 +75,7 @@ export function LojongCompanion() {
       <nav className={styles.tabs} aria-label="Mind training sections">
         <button type="button" aria-current={practiceArea ? "page" : undefined} onClick={() => navigateView("practice")}>Practice</button>
         <button type="button" aria-current={!practiceArea ? "page" : undefined} onClick={() => navigateView("study")}>Study</button>
+        <a href="/lojong/resources">Resources</a>
       </nav>
 
       {practiceArea && <nav className={styles.subnav} aria-label="Practice options">
