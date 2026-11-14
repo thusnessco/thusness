@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { sloganAttribution, points, sloganStudySlides, verses } from "@/lib/lojong/curriculum";
 import { rootNotes } from "@/lib/lojong/practice";
 import { playSinkInMainChimeFromGesture, playSinkInMainChimeHtml } from "@/lib/sinkin/sinkin-chime-html";
-import { exchangeSlides, exchangeSource } from "./exchange-meditation";
+import { exchangeScenarios, exchangeSource, getExchangeSlides } from "./exchange-meditation";
 import { PracticeChecklist } from "./PracticeChecklist";
 import styles from "./lojong.module.css";
 
@@ -13,6 +13,7 @@ const deckNames: Record<Deck, string> = { slogans: "61 slogans", points: "Seven 
 
 export function StudySlideshow({ active }: { active: boolean }) {
   const [deck, setDeck] = useState<Deck>("slogans");
+  const [scenarioIndex, setScenarioIndex] = useState(0);
   const [showList, setShowList] = useState(false);
   const [point, setPoint] = useState(0);
   const [index, setIndex] = useState(0);
@@ -29,7 +30,7 @@ export function StudySlideshow({ active }: { active: boolean }) {
   const selectedPoint = deck === "commitments" ? 6 : deck === "guidelines" ? 7 : point;
   const slides = isSloganDeck ? sloganStudySlides.filter(s => !selectedPoint || s.point === selectedPoint).map(s => ({ label: `Point ${s.point} · ${points[s.point - 1].title} · slogan ${s.displayNumber}`, title: s.text, body: rootNotes.find(note => note.number === s.number)?.explanation ?? points[s.point - 1].summary, source: sloganAttribution(s.displayNumber), sloganNumber: s.number, specific: rootNotes.some(note => s.sourceNumbers.includes(note.number)), kind: "Explanations are study summaries.", link: "" }))
     : deck === "points" ? points.map((p, i) => ({ label: `Point ${i + 1} of 7`, title: p.title, body: p.summary, source: "7 Point Mind Training · Chekawa Yeshe Dorje", sloganNumber: 0, specific: false, kind: "Study summary.", link: "" }))
-    : deck === "exchange" ? exchangeSlides
+    : deck === "exchange" ? getExchangeSlides(exchangeScenarios[scenarioIndex])
     : verses.map(v => ({ label: `Verse ${v.number} of 8`, title: v.title, body: v.summary, source: "Langri Thangpa · Eight Verses for Training the Mind", sloganNumber: 0, specific: false, kind: "Study summary · use the link for the verse and commentary.", link: v.url }));
   useEffect(() => {
     const element = dialog.current;
@@ -67,6 +68,14 @@ export function StudySlideshow({ active }: { active: boolean }) {
     <h2>Slideshow</h2>
     <fieldset className={styles.subnav}><legend className={styles.srOnly}>Choose a slideshow</legend>{(Object.keys(deckNames) as Deck[]).map(id => <button type="button" key={id} aria-pressed={deck === id} onClick={() => { setDeck(id); setPoint(0); reset(); if (id === "exchange") { setSeconds(60); setRemaining(60); } }}>{deckNames[id]}</button>)}</fieldset>
     {deck === "exchange" ? <p className={styles.small}>Adapted from Śāntideva’s <cite>The Way of the Bodhisattva</cite>, chapter 8, verses 140–158. <a href={exchangeSource} target="_blank" rel="noreferrer">Read the root verses</a>.</p> : null}
+    {deck === "exchange" ? <div className={styles.filters}>
+      <label>Choose a situation
+        <select value={scenarioIndex} onChange={event => { setScenarioIndex(Number(event.target.value)); reset(); }}>
+          {exchangeScenarios.map((scenario, number) => <option key={scenario.title} value={number}>{scenario.title}</option>)}
+        </select>
+      </label>
+      <p className={styles.small}>These everyday scenarios adapt Śāntideva’s themes of recognition, social standing, and who does the work.</p>
+    </div> : null}
     <div className={styles.inlineActions}>
       <button type="button" className={styles.textButton} aria-expanded={showList} aria-controls="study-full-list" onClick={() => { setPlaying(false); setShowList(value => !value); }}>{showList ? "Back to slideshow" : "Full list"}</button>
     </div>
