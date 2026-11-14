@@ -91,13 +91,13 @@ export const directAntidotes = [
   { state: "attachment", method: "investigate", label: "Clinging → examine what you are insisting on", why: "Notice what you want to possess, keep, or control. Distinguish a useful wish from the demand that things must go your way. If you are withholding something shareable, generosity is another option." },
   { state: "withholding", method: "generosity", label: "Holding back → generosity", why: "Offer a small amount of time, attention, help, or resources freely. Keep appropriate boundaries and provide for your needs." },
   { state: "pride", method: "equality", label: "Superiority → equal regard", why: "Recognize the other person’s wish for happiness as equally important. You do not need to put yourself down." },
-  { state: "envy", method: "rejoicing", label: "Envy → joy in another’s good fortune", why: "Practise wishing their happiness well, without treating their success as your loss." },
+  { state: "envy", method: "rejoicing", label: "Envy → joy in another’s good fortune", why: "Practice wishing their happiness well, without treating their success as your loss." },
   { state: "illwill", method: "kindness", label: "Ill will → loving-kindness", why: "Try wishing them happiness and its causes. This does not require approving harm or staying in contact." },
   { state: "indifference", method: "compassion", label: "Indifference → care and compassion", why: "Attend to their experience and consider one thing that would help." },
   { state: "selfcherishing", method: "equality", label: "Only my welfare matters → equal concern", why: "Include their needs alongside yours, rather than excluding either person." },
   { state: "grasping", method: "investigate", label: "A fixed picture → curiosity and investigation", why: "Separate what happened from the fixed story about who you or they are. Deeper emptiness inquiry remains optional." },
   { state: "unsure", method: "investigate", label: "Not sure → investigate gently", why: "Look more closely before choosing a label or remedy." },
-  { state: "none", method: "kindness", label: "No affliction identified → cultivate kindness", why: "You can practise care without deciding that something is wrong." },
+  { state: "none", method: "kindness", label: "No affliction identified → cultivate kindness", why: "You can practice care without deciding that something is wrong." },
 ];
 export function suggestedAntidotes(states: string[]) {
   return directAntidotes.filter(item => states.includes(item.state)).filter((item, index, list) => list.findIndex(other => other.method === item.method) === index);

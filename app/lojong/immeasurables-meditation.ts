@@ -57,8 +57,8 @@ export const practicePhrasesSlides = guidedSlides([
 
 export const futureSelfSlides = guidedSlides([
   { title: "Picture your future self", body: "Settle for a few breaths. Imagine yourself a little further down the road, facing an ordinary difficulty. Picture where you are and what feels hard. Let yourself care about the person in that scene." },
-  { title: "Practise taking", body: "Imagine lifting the burden from your future self and taking it upon yourself now. Picture their face or posture as they feel some relief. Stay with the wish that they be free from suffering for a few breaths." },
-  { title: "Practise giving", body: "Imagine offering your future self whatever would help them meet that moment, such as strength, time to rest, or support. You can imagine taking on the in-breath and giving on the out-breath. Take each step at a pace that lets you picture it clearly." },
+  { title: "Practice taking", body: "Imagine lifting the burden from your future self and taking it upon yourself now. Picture their face or posture as they feel some relief. Stay with the wish that they be free from suffering for a few breaths." },
+  { title: "Practice giving", body: "Imagine offering your future self whatever would help them meet that moment, such as strength, time to rest, or support. You can imagine taking on the in-breath and giving on the out-breath. Take each step at a pace that lets you picture it clearly." },
   { title: "Bring in someone close", body: "Picture someone you care about facing a difficulty. When you feel ready, imagine taking away their burden and offering them what would help. See them relieved for a moment." },
   { title: "Widen the practice in stages", body: "Over repeated sittings, try the same practice with someone you barely know, then someone you find difficult. Gradually extend the wish for relief to all beings. For today, stay with the person you can bring to mind clearly." },
 ]);

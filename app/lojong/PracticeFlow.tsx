@@ -72,7 +72,7 @@ export function PracticeFlow({ active }: { active: boolean }) {
       </> : null}
       {step === 2 ? <>
         <p className={styles.note}>Lojong trains compassion and wisdom for the benefit of beings.</p>
-        <p className={styles.formHelp}>Choose one response to practise.</p>
+        <p className={styles.formHelp}>Choose one response to practice.</p>
         <fieldset className={`${styles.checkGrid} ${styles.practiceChoices}`}><legend>Direct responses to what you noticed</legend>{antidotes.map(item => <label key={item.state} data-selected={reflection.method === item.method}><input type="radio" name="antidote" checked={reflection.method === item.method} onChange={() => { update("method", item.method); update("outcome", ""); }} /><span>{item.label}<span className={styles.antidoteHelp}>{item.why}</span></span></label>)}</fieldset>
         <details className={styles.learnMore}><summary>Related Lojong instructions (optional)</summary>
           <p className={styles.small}>Select an instruction here if you want it included in your review.</p>
@@ -98,7 +98,7 @@ export function PracticeFlow({ active }: { active: boolean }) {
         {reflection.outcome && reflection.outcome !== "weaker" ? <p className={styles.note}>If this did not help, return to the practice step and try another response.</p> : null}
         <label className={styles.formLabel}>What did you notice? <span className={styles.quiet}>(optional)</span><textarea maxLength={4000} rows={3} value={reflection.observation} onChange={e => update("observation", e.target.value)} /></label>
       </> : null}
-      <div className={styles.inlineActions}><button type="submit" className={styles.primary} disabled={!canContinue}>{step === 4 ? "Create review text" : step === 3 ? "Check the effect" : step === 2 ? "Practise this response" : "Continue"}</button>{step > 0 ? <button type="button" className={styles.textButton} onClick={() => setStep(current => current - 1)}>Back</button> : null}</div>
+      <div className={styles.inlineActions}><button type="submit" className={styles.primary} disabled={!canContinue}>{step === 4 ? "Create review text" : step === 3 ? "Check the effect" : step === 2 ? "Practice this response" : "Continue"}</button>{step > 0 ? <button type="button" className={styles.textButton} onClick={() => setStep(current => current - 1)}>Back</button> : null}</div>
     </form>}
     <p className={styles.small}>This reflection is not saved. Copy the review to keep it.</p>
   </div>;
