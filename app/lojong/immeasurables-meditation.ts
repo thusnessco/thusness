@@ -25,12 +25,40 @@ const steps = [
   },
 ];
 
-export const immeasurablesSlides = steps.map((step, index) => ({
-  ...step,
-  label: `Guided meditation · Step ${index + 1}`,
-  source: "Adapted from Thupten Jinpa · Mind Training · Lesson 5",
-  sloganNumber: 0,
-  specific: false,
-  kind: "",
-  link: "",
-}));
+function guidedSlides(steps: { title: string; body: string }[]) {
+  return steps.map((step, index) => ({
+    ...step,
+    label: `Guided meditation · Step ${index + 1}`,
+    source: "Adapted from Thupten Jinpa · Mind Training · Lesson 5",
+    sloganNumber: 0,
+    specific: false,
+    kind: "",
+    link: "",
+  }));
+}
+
+export const immeasurablesSlides = guidedSlides(steps);
+
+
+export const threePoisonsSlides = guidedSlides([
+  { title: "Notice your first reaction", body: "Recall three ordinary encounters from today. Choose one you wanted to prolong, one you wanted to escape, and one you barely noticed. Let each scene come to mind briefly. Feel how your attention moves as you recall it." },
+  { title: "When you want to hold on", body: "Return to the pleasant encounter. Notice the difference between enjoying it and feeling that it has to continue. Let yourself appreciate what was good for one breath. Then see what it feels like to let the moment end." },
+  { title: "When you want to push away", body: "Recall a mildly irritating encounter. Notice where your body tightens. Take a breath and give yourself a moment before deciding how to respond. Consider what might be going on for the other person. What response would address the situation without adding hostility?" },
+  { title: "When you barely notice", body: "Recall the encounter that passed almost unnoticed. Picture one ordinary detail about the person. Imagine what you might learn if you paid closer attention. See whether curiosity can take the place of indifference." },
+  { title: "Practice in the next encounter", body: "Choose one reaction to watch for today. When you notice it, pause and try the response you just practiced. Give yourself a moment afterward to notice what changed." },
+]);
+
+export const practicePhrasesSlides = guidedSlides([
+  { title: "Choose words you can mean", body: "Bring to mind someone who is having a hard time. You might use the words “May you be free from suffering” or “May you have the help you need.” Choose a short phrase that expresses what you wish for them." },
+  { title: "Connect the words to a person", body: "Picture a specific moment in that person’s day. Say your phrase silently once. Pause and feel the wish behind it. Repeat the phrase a few times, leaving room after each repetition." },
+  { title: "Recall the wish in another situation", body: "Imagine an ordinary encounter where you tend to hurry or tune out. Say your phrase again, quietly in your mind. Notice whether the words help you bring the same care to this person." },
+  { title: "Choose a cue for today", body: "Pick one moment that can remind you of the phrase, such as hearing someone sigh or waiting for a conversation to begin. When it happens, say your phrase once and let it guide your next response." },
+]);
+
+export const futureSelfSlides = guidedSlides([
+  { title: "Picture your future self", body: "Settle for a few breaths. Imagine yourself a little further down the road, facing an ordinary difficulty. Picture where you are and what feels hard. Let yourself care about the person in that scene." },
+  { title: "Practise taking", body: "Imagine lifting the burden from your future self and taking it upon yourself now. Picture their face or posture as they feel some relief. Stay with the wish that they be free from suffering for a few breaths." },
+  { title: "Practise giving", body: "Imagine offering your future self whatever would help them meet that moment, such as strength, time to rest, or support. You can imagine taking on the in-breath and giving on the out-breath. Take each step at a pace that lets you picture it clearly." },
+  { title: "Bring in someone close", body: "Picture someone you care about facing a difficulty. When you feel ready, imagine taking away their burden and offering them what would help. See them relieved for a moment." },
+  { title: "Widen the practice in stages", body: "Over repeated sittings, try the same practice with someone you barely know, then someone you find difficult. Gradually extend the wish for relief to all beings. For today, stay with the person you can bring to mind clearly." },
+]);

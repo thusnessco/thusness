@@ -5,12 +5,21 @@ import { sloganAttribution, points, sloganStudySlides, verses } from "@/lib/lojo
 import { rootNotes } from "@/lib/lojong/practice";
 import { playSinkInMainChimeFromGesture, playSinkInMainChimeHtml } from "@/lib/sinkin/sinkin-chime-html";
 import { exchangeScenarios, exchangeSource, getExchangeSlides } from "./exchange-meditation";
-import { immeasurablesSlides } from "./immeasurables-meditation";
+import { futureSelfSlides, immeasurablesSlides, practicePhrasesSlides, threePoisonsSlides } from "./immeasurables-meditation";
 import { PracticeChecklist } from "./PracticeChecklist";
 import styles from "./lojong.module.css";
 
-type Deck = "slogans" | "points" | "verses" | "commitments" | "guidelines" | "exchange" | "immeasurables";
-const deckNames: Record<Deck, string> = { slogans: "61 slogans", points: "Seven Points overview", verses: "Eight Verses study summaries", commitments: "Commitments", guidelines: "Precepts / Guidelines", exchange: "Exchanging Self and Others", immeasurables: "Four Immeasurables" };
+type Deck = "slogans" | "points" | "verses" | "commitments" | "guidelines" | "exchange" | "immeasurables" | "three-poisons" | "practice-phrases" | "future-self";
+const deckNames: Record<Deck, string> = { slogans: "61 slogans", points: "Seven Points overview", verses: "Eight Verses study summaries", commitments: "Commitments", guidelines: "Precepts / Guidelines", exchange: "Exchanging Self and Others", immeasurables: "Four Immeasurables", "three-poisons": "Working with the Three Poisons", "practice-phrases": "Training with Practice Phrases", "future-self": "Tonglen for Your Future Self" };
+const studyDecks: Deck[] = ["slogans", "points", "verses", "commitments", "guidelines"];
+const conventionalDecks: Deck[] = ["exchange", "immeasurables", "three-poisons", "practice-phrases", "future-self"];
+const lessonFiveSlides = {
+  immeasurables: immeasurablesSlides,
+  "three-poisons": threePoisonsSlides,
+  "practice-phrases": practicePhrasesSlides,
+  "future-self": futureSelfSlides,
+};
+
 
 export function StudySlideshow({ active }: { active: boolean }) {
   const [deck, setDeck] = useState<Deck>("slogans");
@@ -28,12 +37,12 @@ export function StudySlideshow({ active }: { active: boolean }) {
   const heading = useRef<HTMLHeadingElement>(null);
   const readingHeading = useRef<HTMLHeadingElement>(null);
   const isSloganDeck = deck === "slogans" || deck === "commitments" || deck === "guidelines";
-  const isMeditation = deck === "exchange" || deck === "immeasurables";
+  const isMeditation = conventionalDecks.includes(deck);
   const selectedPoint = deck === "commitments" ? 6 : deck === "guidelines" ? 7 : point;
   const slides = isSloganDeck ? sloganStudySlides.filter(s => !selectedPoint || s.point === selectedPoint).map(s => ({ label: `Point ${s.point} · ${points[s.point - 1].title} · slogan ${s.displayNumber}`, title: s.text, body: rootNotes.find(note => note.number === s.number)?.explanation ?? points[s.point - 1].summary, source: sloganAttribution(s.displayNumber), sloganNumber: s.number, specific: rootNotes.some(note => s.sourceNumbers.includes(note.number)), kind: "Explanations are study summaries.", link: "" }))
     : deck === "points" ? points.map((p, i) => ({ label: `Point ${i + 1} of 7`, title: p.title, body: p.summary, source: "7 Point Mind Training · Chekawa Yeshe Dorje", sloganNumber: 0, specific: false, kind: "Study summary.", link: "" }))
     : deck === "exchange" ? getExchangeSlides(exchangeScenarios[scenarioIndex])
-    : deck === "immeasurables" ? immeasurablesSlides
+    : deck in lessonFiveSlides ? lessonFiveSlides[deck as keyof typeof lessonFiveSlides]
     : verses.map(v => ({ label: `Verse ${v.number} of 8`, title: v.title, body: v.summary, source: "Langri Thangpa · Eight Verses for Training the Mind", sloganNumber: 0, specific: false, kind: "Study summary · use the link for the verse and commentary.", link: v.url }));
   useEffect(() => {
     const element = dialog.current;
@@ -60,6 +69,16 @@ export function StudySlideshow({ active }: { active: boolean }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active, playing, finished, index, count, seconds, sound]);
   function reset() { setIndex(0); setRemaining(seconds); setPlaying(false); setFinished(false); }
+  function chooseDeck(id: Deck) {
+    setDeck(id);
+    setPoint(0);
+    setShowList(false);
+    reset();
+    if (conventionalDecks.includes(id)) {
+      setSeconds(60);
+      setRemaining(60);
+    }
+  }
   function move(next: number) { if (sound) playSinkInMainChimeFromGesture(528); setIndex(next); setRemaining(seconds); setFinished(false); requestAnimationFrame(() => (focusMode ? readingHeading : heading).current?.focus()); }
   function togglePlayback() {
     if (!playing && sound) playSinkInMainChimeFromGesture(528);
@@ -69,7 +88,14 @@ export function StudySlideshow({ active }: { active: boolean }) {
   function toggleSound() { if (!sound) playSinkInMainChimeFromGesture(528); setSound(value => !value); }
   return <section className={styles.practice} aria-label="Timed Lojong study slideshow">
     <h2>Slideshow</h2>
-    <fieldset className={styles.subnav}><legend className={styles.srOnly}>Choose a slideshow</legend>{(Object.keys(deckNames) as Deck[]).map(id => <button type="button" key={id} aria-pressed={deck === id} onClick={() => { setDeck(id); setPoint(0); reset(); if (id === "exchange" || id === "immeasurables") { setSeconds(60); setRemaining(60); } }}>{deckNames[id]}</button>)}</fieldset>
+    <fieldset className={styles.subnav}>
+      <legend className={styles.srOnly}>Choose a study slideshow</legend>
+      {studyDecks.map(id => <button type="button" key={id} aria-pressed={deck === id} onClick={() => chooseDeck(id)}>{deckNames[id]}</button>)}
+    </fieldset>
+    <fieldset className={styles.subnav}>
+      <legend>Conventional Awakening Mind</legend>
+      {conventionalDecks.map(id => <button type="button" key={id} aria-pressed={deck === id} onClick={() => chooseDeck(id)}>{deckNames[id]}</button>)}
+    </fieldset>
     {deck === "exchange" ? <p className={styles.small}>Adapted from Śāntideva’s <cite>The Way of the Bodhisattva</cite>, chapter 8, verses 140–158. <a href={exchangeSource} target="_blank" rel="noreferrer">Read the root verses</a>.</p> : null}
     {deck === "exchange" ? <div className={styles.filters}>
       <label>Choose a situation
@@ -79,7 +105,7 @@ export function StudySlideshow({ active }: { active: boolean }) {
       </label>
       <p className={styles.small}>These everyday scenarios adapt Śāntideva’s themes of recognition, social standing, and who does the work.</p>
     </div> : null}
-    {deck === "immeasurables" ? <p className={styles.small}>Adapted from Thupten Jinpa’s <cite>Mind Training</cite>, Lesson 5. <a href="https://wisdomexperience.org/lessons/mind-training-l5/" target="_blank" rel="noreferrer">Open Lesson 5</a>.</p> : null}
+    {deck in lessonFiveSlides ? <p className={styles.small}>Adapted from Thupten Jinpa’s <cite>Mind Training</cite>, Lesson 5. <a href="https://wisdomexperience.org/lessons/mind-training-l5/" target="_blank" rel="noreferrer">Open Lesson 5</a>.</p> : null}
     <div className={styles.inlineActions}>
       <button type="button" className={styles.textButton} aria-expanded={showList} aria-controls="study-full-list" onClick={() => { setPlaying(false); setShowList(value => !value); }}>{showList ? "Back to slideshow" : "Full list"}</button>
     </div>
