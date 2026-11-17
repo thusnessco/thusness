@@ -15,6 +15,11 @@ const stamp = new Intl.DateTimeFormat("en-GB", { dateStyle: "medium", timeStyle:
 export default async function GoldPage() {
   const indicators = await getIndicators();
 
+  const scored = indicators.filter(indicator => indicator.status !== "Unavailable");
+  const points = scored.reduce((total, indicator) =>
+    total + (indicator.status === "Bullish" ? 1 : indicator.status === "Neutral" ? 0.5 : 0), 0);
+  const score = scored.length ? (10 * points / scored.length).toFixed(1) : null;
+
   return <main className={styles.page}>
     <header>
       <p className={styles.eyebrow}>Market dashboard</p>
@@ -22,6 +27,13 @@ export default async function GoldPage() {
       <p>Trend, relative strength, and market confirmation using the indicators requested from Goldman Starch’s gold analysis.</p>
       <p className={styles.muted}>Calculated {stamp.format(new Date())} UTC · Refreshes on visits after 15 minutes · Daily data may be delayed</p>
     </header>
+
+    <section className={styles.score} aria-labelledby="overall-score">
+      <h2 id="overall-score">Overall gold signal</h2>
+      <p className={styles.scoreValue}>{score ?? "Unavailable"}{score !== null && <span> / 10</span>}</p>
+      <p>{scored.length} of {indicators.length} readings scored</p>
+      <p className={styles.muted}>Each available status counts equally. Bullish earns full credit, neutral earns half, and bearish earns zero. Momentum is shown separately.</p>
+    </section>
 
     <section aria-labelledby="signals">
       <h2 id="signals">Market signals</h2>

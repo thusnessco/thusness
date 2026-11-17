@@ -22,3 +22,16 @@
 .card [data-signal="Bearish"], .card [data-signal="Deteriorating"] { color: #c35347; }
 .checkpoints { padding-left: 20px; }
 .page details { border-top: 1px solid var(--thusness-rule); padding-top: 12px; }
+
+.score {
+  border: 1px solid var(--thusness-rule);
+  padding: clamp(20px, 4vw, 36px);
+}
+.scoreValue {
+  font-size: clamp(42px, 8vw, 80px);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+  margin: 0;
+}
+.scoreValue span { font-size: .45em; font-weight: 400; }
