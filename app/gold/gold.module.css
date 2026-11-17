@@ -1,0 +1,24 @@
+.page {
+  max-width: 1200px;
+  margin: auto;
+  padding: clamp(28px, 6vw, 80px) clamp(16px, 4vw, 48px);
+  color: var(--thusness-ink);
+  line-height: 1.55;
+}
+.page h1 { font-size: clamp(48px, 9vw, 100px); line-height: 1; margin: 12px 0 20px; }
+.page h2 { font-size: 24px; margin-bottom: 12px; }
+.page section, .page details { margin-top: 36px; }
+.eyebrow { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; }
+.muted, .rule { color: var(--thusness-ink-soft); font-size: 13px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 255px), 1fr)); gap: 14px; margin-top: 20px; }
+.card { border: 1px solid var(--thusness-rule); padding: 18px; }
+.card h3 { font-size: 16px; margin: 0 0 8px; }
+.value { font-size: 27px; font-variant-numeric: tabular-nums; margin: 0; }
+.value span { font-size: 12px; }
+.card dl { margin: 12px 0; }
+.card dl div { display: flex; justify-content: space-between; gap: 8px; font-size: 14px; }
+.card dd { margin: 0; font-weight: 600; }
+.card [data-signal="Bullish"], .card [data-signal="Improving"] { color: #40845c; }
+.card [data-signal="Bearish"], .card [data-signal="Deteriorating"] { color: #c35347; }
+.checkpoints { padding-left: 20px; }
+.page details { border-top: 1px solid var(--thusness-rule); padding-top: 12px; }
