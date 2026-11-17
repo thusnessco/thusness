@@ -43,7 +43,12 @@ export default async function GoldPage() {
 
     <section aria-labelledby="thresholds">
       <h2 id="thresholds">Historical thresholds</h2>
-      <p>The live references use 20, 50 and 100 completed weekly gold closes, 50 sessions for the ratios and indexes, and 20 prior sessions for GLD volume. These are dashboard rules. Goldman Starch’s exact historical levels and tests are unverified.</p>
+      <p>The live references use 20, 50 and 100 completed weekly gold closes, 50 sessions for the ratios and indexes, and 20 prior sessions for GLD volume. These are dashboard rules. The historical levels below refer to the quoted gold price in the source. Additional indicator-specific thresholds are unverified.</p>
+      <ul className={styles.checkpoints}>
+        <li><strong>$3,955/oz</strong> · June 30, 2026 low and the level Goldman Starch highlighted as the line to watch.</li>
+        <li><strong>$5,595/oz</strong> · January 29, 2026 record high cited in the same analysis.</li>
+      </ul>
+      <p><a href="https://goldmanstarch.com/gld-etf-analysis/">Goldman Starch’s October 11, 2026 gold analysis</a></p>
     </section>
     <section aria-labelledby="checkpoints">
       <h2 id="checkpoints">2027 checkpoints</h2>
